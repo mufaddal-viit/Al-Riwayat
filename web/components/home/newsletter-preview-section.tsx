@@ -61,7 +61,11 @@ export function NewsletterPreviewSection() {
                 aria-describedby="newsletter-preview-message"
                 className="sm:flex-1"
               />
-              <Button type="submit" className="sm:min-w-[168px]">
+              <Button
+                type="submit"
+                className="sm:min-w-[168px]"
+                variant={"outline"}
+              >
                 Join the List
               </Button>
             </div>

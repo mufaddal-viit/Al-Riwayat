@@ -115,7 +115,7 @@ export function CommentsSection({
                     className="border-border/70 bg-card/70"
                   />
                 </div>
-                <Button type="button" className="w-full sm:w-auto">
+                <Button type="button" className="w-full sm:w-auto" variant={"outline"}>
                   Submit Comment
                 </Button>
               </div>

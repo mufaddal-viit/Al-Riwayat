@@ -292,6 +292,12 @@
   - `/web/lib/content/issue-content.ts`
 - Preview-only reader comments now follow the same pattern through `/web/lib/content/comments.ts`
 - The comments composer works best as an inset editorial panel inside `CardFooter` rather than a bare border-top form row
+- Raw editorial copy that should not be wired into the app yet can live as markdown source files beside the typed content modules in `/web/lib/content`
+- Reader engagement surfaces work best as paired editorial cards: comments on the left and a lighter contact/composer form on the right
+- The paired reader-engagement layout is now mounted on the homepage and collapses to a vertical stack on mobile
+- `web/lib/content/about-content-source.md` is now the source reference for the typed `editorialTeam` list in `web/lib/content/about-content.ts`
+- Team cards read better with a smaller centered avatar treatment when placeholder imagery is used, instead of a large full-width portrait block
+- Header logo sizing should continue to flow through `SiteBrand` so shell refinements stay centralized
 - These keep the UI realistic in Phase 4 without coupling page components directly to the backend.
 
 ### Verification status

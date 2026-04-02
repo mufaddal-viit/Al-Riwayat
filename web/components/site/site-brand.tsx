@@ -29,7 +29,7 @@ export function SiteBrand({
       <span
         className={cn(
           "relative shrink-0 overflow-hidden rounded-full border border-border/60 bg-card/70 shadow-lifted backdrop-blur-xl",
-          isFooter ? "h-14 w-14 sm:h-16 sm:w-16" : "h-12 w-12"
+          isFooter ? "h-14 w-14 sm:h-16 sm:w-16" : "h-14 w-14 sm:h-16 sm:w-16"
         )}
       >
         <Image
@@ -38,7 +38,7 @@ export function SiteBrand({
           fill
           priority={priority}
           className="object-cover"
-          sizes={isFooter ? "(min-width: 640px) 64px, 56px" : "48px"}
+          sizes={isFooter ? "(min-width: 640px) 64px, 56px" : "(min-width: 640px) 64px, 56px"}
         />
       </span>
 

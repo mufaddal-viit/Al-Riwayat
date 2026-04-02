@@ -171,6 +171,28 @@
   - Restyled the comments `CardFooter` into an inset composer panel so the reply area feels integrated with the premium editorial card instead of appended below it.
   - Added clearer footer hierarchy with a supporting badge, helper copy, improved spacing, and a mobile-first input/button layout that expands cleanly on larger screens.
   - Intentionally skipped lint and build for this UI refinement because the user explicitly asked not to run build unless requested.
+  - Created a standalone markdown source file for the About page content at `web/lib/content/about-content-source.md`.
+  - Cleaned the user-provided About copy for grammar, punctuation, capitalization, and consistent naming without wiring it into the current app code.
+  - Standardized the team section format so each person now has a clear role, image reference, and short bio entry ready for later implementation.
+  - Intentionally skipped lint and build for this content-only addition because the user explicitly asked not to run build unless requested.
+  - Added a new standalone `ContactUsSection` component under `web/components/issue` to act as the right-column companion to the comments card.
+  - Styled the new contact form as a modern editorial surface with softer hierarchy, preview-mode validation, and a mobile-first layout that can expand beside `CommentsSection`.
+  - Kept the component unmounted so placement can be decided explicitly when the left-right reader engagement layout is wired in.
+  - Intentionally skipped lint and build for this new component because the user explicitly asked not to run build unless requested.
+  - Added a dedicated `ReaderEngagementSection` composition component to keep the homepage route file short while pairing comments and contact surfaces together.
+  - Mounted the reader engagement layout on the homepage so `Reader Notes` stays on the left on larger screens and the new contact card sits on the right, while mobile stacks the contact card below the comments.
+  - Removed the direct homepage dependency on `CommentsSection` in favor of the new wrapper component.
+  - Intentionally skipped lint and build for this layout wiring because the user explicitly asked not to run build unless requested.
+  - Updated the typed `editorialTeam` list in `web/lib/content/about-content.ts` from the edited `about-content-source.md` team data.
+  - Added a reusable women placeholder avatar at `web/public/images/team/woman-placeholder.svg` and pointed each editorial team member to that local image for now.
+  - Kept the existing about story content untouched and changed only the team entries as requested.
+  - Intentionally skipped lint and build for this content update because the user explicitly asked not to run build unless requested.
+  - Reduced the visual size of the About team images by switching the cards from large full-width portraits to smaller centered avatar-style image frames.
+  - Rebalanced the team cards with centered text so the placeholder artwork no longer outweighs the name, role, and bio content.
+  - Intentionally skipped lint and build for this UI refinement because the user explicitly asked not to run build unless requested.
+  - Increased the header logo size through `SiteBrand` so the shared header branding reads stronger without introducing one-off sizing in `site-header.tsx`.
+  - Left the footer size profile unchanged while enlarging the header logo to the next size step.
+  - Intentionally skipped lint and build for this shell refinement because the user explicitly asked not to run build unless requested.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -222,6 +244,14 @@
   - `web/lib/content/comments.ts` (created)
   - `web/components/issue/comments-section.tsx` (updated to consume shared preview comments and corrected footer imports/markup)
   - `web/components/issue/comments-section.tsx` (updated to style the `CardFooter` as an integrated comment composer)
+  - `web/lib/content/about-content-source.md` (created)
+  - `web/components/issue/contact-us-section.tsx` (created)
+  - `web/components/issue/reader-engagement-section.tsx` (created)
+  - `web/app/page.tsx` (updated to render the responsive reader engagement layout)
+  - `web/public/images/team/woman-placeholder.svg` (created)
+  - `web/lib/content/about-content.ts` (updated to use the edited editorial team list and shared placeholder image)
+  - `web/components/about/about-team-section.tsx` (updated to reduce team image size and rebalance card layout)
+  - `web/components/site/site-brand.tsx` (updated to increase the header logo size)
 
 ### Phase 5: API integration
 - **Status:** pending
