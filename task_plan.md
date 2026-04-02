@@ -4,7 +4,7 @@
 Scaffold a production-ready MVP digital magazine web application with a Next.js 14 frontend in `/web` and an Express + Prisma + MongoDB backend in `/api`, delivered phase by phase with working article, newsletter, contact, theme, consent, and SEO flows.
 
 ## Current Phase
-Phase 2 complete - awaiting user review
+Phase 4 complete - awaiting user review
 
 ## Phases
 
@@ -27,22 +27,22 @@ Phase 2 complete - awaiting user review
 - **Status:** complete
 
 ### Phase 3: Frontend foundation
-- [ ] Initialize `/web` with Next.js 14 App Router, TypeScript, Tailwind, shadcn/ui, and next-themes
-- [ ] Set up fonts, design tokens, Tailwind theme mapping, and global layout
-- [ ] Build shared shell: navbar, footer, theme toggle, mobile sheet, cookie consent
-- [ ] Add metadata helpers and environment setup
-- [ ] Add frontend README and `.env.example`
-- [ ] Review layout rhythm, hierarchy, and responsiveness baseline
-- **Status:** pending
+- [x] Initialize `/web` with Next.js 14 App Router, TypeScript, Tailwind, shadcn/ui, and next-themes
+- [x] Set up fonts, design tokens, Tailwind theme mapping, and global layout
+- [x] Build shared shell: navbar, footer, theme toggle, mobile sheet, cookie consent
+- [x] Add metadata helpers and environment setup
+- [x] Add frontend README and `.env.example`
+- [x] Review layout rhythm, hierarchy, and responsiveness baseline
+- **Status:** complete
 
 ### Phase 4: UI implementation
-- [ ] Build homepage sections and interactions
-- [ ] Build About page with editorial story, team, and contact form UI
-- [ ] Build Mission page with structured narrative and CTA
-- [ ] Build Issue 1 reading page optimized for long-form reading
-- [ ] Refine reusable components, spacing, and state design
-- [ ] Run UI/UX quality pass against mobile, tablet, and desktop targets
-- **Status:** pending
+- [x] Build homepage sections and interactions
+- [x] Build About page with editorial story, team, and contact form UI
+- [x] Build Mission page with structured narrative and CTA
+- [x] Build Issue 1 reading page optimized for long-form reading
+- [x] Refine reusable components, spacing, and state design
+- [x] Run UI/UX quality pass against mobile, tablet, and desktop targets
+- **Status:** complete
 
 ### Phase 5: API integration
 - [ ] Connect newsletter signup to backend with clear success and error feedback
@@ -81,6 +81,12 @@ Phase 2 complete - awaiting user review
 | Use a file-based `prisma.config.ts` instead of deprecated `package.json#prisma` config | Keeps the backend aligned with the current Prisma configuration path and removes a known deprecation warning |
 | Validate environment variables at startup with Zod | Fails fast for missing `DATABASE_URL`, `ALLOWED_ORIGIN`, or invalid `PORT` values |
 | Keep Phase 2 verification to dependency install, TypeScript build, and Prisma client generation | There is no live MongoDB instance in the workspace, so endpoint execution and seed insertion cannot be fully exercised yet |
+| Scaffold the frontend manually instead of relying on `create-next-app` or the shadcn CLI | Keeps the phase deterministic in this workspace and still produces a clean Next.js 14 + shadcn-style foundation |
+| Create route-safe page skeletons for all required paths during Phase 3 | Lets the frontend compile and navigate cleanly before the full page implementations land in Phase 4 |
+| Set `images.unoptimized = true` in Next config while still using `next/image` | Cloudinary already handles image transformation, and this avoids the self-hosted Next image optimizer path on the pinned Next 14 line |
+| Keep route files short and move each major UI feature into its own component file during Phase 4 | Matches the requested component architecture and keeps page-level composition readable |
+| Use local preview-mode form logic in Phase 4 for newsletter and contact components | Lets the UI demonstrate validation and feedback without prematurely coupling the pages to Phase 5 API logic |
+| Implement article structured data during Phase 4 | JSON-LD is page-specific and can be rendered from the local article model before API wiring is swapped in |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
@@ -89,6 +95,8 @@ Phase 2 complete - awaiting user review
 | `python.exe` could not be executed in this environment when attempting the UI/UX design-system script | 1 | Switched to a manual design-system definition using the loaded `ui-ux-pro-max` guidance instead of repeating the failed command |
 | PowerShell blocked the `npx.ps1` shim when validating Prisma generation | 1 | Switched to `npx.cmd` instead of repeating the same failing shim |
 | Prisma generation hit a sandbox `EPERM` path-resolution failure | 1 | Re-ran the generate command with approval outside the sandbox and verified client generation successfully |
+| Initial frontend `npm install` timed out before finishing | 1 | Checked partial install state and reran the same command with a longer timeout |
+| First frontend build failed on a `next-themes` type import path | 1 | Switched the import to `ThemeProviderProps` from `next-themes` itself and rebuilt successfully |
 
 ## Notes
 - Re-read this file before major implementation decisions.
@@ -96,3 +104,5 @@ Phase 2 complete - awaiting user review
 - After each major phase, run a UI/UX quality pass and record the outcome.
 - Phase 1 deliverables are documentation-only: confirmed environment state, implementation sequence, API/content contracts, and design-system direction.
 - Phase 2 deliverables are complete for the backend scaffold and stop short of Phase 3 frontend work.
+- Phase 3 deliverables are complete for the frontend foundation and stop short of Phase 4's full page implementation work.
+- Phase 4 deliverables are complete for the modular page UI and stop short of Phase 5 API integration.
