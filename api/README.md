@@ -30,6 +30,12 @@ Example local frontend origin:
 ALLOWED_ORIGIN=http://localhost:3000
 ```
 
+When the frontend is deployed to Netlify, set `ALLOWED_ORIGIN` to that exact site URL instead, for example:
+
+```env
+ALLOWED_ORIGIN=https://your-site.netlify.app
+```
+
 ## Setup
 
 1. Install dependencies:

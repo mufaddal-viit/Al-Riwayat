@@ -87,6 +87,7 @@ Phase 4 complete - awaiting user review
 | Keep route files short and move each major UI feature into its own component file during Phase 4 | Matches the requested component architecture and keeps page-level composition readable |
 | Use local preview-mode form logic in Phase 4 for newsletter and contact components | Lets the UI demonstrate validation and feedback without prematurely coupling the pages to Phase 5 API logic |
 | Implement article structured data during Phase 4 | JSON-LD is page-specific and can be rendered from the local article model before API wiring is swapped in |
+| Prepare Netlify deployment around `/web` only for now | The frontend is already deployable as a standalone Next.js app, while moving the Express API into Netlify Functions would be a separate architecture change outside the current scope |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

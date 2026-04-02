@@ -1,6 +1,13 @@
+function withFallback(value: string | undefined, fallback: string) {
+  return value && value.trim().length > 0 ? value : fallback;
+}
+
 export const publicEnv = {
-  gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "",
-  apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000",
-  cloudinaryCloudName:
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "demo"
+  siteUrl: withFallback(process.env.NEXT_PUBLIC_SITE_URL, "http://localhost:3000"),
+  gaMeasurementId: withFallback(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, ""),
+  apiUrl: withFallback(process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000"),
+  cloudinaryCloudName: withFallback(
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    "demo"
+  )
 };

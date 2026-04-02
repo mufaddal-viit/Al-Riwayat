@@ -37,6 +37,9 @@
 - The Next.js image-optimizer-related risk is partially mitigated by setting `images.unoptimized = true`, which is acceptable here because Cloudinary already handles optimization.
 - The Phase 4 UI implementation composes cleanly into the existing frontend shell and still passes `npm run lint` and `npm run build`.
 - The user explicitly requested feature-specific component architecture, so each major page section now lives in its own dedicated component file instead of being embedded inside long route files.
+- Netlify's current Next.js docs state that Next.js 13.5+ is supported with zero configuration through the OpenNext adapter, including App Router support.
+- Netlify's monorepo docs state that the base directory is where dependencies are installed and the build runs; because this repo has no root workspace package and the site lives in `/web`, the correct deploy base for this project is `/web`.
+- Netlify's monorepo docs also state that `package directory` is only needed when the site files live in a different place from the build base, and that a root-level `netlify.toml` can set the base directory on first site setup.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -64,6 +67,9 @@
 | Issue 1 rendering uses a local frontend article model that mirrors the API contract shape | Enables realistic long-form UI rendering now and reduces swap cost in Phase 5 |
 | Frontend image assets are normalized under `web/public/images/...` and consumed via public URLs | Gives the Next app a stable static-asset structure and removes binary imports from the app root |
 | Shared brand lockups now use the local `web/public/images/logo.jpg` asset through a reusable `SiteBrand` component | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent |
+| Netlify deployment is configured around the Next.js frontend only | `/web` is already a valid Netlify target, while `/api` remains a separate Express service that should be deployed independently and allowed through CORS |
+| The frontend site URL should come from `NEXT_PUBLIC_SITE_URL` instead of a hardcoded placeholder domain | Canonical metadata, OG URLs, JSON-LD, and share links need a real deploy URL in production |
+| `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend |
 
 ## Phase 1 Output
 
@@ -302,7 +308,7 @@
 - The Heyzine issue reader can be embedded directly as a responsive iframe, with a direct-link fallback in case browser or provider framing rules interfere
 - The issue page should reuse the shared newsletter section instead of maintaining a second issue-only newsletter CTA component
 - The flipbook iframe needs viewport-based height on mobile; aspect-ratio alone makes the reader too short for comfortable reading
-- Share actions should collapse into a compact 2-column mobile grid with smaller pills instead of a large wrap row
+- Share actions should stay seamless: no card wrapper, no shadows, just compact outline buttons in a mobile-friendly grid
 - These keep the UI realistic in Phase 4 without coupling page components directly to the backend.
 
 ### Verification status

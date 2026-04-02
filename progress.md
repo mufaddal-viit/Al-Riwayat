@@ -212,6 +212,20 @@
   - Refined `IssueShareActions` into a smaller mobile-first share panel instead of a large wrapping row of buttons.
   - Switched the mobile layout to a compact 2-column grid with smaller pill buttons and lighter explanatory copy above the actions.
   - Intentionally skipped lint and build for this share-actions refinement because the user explicitly asked not to run build unless requested.
+  - Simplified `IssueShareActions` again by removing the outer card styling so the component feels seamless in the article flow.
+  - Kept only a light share label plus outline-only buttons, with no wrapper border or shadow.
+  - Intentionally skipped lint and build for this share-actions simplification because the user explicitly asked not to run build unless requested.
+  - Re-read the planning files and reviewed the current Netlify docs for Next.js and monorepo configuration before starting deployment prep.
+  - Confirmed there was no existing `netlify.toml` in the repo and that the correct Netlify build target for this project is `/web`, not the repo root, because the repository has no root workspace package.
+  - Added a root-level `netlify.toml` that sets the Netlify base directory to `web`, uses `npm run build`, and pins the build image to Node 22 for parity with the local verified toolchain.
+  - Added `NEXT_PUBLIC_SITE_URL` to the frontend environment surface and replaced the placeholder `https://magazine.example` site URL with an env-driven value that falls back to `http://localhost:3000`.
+  - Updated the issue share actions to read the live browser URL after hydration so copy/share behavior stays correct on Netlify preview URLs, the default `*.netlify.app` domain, and any custom production domain.
+  - Updated the frontend README with Netlify deployment steps and noted that the Express API remains a separate deployment target.
+  - Updated the API README to call out that `ALLOWED_ORIGIN` must match the deployed Netlify frontend URL when the backend is connected later.
+  - Intentionally skipped lint and build for this deployment prep because the user explicitly instructed not to run build unless requested.
+  - Confirmed by source inspection that the current frontend does not call the API yet, so the Netlify deploy can be treated as frontend-only for now.
+  - Tightened the frontend deployment docs to mark `NEXT_PUBLIC_API_URL` as optional until Phase 5 integration is implemented.
+  - Ran `npm run build` in `/web` after the Netlify deployment prep, per user request, and confirmed the frontend still compiles successfully for production.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -279,6 +293,19 @@
   - `web/components/issue/issue-newsletter-cta.tsx` (deleted)
   - `web/components/issue/issue-rich-content.tsx` (updated to increase iframe height on mobile)
   - `web/components/issue/issue-share-actions.tsx` (updated to use a more compact mobile layout)
+  - `web/components/issue/issue-share-actions.tsx` (updated to remove wrapper border/shadow and use outline-only actions)
+  - `netlify.toml` (created)
+  - `.gitignore` (updated to ignore Netlify local state)
+  - `web/.env.example` (updated with `NEXT_PUBLIC_SITE_URL`)
+  - `web/lib/public-env.ts` (updated with shared public env fallbacks, including the deploy URL)
+  - `web/lib/site.ts` (updated to use the deploy URL from public env instead of a placeholder domain)
+  - `web/components/issue/issue-share-actions.tsx` (updated to prefer the live browser URL for share and copy actions)
+  - `web/README.md` (updated with Netlify deployment instructions)
+  - `api/README.md` (updated with deployed frontend origin guidance)
+  - `task_plan.md` (updated with the Netlify deployment scope decision)
+  - `findings.md` (updated with Netlify documentation takeaways and deployment decisions)
+  - `web/README.md` (updated to mark `NEXT_PUBLIC_API_URL` as optional for frontend-only Netlify deployment)
+  - `findings.md` (updated with the frontend-only deployment note)
 
 ### Phase 5: API integration
 - **Status:** pending
@@ -313,6 +340,7 @@
 | Phase 4 frontend build | `npm.cmd run build` in `/web` after UI implementation | Modular page UI should compile and prerender | Passed; all app routes built successfully | pass |
 | Cover asset refinement lint | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp` | Asset-source change should remain lint-clean | Passed with no ESLint warnings or errors | pass |
 | Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
+| Frontend production build after Netlify prep | `npm run build` in `/web` | Netlify-targeted frontend should compile cleanly after deployment config and URL changes | Passed; all app routes built successfully on Next.js `14.2.35` | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |

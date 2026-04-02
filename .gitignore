@@ -11,4 +11,5 @@ web/node_modules/
 web/.next/
 web/out/
 
+.netlify/
 .DS_Store
