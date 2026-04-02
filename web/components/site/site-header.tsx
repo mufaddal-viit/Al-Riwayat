@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -57,6 +58,7 @@ function NavLink({
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8">
@@ -110,7 +112,7 @@ export function SiteHeader() {
 
             <div className="flex items-center justify-end gap-2 md:hidden">
               <ThemeToggle className="h-11 w-11" />
-              <Sheet>
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button
                     variant="outline"
@@ -137,6 +139,7 @@ export function SiteHeader() {
                         <Link
                           key={`${item.href}-${item.label}`}
                           href={item.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
                           aria-current={
                             pathname === item.href ? "page" : undefined
                           }

@@ -37,18 +37,21 @@ export function ContactFormSection() {
     }
 
     if (message.length < 20) {
-      nextErrors.message = "Write at least 20 characters so the preview feels realistic.";
+      nextErrors.message =
+        "Write at least 20 characters so the preview feels realistic.";
     }
 
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
-      setStatusMessage("Resolve the highlighted fields to preview the contact flow.");
+      setStatusMessage(
+        "Resolve the highlighted fields to preview the contact flow.",
+      );
       return;
     }
 
     setStatusMessage(
-      "Contact form UI is ready. Live submission wiring is added in the next integration phase."
+      "Contact form UI is ready. Live submission wiring is added in the next integration phase.",
     );
   }
 
@@ -126,7 +129,9 @@ export function ContactFormSection() {
                 {statusMessage ??
                   "Form validation and accessible field structure are ready in this phase."}
               </p>
-              <Button type="submit">Send Message</Button>
+              <Button type="submit" variant={"outline"}>
+                Send Message
+              </Button>
             </div>
           </form>
         </CardContent>

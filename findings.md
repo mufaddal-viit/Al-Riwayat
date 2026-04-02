@@ -257,7 +257,6 @@
   - `/web/components/issue/issue-cover-hero.tsx`
   - `/web/components/issue/issue-share-actions.tsx`
   - `/web/components/issue/issue-rich-content.tsx`
-  - `/web/components/issue/issue-newsletter-cta.tsx`
   - `/web/components/issue/article-structured-data.tsx`
 
 ### Page implementation details
@@ -298,6 +297,12 @@
 - `web/lib/content/about-content-source.md` is now the source reference for the typed `editorialTeam` list in `web/lib/content/about-content.ts`
 - Team cards read better with a smaller centered avatar treatment when placeholder imagery is used, instead of a large full-width portrait block
 - Header logo sizing should continue to flow through `SiteBrand` so shell refinements stay centralized
+- Mobile sheet navigation should dismiss immediately on link tap rather than waiting for route transition behavior
+- The app shell should default to light theme unless a user has already saved a different preference
+- The Heyzine issue reader can be embedded directly as a responsive iframe, with a direct-link fallback in case browser or provider framing rules interfere
+- The issue page should reuse the shared newsletter section instead of maintaining a second issue-only newsletter CTA component
+- The flipbook iframe needs viewport-based height on mobile; aspect-ratio alone makes the reader too short for comfortable reading
+- Share actions should collapse into a compact 2-column mobile grid with smaller pills instead of a large wrap row
 - These keep the UI realistic in Phase 4 without coupling page components directly to the backend.
 
 ### Verification status

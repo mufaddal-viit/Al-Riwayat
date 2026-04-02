@@ -193,6 +193,25 @@
   - Increased the header logo size through `SiteBrand` so the shared header branding reads stronger without introducing one-off sizing in `site-header.tsx`.
   - Left the footer size profile unchanged while enlarging the header logo to the next size step.
   - Intentionally skipped lint and build for this shell refinement because the user explicitly asked not to run build unless requested.
+  - Updated the mobile navigation sheet in `site-header.tsx` to use controlled open state.
+  - Added explicit close behavior on mobile nav link taps so the sheet dismisses immediately when a menu item is selected.
+  - Intentionally skipped lint and build for this interaction fix because the user explicitly asked not to run build unless requested.
+  - Switched the app-level theme provider default from `system` to `light` so new visits open in light mode by default.
+  - Kept `next-themes` enabled so existing user preferences and the manual theme toggle behavior still work.
+  - Intentionally skipped lint and build for this theme-default refinement because the user explicitly asked not to run build unless requested.
+  - Added the provided Heyzine flipbook URL to the Issue 1 content model.
+  - Rendered the flipbook inside `IssueRichContent` as a responsive iframe with a direct-open fallback link above the existing long-form body content.
+  - Kept the existing article body below the embed so the page still preserves the editorial text structure while the full magazine reader is now available inline.
+  - Intentionally skipped lint and build for this embed change because the user explicitly asked not to run build unless requested.
+  - Replaced the issue-specific newsletter CTA on `/issue-1` with the shared `NewsletterPreviewSection` used elsewhere in the app.
+  - Removed the now-redundant `web/components/issue/issue-newsletter-cta.tsx` file so the newsletter surface only has one maintained UI path.
+  - Intentionally skipped lint and build for this component consolidation because the user explicitly asked not to run build unless requested.
+  - Increased the flipbook iframe height in `IssueRichContent` using viewport-based mobile sizing instead of a short aspect-ratio wrapper.
+  - Kept the larger desktop embed comfortable while giving mobile screens a taller reading viewport for the embedded magazine.
+  - Intentionally skipped lint and build for this iframe sizing refinement because the user explicitly asked not to run build unless requested.
+  - Refined `IssueShareActions` into a smaller mobile-first share panel instead of a large wrapping row of buttons.
+  - Switched the mobile layout to a compact 2-column grid with smaller pill buttons and lighter explanatory copy above the actions.
+  - Intentionally skipped lint and build for this share-actions refinement because the user explicitly asked not to run build unless requested.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -252,6 +271,14 @@
   - `web/lib/content/about-content.ts` (updated to use the edited editorial team list and shared placeholder image)
   - `web/components/about/about-team-section.tsx` (updated to reduce team image size and rebalance card layout)
   - `web/components/site/site-brand.tsx` (updated to increase the header logo size)
+  - `web/components/site/site-header.tsx` (updated so mobile sheet closes when a nav link is clicked)
+  - `web/app/providers.tsx` (updated to default the theme provider to light mode)
+  - `web/lib/content/issue-content.ts` (updated with the Heyzine flipbook URL)
+  - `web/components/issue/issue-rich-content.tsx` (updated to render the flipbook iframe and fallback link)
+  - `web/app/issue-1/page.tsx` (updated to use the shared newsletter preview section)
+  - `web/components/issue/issue-newsletter-cta.tsx` (deleted)
+  - `web/components/issue/issue-rich-content.tsx` (updated to increase iframe height on mobile)
+  - `web/components/issue/issue-share-actions.tsx` (updated to use a more compact mobile layout)
 
 ### Phase 5: API integration
 - **Status:** pending

@@ -29,9 +29,9 @@ type ContactUsSectionProps = {
 
 const promptChips = [
   "Contact Us",
-  "Feedback",
-  "Story Idea",
-  "Partnership",
+  // "Feedback",
+  // "Story Idea",
+  // "Partnership",
 ] as const;
 
 export function ContactUsSection({ className }: ContactUsSectionProps) {
