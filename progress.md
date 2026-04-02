@@ -226,6 +226,10 @@
   - Confirmed by source inspection that the current frontend does not call the API yet, so the Netlify deploy can be treated as frontend-only for now.
   - Tightened the frontend deployment docs to mark `NEXT_PUBLIC_API_URL` as optional until Phase 5 integration is implemented.
   - Ran `npm run build` in `/web` after the Netlify deployment prep, per user request, and confirmed the frontend still compiles successfully for production.
+  - Inspected the Netlify checkout failure and confirmed the repository contained a broken submodule gitlink at `.codex/skills/ui-ux-pro-max-skill` with no `.gitmodules` file in the project root.
+  - Verified the broken path was stored in Git with mode `160000`, which explains why Netlify attempted a submodule checkout before the app build even started.
+  - Removed the broken gitlink from the repository index with `git rm --cached -f .codex/skills/ui-ux-pro-max-skill` while leaving the local skill folder in place.
+  - Added `.codex/skills/ui-ux-pro-max-skill/` to `.gitignore` so the local nested repo does not get recommitted and break future Netlify deploys.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -306,6 +310,9 @@
   - `findings.md` (updated with Netlify documentation takeaways and deployment decisions)
   - `web/README.md` (updated to mark `NEXT_PUBLIC_API_URL` as optional for frontend-only Netlify deployment)
   - `findings.md` (updated with the frontend-only deployment note)
+  - `.gitignore` (updated to ignore the local nested skill repository)
+  - `task_plan.md` (updated with the Netlify submodule-checkout error and fix)
+  - `findings.md` (updated with the gitlink diagnosis and tracking decision)
 
 ### Phase 5: API integration
 - **Status:** pending

@@ -11,5 +11,6 @@ web/node_modules/
 web/.next/
 web/out/
 
+.codex/skills/ui-ux-pro-max-skill/
 .netlify/
 .DS_Store

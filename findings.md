@@ -40,6 +40,9 @@
 - Netlify's current Next.js docs state that Next.js 13.5+ is supported with zero configuration through the OpenNext adapter, including App Router support.
 - Netlify's monorepo docs state that the base directory is where dependencies are installed and the build runs; because this repo has no root workspace package and the site lives in `/web`, the correct deploy base for this project is `/web`.
 - Netlify's monorepo docs also state that `package directory` is only needed when the site files live in a different place from the build base, and that a root-level `netlify.toml` can set the base directory on first site setup.
+- The Netlify checkout failure was caused by a committed gitlink at `.codex/skills/ui-ux-pro-max-skill` while the repository had no `.gitmodules` file at all.
+- `git ls-files --stage .codex/skills/ui-ux-pro-max-skill` showed mode `160000`, confirming that path was stored as a submodule entry rather than normal files.
+- The local `.codex/skills/ui-ux-pro-max-skill` directory is a nested Git repository used only for local tooling and is not required for the deployed site.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -70,6 +73,7 @@
 | Netlify deployment is configured around the Next.js frontend only | `/web` is already a valid Netlify target, while `/api` remains a separate Express service that should be deployed independently and allowed through CORS |
 | The frontend site URL should come from `NEXT_PUBLIC_SITE_URL` instead of a hardcoded placeholder domain | Canonical metadata, OG URLs, JSON-LD, and share links need a real deploy URL in production |
 | `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend |
+| The local `.codex/skills/ui-ux-pro-max-skill` repo should not be tracked by the main project repository | It is a local skill dependency, not app code, and a broken gitlink prevents Netlify from cloning the project |
 
 ## Phase 1 Output
 

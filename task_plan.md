@@ -98,6 +98,7 @@ Phase 4 complete - awaiting user review
 | Prisma generation hit a sandbox `EPERM` path-resolution failure | 1 | Re-ran the generate command with approval outside the sandbox and verified client generation successfully |
 | Initial frontend `npm install` timed out before finishing | 1 | Checked partial install state and reran the same command with a longer timeout |
 | First frontend build failed on a `next-themes` type import path | 1 | Switched the import to `ThemeProviderProps` from `next-themes` itself and rebuilt successfully |
+| Netlify failed to prepare the repo because `.codex/skills/ui-ux-pro-max-skill` was committed as a gitlink without a matching `.gitmodules` entry | 1 | Removed the broken submodule gitlink from the repository index and ignored the local skill folder so Netlify can clone the repo without submodule checkout |
 
 ## Notes
 - Re-read this file before major implementation decisions.
