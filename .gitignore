@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+api/node_modules/
+api/dist/
+
+web/node_modules/
+web/.next/
+web/out/
+
+.DS_Store
