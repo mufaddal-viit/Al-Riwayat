@@ -16,7 +16,7 @@ export function buildMetadata({
   image
 }: BuildMetadataInput): Metadata {
   const url = new URL(path, siteConfig.url).toString();
-  const ogImage = image ?? siteConfig.ogImage;
+  const ogImage = new URL(image ?? siteConfig.ogImage, siteConfig.url).toString();
 
   return {
     title,

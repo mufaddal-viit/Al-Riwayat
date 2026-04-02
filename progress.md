@@ -133,6 +133,28 @@
   - Implemented the Issue 1 cover hero, rich article rendering, share actions, newsletter CTA, and Article JSON-LD component.
   - Kept newsletter and contact forms in preview mode with local validation and feedback so API work remains isolated to Phase 5.
   - Re-ran `npm run lint` and `npm run build` after the UI changes and confirmed the frontend still compiles cleanly.
+  - Updated the homepage and Issue 1 cover image content to reference the local `web/homeImage.webp` asset.
+  - Normalized relative image paths to absolute URLs inside metadata and article structured data so SEO output remains valid.
+  - Re-ran `npm run lint` and `npm run build` after the asset-source change and confirmed the frontend still compiles cleanly.
+  - Added a reusable shared brand component and switched the header and footer to use the local logo asset instead of the temporary letter monogram.
+  - Kept the logo change within the Phase 4 shared-shell refinement boundary and did not start API integration work.
+  - Intentionally skipped build verification for the logo refinement because the user explicitly instructed not to run `build` unless asked.
+  - Checked local-network preview readiness for mobile review.
+  - Confirmed a Node process is already listening on `0.0.0.0:3000` and responding as a Next.js app.
+  - Resolved the current Wi-Fi IPv4 address for this session as `192.168.41.114`, so the frontend can be opened from a phone on the same network without starting another server.
+  - Reordered the homepage hero for small screens so the image block appears first and the text block follows below.
+  - Centered the mobile hero image container while preserving the existing `lg` two-column layout order.
+  - Intentionally skipped lint and build for this refinement because the user asked not to run build unless requested.
+  - Removed the mobile inset around the homepage hero image so it now bleeds to the section edges and reads as a proper hero image.
+  - Increased the mobile image height and kept the full-bleed treatment limited to small screens so the desktop card layout remains intact.
+  - Removed the stale unused featured-issue import from the hero component while touching the file.
+  - Added extraction-friendly comments above the two primary homepage hero wrapper divs to document their responsive responsibilities before component splitting.
+  - Kept this as a maintainability-only change with no behavior change, lint, or build run.
+  - Extracted the homepage hero content wrapper into its own `HomeHeroContent` component.
+  - Extracted the homepage hero media wrapper into its own `HomeHeroMedia` component.
+  - Reduced `home-hero.tsx` to a short composition file so those two sections can evolve independently without changing page behavior.
+  - Moved the footer closing sentence into `web/lib/site.ts` so the shared site copy stays centralized.
+  - Updated the footer to read that line from `siteConfig` and removed the now-unused local explore-links variable.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -158,6 +180,18 @@
   - `web/app/about/page.tsx` (updated to compose About features)
   - `web/app/mission/page.tsx` (updated to compose Mission features)
   - `web/app/issue-1/page.tsx` (updated to compose Issue 1 features)
+  - `web/lib/content/home-content.ts` (updated to use local cover asset)
+  - `web/lib/content/issue-content.ts` (updated to use local cover asset)
+  - `web/lib/metadata.ts` (updated to normalize metadata image URLs)
+  - `web/components/issue/article-structured-data.tsx` (updated to normalize structured-data image URLs)
+  - `web/components/site/site-brand.tsx` (created)
+  - `web/components/site/site-header.tsx` (updated to use the shared logo component)
+  - `web/components/site/site-footer.tsx` (updated to use the shared logo component)
+  - `web/components/home/home-hero.tsx` (updated to compose extracted hero subcomponents)
+  - `web/components/home/home-hero-content.tsx` (created)
+  - `web/components/home/home-hero-media.tsx` (created)
+  - `web/lib/site.ts` (updated with shared footer note)
+  - `web/components/site/site-footer.tsx` (updated to read footer note from site config)
 
 ### Phase 5: API integration
 - **Status:** pending
@@ -190,6 +224,8 @@
 | Frontend production audit | `npm.cmd audit --omit=dev` in `/web` | Identify whether runtime vulnerabilities remain | Reported one high-severity Next.js advisory on the pinned Next 14 line | risk_logged |
 | Phase 4 frontend lint | `npm.cmd run lint` in `/web` after UI implementation | UI refactor should remain clean | Passed with no ESLint warnings or errors | pass |
 | Phase 4 frontend build | `npm.cmd run build` in `/web` after UI implementation | Modular page UI should compile and prerender | Passed; all app routes built successfully | pass |
+| Cover asset refinement lint | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp` | Asset-source change should remain lint-clean | Passed with no ESLint warnings or errors | pass |
+| Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |

@@ -62,6 +62,8 @@
 | Homepage, About, Mission, and Issue 1 UI are split into dedicated feature components under page-specific folders | Aligns with the requested one-feature-per-file architecture |
 | Contact and newsletter forms use preview-mode validation and feedback before API integration | Preserves UX intent now without violating the phase boundary between UI and API work |
 | Issue 1 rendering uses a local frontend article model that mirrors the API contract shape | Enables realistic long-form UI rendering now and reduces swap cost in Phase 5 |
+| Frontend cover image content now points to the local `web/homeImage.webp` asset | Satisfies the requested asset source change while keeping metadata and JSON-LD valid through absolute URL normalization |
+| Shared brand lockups now use the locally added `web/LOGO.jpg` asset through a reusable `SiteBrand` component | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent |
 
 ## Phase 1 Output
 
@@ -302,6 +304,14 @@
 - Remaining boundary:
   - newsletter and contact submissions are still preview-mode in this phase
   - live API wiring remains intentionally deferred to Phase 5
+- Asset refinement:
+  - Homepage and Issue 1 cover image references now resolve from the local `homeImage.webp` file instead of placeholder remote URLs
+  - Metadata and article structured data convert that relative asset path into absolute URLs for SEO output
+  - The backend seed data remains unchanged for now because `/api` should not depend on a private file path inside `/web`; if the same image must come from the API in Phase 5, it needs a public asset URL or a shared static-serving decision
+- Brand refinement:
+  - The workspace currently contains `web/LOGO.jpg`; that asset is now used in the shared site brand treatment
+  - Header and footer brand areas now render through `next/image` via a reusable site-brand component
+  - Build verification was intentionally skipped for this change because the user explicitly asked not to run build unless requested
 
 ## Issues Encountered
 | Issue | Resolution |

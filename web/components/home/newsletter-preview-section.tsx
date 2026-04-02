@@ -25,7 +25,7 @@ export function NewsletterPreviewSection() {
 
     setIsError(false);
     setMessage(
-      "Signup UI is ready. Live submission connects in the next integration phase."
+      "Signup UI is ready. Live submission connects in the next integration phase.",
     );
   }
 
@@ -36,13 +36,13 @@ export function NewsletterPreviewSection() {
           <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/70">
             Newsletter
           </p>
-          <h2 className="balanced-wrap text-3xl sm:text-4xl">
+          <h2 className="balanced-wrap text-3xl sm:text-4xl text-primary-foreground">
             Stay close to each issue without the noise.
           </h2>
-          <p className="max-w-2xl text-sm text-primary-foreground/80 sm:text-base">
+          {/* <p className="max-w-2xl text-sm text-primary-foreground/70 sm:text-base">
             The newsletter section is designed as a low-friction editorial CTA:
             one field, one action, and clear feedback.
-          </p>
+          </p> */}
         </div>
 
         <form
@@ -65,13 +65,13 @@ export function NewsletterPreviewSection() {
                 Join the List
               </Button>
             </div>
-            <p
+            {/* <p
               id="newsletter-preview-message"
               className={`text-sm ${isError ? "text-destructive" : "text-muted-foreground"}`}
             >
               {message ??
                 "Designed for smooth success and error feedback before API wiring."}
-            </p>
+            </p> */}
           </div>
         </form>
       </div>

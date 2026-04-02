@@ -10,15 +10,17 @@ export function generateMetadata(): Metadata {
     title: "Home",
     description:
       "Read the featured issue, explore the magazine, and subscribe through a premium editorial homepage.",
-    path: "/"
+    path: "/",
   });
 }
 
 export default function HomePage() {
   return (
-    <div className="container space-y-8 py-8 pb-16 sm:py-10 lg:space-y-10 lg:py-14">
+    <div className="container space-y-8 py-8 pb-16 sm:py-10 lg:space-y-10 lg:py-6">
       <HomeHero />
-      <AboutPreviewSection />
+      {/* <AboutPreviewSection /> */}
+
+      {/* <CommentsSection /> */}
       <NewsletterPreviewSection />
     </div>
   );

@@ -2,6 +2,8 @@ import { siteConfig } from "@/lib/site";
 import { issueOneArticle } from "@/lib/content/issue-content";
 
 export function ArticleStructuredData() {
+  const articleImage = new URL(issueOneArticle.coverImageUrl, siteConfig.url).toString();
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -12,7 +14,7 @@ export function ArticleStructuredData() {
       "@type": "Person",
       name: issueOneArticle.author
     },
-    image: [issueOneArticle.coverImageUrl],
+    image: [articleImage],
     mainEntityOfPage: `${siteConfig.url}/issue-1`,
     publisher: {
       "@type": "Organization",
