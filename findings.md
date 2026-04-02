@@ -62,8 +62,8 @@
 | Homepage, About, Mission, and Issue 1 UI are split into dedicated feature components under page-specific folders | Aligns with the requested one-feature-per-file architecture |
 | Contact and newsletter forms use preview-mode validation and feedback before API integration | Preserves UX intent now without violating the phase boundary between UI and API work |
 | Issue 1 rendering uses a local frontend article model that mirrors the API contract shape | Enables realistic long-form UI rendering now and reduces swap cost in Phase 5 |
-| Frontend cover image content now points to the local `web/homeImage.webp` asset | Satisfies the requested asset source change while keeping metadata and JSON-LD valid through absolute URL normalization |
-| Shared brand lockups now use the locally added `web/LOGO.jpg` asset through a reusable `SiteBrand` component | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent |
+| Frontend image assets are normalized under `web/public/images/...` and consumed via public URLs | Gives the Next app a stable static-asset structure and removes binary imports from the app root |
+| Shared brand lockups now use the local `web/public/images/logo.jpg` asset through a reusable `SiteBrand` component | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent |
 
 ## Phase 1 Output
 
@@ -290,6 +290,8 @@
   - `/web/lib/content/about-content.ts`
   - `/web/lib/content/mission-content.ts`
   - `/web/lib/content/issue-content.ts`
+- Preview-only reader comments now follow the same pattern through `/web/lib/content/comments.ts`
+- The comments composer works best as an inset editorial panel inside `CardFooter` rather than a bare border-top form row
 - These keep the UI realistic in Phase 4 without coupling page components directly to the backend.
 
 ### Verification status
@@ -305,13 +307,16 @@
   - newsletter and contact submissions are still preview-mode in this phase
   - live API wiring remains intentionally deferred to Phase 5
 - Asset refinement:
-  - Homepage and Issue 1 cover image references now resolve from the local `homeImage.webp` file instead of placeholder remote URLs
+  - Homepage and Issue 1 cover image references now resolve from the public asset path `web/public/images/hero/home-hero.webp` instead of placeholder remote URLs
   - Metadata and article structured data convert that relative asset path into absolute URLs for SEO output
   - The backend seed data remains unchanged for now because `/api` should not depend on a private file path inside `/web`; if the same image must come from the API in Phase 5, it needs a public asset URL or a shared static-serving decision
 - Brand refinement:
-  - The workspace currently contains `web/LOGO.jpg`; that asset is now used in the shared site brand treatment
+  - The current logo asset now lives at `web/public/images/logo.jpg` and is used in the shared site brand treatment
   - Header and footer brand areas now render through `next/image` via a reusable site-brand component
   - Build verification was intentionally skipped for this change because the user explicitly asked not to run build unless requested
+- Asset structure note:
+  - The proposed `about-hero` and `menu.svg` files are not present in the workspace yet
+  - The `hero` and `icons` directories now exist under `web/public/images` so future assets can drop into the expected structure without another refactor
 
 ## Issues Encountered
 | Issue | Resolution |

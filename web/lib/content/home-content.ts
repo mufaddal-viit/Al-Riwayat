@@ -1,4 +1,4 @@
-import homeImage from "@/homeImage.webp";
+import { siteConfig } from "@/lib/site";
 
 export const homeHeroContent = {
   eyebrow: "Issue 1",
@@ -13,7 +13,7 @@ export const homeHeroContent = {
     href: "/about",
     label: "Know More of us",
   },
-  coverImageUrl: homeImage.src,
+  coverImageUrl: siteConfig.assets.homeHero,
   coverImageAlt:
     "Editorial cover image showing a reader-facing urban portrait composition.",
   metrics: [

@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import logoImage from "@/LOGO.jpg";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +33,7 @@ export function SiteBrand({
         )}
       >
         <Image
-          src={logoImage}
+          src={siteConfig.assets.logo}
           alt={`${siteConfig.name} logo`}
           fill
           priority={priority}

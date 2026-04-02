@@ -155,6 +155,22 @@
   - Reduced `home-hero.tsx` to a short composition file so those two sections can evolve independently without changing page behavior.
   - Moved the footer closing sentence into `web/lib/site.ts` so the shared site copy stays centralized.
   - Updated the footer to read that line from `siteConfig` and removed the now-unused local explore-links variable.
+  - Added a new standalone `CommentsSection` issue component with chip-styled reader comments and default preview data.
+  - Designed each comment as a rounded editorial chip/card with initials, metadata, and a per-comment badge label.
+  - Left the new comments component unmounted so page placement can be decided explicitly later.
+  - Intentionally skipped lint and build for this addition because the user did not ask for verification.
+  - Audited the current frontend image files after the requested folder-structure review and confirmed that the only active assets in the app were `web/LOGO.jpg` and `web/homeImage.webp`.
+  - Created `web/public/images`, `web/public/images/hero`, and `web/public/images/icons` to establish a stable public asset structure for the frontend.
+  - Moved the logo to `web/public/images/logo.jpg` and the shared hero image to `web/public/images/hero/home-hero.webp`.
+  - Updated shared config and content modules so the site logo, homepage hero, Issue 1 cover, and default OG image now resolve through public `/images/...` paths instead of root-level binary imports.
+  - Intentionally skipped lint and build for this asset refactor because the user explicitly asked not to run build unless requested.
+  - Extracted the preview comments dataset into `web/lib/content/comments.ts` so the comments UI follows the same content-module pattern as the other editorial sections.
+  - Updated `CommentsSection` to import both `previewComments` and `CommentItem` from the new content file instead of defining them inline.
+  - Fixed the comments footer imports and markup while touching the file so the component stays syntactically valid.
+  - Intentionally skipped lint and build for this comments content refactor because the user explicitly asked not to run build unless requested.
+  - Restyled the comments `CardFooter` into an inset composer panel so the reply area feels integrated with the premium editorial card instead of appended below it.
+  - Added clearer footer hierarchy with a supporting badge, helper copy, improved spacing, and a mobile-first input/button layout that expands cleanly on larger screens.
+  - Intentionally skipped lint and build for this UI refinement because the user explicitly asked not to run build unless requested.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -192,6 +208,20 @@
   - `web/components/home/home-hero-media.tsx` (created)
   - `web/lib/site.ts` (updated with shared footer note)
   - `web/components/site/site-footer.tsx` (updated to read footer note from site config)
+  - `web/components/issue/comments-section.tsx` (created)
+  - `web/LOGO.jpg` (moved to `web/public/images/logo.jpg`)
+  - `web/homeImage.webp` (moved to `web/public/images/hero/home-hero.webp`)
+  - `web/public/images/logo.jpg` (created by move)
+  - `web/public/images/hero/home-hero.webp` (created by move)
+  - `web/public/images/hero` (created)
+  - `web/public/images/icons` (created)
+  - `web/lib/site.ts` (updated with shared asset paths and local OG image)
+  - `web/components/site/site-brand.tsx` (updated to use the public logo path)
+  - `web/lib/content/home-content.ts` (updated to use the public hero path)
+  - `web/lib/content/issue-content.ts` (updated to use the public hero path)
+  - `web/lib/content/comments.ts` (created)
+  - `web/components/issue/comments-section.tsx` (updated to consume shared preview comments and corrected footer imports/markup)
+  - `web/components/issue/comments-section.tsx` (updated to style the `CardFooter` as an integrated comment composer)
 
 ### Phase 5: API integration
 - **Status:** pending

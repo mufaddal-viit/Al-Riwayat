@@ -4,6 +4,7 @@ import { AboutPreviewSection } from "@/components/home/about-preview-section";
 import { HomeHero } from "@/components/home/home-hero";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { buildMetadata } from "@/lib/metadata";
+import { CommentsSection } from "@/components/issue/comments-section";
 
 export function generateMetadata(): Metadata {
   return buildMetadata({
@@ -20,7 +21,7 @@ export default function HomePage() {
       <HomeHero />
       {/* <AboutPreviewSection /> */}
 
-      {/* <CommentsSection /> */}
+      <CommentsSection />
       <NewsletterPreviewSection />
     </div>
   );

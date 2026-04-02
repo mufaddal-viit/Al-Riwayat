@@ -1,4 +1,4 @@
-import homeImage from "@/homeImage.webp";
+import { siteConfig } from "@/lib/site";
 
 export type IssueRichTextSpan = {
   text: string;
@@ -37,7 +37,7 @@ export const issueOneArticle = {
   slug: "issue-1",
   summary:
     "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design.",
-  coverImageUrl: homeImage.src,
+  coverImageUrl: siteConfig.assets.homeHero,
   coverImageAlt:
     "Issue 1 cover image framed as a premium editorial magazine cover.",
   body: [

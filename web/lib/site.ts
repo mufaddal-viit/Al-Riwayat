@@ -1,7 +1,3 @@
-import { publicEnv } from "./public-env";
-
-const fallbackCloud = publicEnv.cloudinaryCloudName || "demo";
-
 export const siteConfig = {
   name: "Al Riwayaat",
   tagline: "A digital magazine for Bohra Gen-Z.",
@@ -10,7 +6,11 @@ export const siteConfig = {
   footerNote:
     "Built for deliberate reading, quieter browsing, and stories worth staying with.",
   url: "https://magazine.example",
-  ogImage: `https://res.cloudinary.com/${fallbackCloud}/image/upload/f_auto,q_auto,w_1600/sample.jpg`,
+  assets: {
+    logo: "/images/logo.jpg",
+    homeHero: "/images/hero/home-hero.webp",
+  },
+  ogImage: "/images/hero/home-hero.webp",
   navItems: [
     { href: "/", label: "Home" },
     { href: "/about", label: "Our World" },
