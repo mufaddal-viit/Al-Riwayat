@@ -65,10 +65,10 @@ npm run dev
 
 ## Netlify Deployment
 
-This repository is configured to deploy the Next.js frontend from `/web`.
+This repository is configured to deploy the Next.js frontend from `/web` as a static export.
 
 1. Connect the repository to Netlify.
-2. Keep the root `netlify.toml` in place. It sets the Netlify base directory to `web` and uses `npm run build`.
+2. Keep the root `netlify.toml` in place. It sets the Netlify base directory to `web`, runs `npm run build`, and publishes `web/out`.
 3. In Netlify, set these environment variables for the site:
 
 ```env

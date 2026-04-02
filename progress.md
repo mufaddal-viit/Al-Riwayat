@@ -230,6 +230,10 @@
   - Verified the broken path was stored in Git with mode `160000`, which explains why Netlify attempted a submodule checkout before the app build even started.
   - Removed the broken gitlink from the repository index with `git rm --cached -f .codex/skills/ui-ux-pro-max-skill` while leaving the local skill folder in place.
   - Added `.codex/skills/ui-ux-pro-max-skill/` to `.gitignore` so the local nested repo does not get recommitted and break future Netlify deploys.
+  - Diagnosed the post-fix Netlify 404 as a publish/runtime mismatch rather than an application route problem.
+  - Switched the Next.js frontend to `output: "export"` so the build emits a plain static `web/out` directory.
+  - Updated `netlify.toml` to publish `out`, making the Netlify deploy path explicit instead of relying on Next runtime detection.
+  - Re-ran `npm run build` in `/web` with the static-export config and confirmed the build succeeds and produces `web/out` with `index.html`, `about.html`, `mission.html`, and `issue-1.html`.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -313,6 +317,10 @@
   - `.gitignore` (updated to ignore the local nested skill repository)
   - `task_plan.md` (updated with the Netlify submodule-checkout error and fix)
   - `findings.md` (updated with the gitlink diagnosis and tracking decision)
+  - `web/next.config.mjs` (updated to export a static frontend build)
+  - `netlify.toml` (updated to publish the static `out` directory)
+  - `web/README.md` (updated to describe the static Netlify deploy path)
+  - `findings.md` (updated with the static-export deployment decision)
 
 ### Phase 5: API integration
 - **Status:** pending
@@ -348,6 +356,7 @@
 | Cover asset refinement lint | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp` | Asset-source change should remain lint-clean | Passed with no ESLint warnings or errors | pass |
 | Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
 | Frontend production build after Netlify prep | `npm run build` in `/web` | Netlify-targeted frontend should compile cleanly after deployment config and URL changes | Passed; all app routes built successfully on Next.js `14.2.35` | pass |
+| Frontend static-export build for Netlify | `npm run build` in `/web` after setting `output: "export"` | Build should succeed and emit a publishable `web/out` directory | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1` | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |

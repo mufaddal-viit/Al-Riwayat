@@ -43,6 +43,8 @@
 - The Netlify checkout failure was caused by a committed gitlink at `.codex/skills/ui-ux-pro-max-skill` while the repository had no `.gitmodules` file at all.
 - `git ls-files --stage .codex/skills/ui-ux-pro-max-skill` showed mode `160000`, confirming that path was stored as a submodule entry rather than normal files.
 - The local `.codex/skills/ui-ux-pro-max-skill` directory is a nested Git repository used only for local tooling and is not required for the deployed site.
+- The Netlify 404 after deploy is consistent with the site building but not publishing a usable Next runtime/site output for the current monorepo setup.
+- This frontend currently uses only static routes and client-side UI logic, so it is compatible with `output: "export"` and can be deployed as a plain static site from `web/out`.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -74,6 +76,7 @@
 | The frontend site URL should come from `NEXT_PUBLIC_SITE_URL` instead of a hardcoded placeholder domain | Canonical metadata, OG URLs, JSON-LD, and share links need a real deploy URL in production |
 | `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend |
 | The local `.codex/skills/ui-ux-pro-max-skill` repo should not be tracked by the main project repository | It is a local skill dependency, not app code, and a broken gitlink prevents Netlify from cloning the project |
+| Netlify should publish the frontend as a static export for now | The current site has no backend/runtime dependency, and explicit static export avoids framework detection/publish ambiguity that led to the deploy 404 |
 
 ## Phase 1 Output
 
