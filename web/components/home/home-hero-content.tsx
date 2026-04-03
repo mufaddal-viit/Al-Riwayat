@@ -3,6 +3,7 @@ import Link from "next/link";
 import { homeHeroContent } from "@/lib/content/home-content";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FeaturedIssueCard } from "./featured-issue-card";
 
 export function HomeHeroContent() {
   return (
@@ -20,17 +21,21 @@ export function HomeHeroContent() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Badge variant="outline" className="w-fit">
+          {/* READ ISSUE 1 */}
+          {/* <Badge variant="outline" className="w-fit">
             <Link href={homeHeroContent.primaryCta.href}>
               {homeHeroContent.primaryCta.label}
             </Link>
-          </Badge>
-          <Button asChild variant="outline" size="lg">
+          </Badge> */}
+          {/* READ ABOUT US */}
+          <Button asChild variant="outline" size="default">
             <Link href={homeHeroContent.secondaryCta.href}>
               {homeHeroContent.secondaryCta.label}
             </Link>
           </Button>
         </div>
+
+        {/* reading measures */}
         {/* <dl className="grid gap-3 rounded-[1.5rem] border border-border bg-muted/60 p-4 sm:grid-cols-3">
           {homeHeroContent.metrics.map((metric) => (
             <div key={metric.label} className="space-y-1">
@@ -42,7 +47,7 @@ export function HomeHeroContent() {
           ))}
         </dl> */}
       </div>
-      {/* <FeaturedIssueCard /> */}
+      <FeaturedIssueCard />
     </div>
   );
 }

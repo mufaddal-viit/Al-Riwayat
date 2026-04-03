@@ -7,7 +7,7 @@ export function AboutTeamSection() {
   return (
     <section id="team" className="space-y-6">
       <div className="space-y-3">
-        <p className="text-lg uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="text-lg uppercase tracking-[0.2em] font-extrabold text-muted-foreground">
           Team
         </p>
         <h2 className="text-3xl sm:text-4xl">

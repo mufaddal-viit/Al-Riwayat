@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { SiteBrand } from "./site-brand";
+import { PaletteToggle } from "./palette-toggle";
 import { ThemeToggle } from "./theme-toggle";
 
 const navChipClass =
@@ -106,11 +107,13 @@ export function SiteHeader() {
               </nav>
             </div>
 
-            <div className="hidden items-center justify-end md:flex">
+            <div className="hidden items-center justify-end gap-2 md:flex">
+              <PaletteToggle />
               <ThemeToggle />
             </div>
 
             <div className="flex items-center justify-end gap-2 md:hidden">
+              <PaletteToggle className="h-11 w-11" />
               <ThemeToggle className="h-11 w-11" />
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export function MissionStanceSection() {
   return (
     <section>
-      <Card className="bg-secondary text-secondary-foreground">
+      <Card className="bg-accent text-secondary-foreground">
         <CardHeader>
           <p className="text-xs uppercase tracking-[0.2em] text-secondary-foreground/70">
             What We Stand For

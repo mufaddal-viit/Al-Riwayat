@@ -234,6 +234,19 @@
   - Switched the Next.js frontend to `output: "export"` so the build emits a plain static `web/out` directory.
   - Updated `netlify.toml` to publish `out`, making the Netlify deploy path explicit instead of relying on Next runtime detection.
   - Re-ran `npm run build` in `/web` with the static-export config and confirmed the build succeeds and produces `web/out` with `index.html`, `about.html`, `mission.html`, and `issue-1.html`.
+  - Checked the homepage hero image asset and confirmed it is a portrait WebP (`158 x 189`), which explained the visible cropping in the existing fixed-height `fill` wrapper.
+  - Updated the homepage hero media block to use intrinsic `width` and `height` with `w-full h-auto` so the container now follows the image naturally across breakpoints.
+  - Changed the desktop hero grid from stretched items to top-aligned items so the media column no longer gets forced taller than the image itself.
+  - Inspected the current token system before adding a second palette and confirmed the UI relies heavily on opacity-based color utilities like `bg-card/90`, `bg-background/72`, and `border-border/60`.
+  - Implemented palette selection as a second persisted preference using a `data-palette` attribute on the document root, separate from the existing light/dark theme class.
+  - Added a new `PaletteProvider` with localStorage persistence and a lightweight early script in the root layout so the selected palette can apply before the full app hydrates.
+  - Added a new header `PaletteToggle` dropdown so the original editorial palette and the new amber palette can be switched in the live UI.
+  - Upgraded the token system to support both the existing HSL palette and the new OKLCH palette through semantic CSS variables and a Tailwind `color-mix` wrapper that preserves alpha utilities.
+  - Converted the original editorial light and dark palette tokens from HSL to numeric OKLCH values so both palette presets now use the same authoring color space.
+  - Switched the token alpha/mix helpers from `srgb` to `oklab` so overlays, borders, and shadow tinting blend in a perceptual color space as well.
+  - Updated the About story section so the accent side-note card renders only when `aboutStory.sideNote` contains non-whitespace content.
+  - Replaced the About page's old `ContactFormSection` with the shared `ContactUsSection` so the project keeps one maintained contact-form implementation.
+  - Removed the now-unused `web/components/about/contact-form-section.tsx` file.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -321,6 +334,26 @@
   - `netlify.toml` (updated to publish the static `out` directory)
   - `web/README.md` (updated to describe the static Netlify deploy path)
   - `findings.md` (updated with the static-export deployment decision)
+  - `web/components/home/home-hero-media.tsx` (updated to preserve the full portrait hero image without cropping)
+  - `web/components/home/home-hero.tsx` (updated so the desktop hero grid no longer stretches the media column)
+  - `findings.md` (updated with the hero-image aspect-ratio decision)
+  - `web/lib/palette.ts` (created with palette definitions and metadata)
+  - `web/components/providers/palette-provider.tsx` (created to persist and apply palette choice)
+  - `web/components/site/palette-toggle.tsx` (created to switch between the two palettes in the header)
+  - `web/app/providers.tsx` (updated to include the palette provider)
+  - `web/app/layout.tsx` (updated to seed the palette attribute before hydration)
+  - `web/components/site/site-header.tsx` (updated to render the palette switcher)
+  - `web/tailwind.config.ts` (updated to support mixed color spaces while preserving opacity utilities)
+  - `web/app/globals.css` (updated with the original palette plus the new amber palette for both light and dark modes)
+  - `findings.md` (updated with the palette-system decision)
+  - `web/app/globals.css` (updated so the editorial preset is also authored in OKLCH)
+  - `web/tailwind.config.ts` (updated to blend tokens in `oklab`)
+  - `web/lib/palette.ts` (updated so the editorial preview gradient also uses OKLCH)
+  - `findings.md` (updated with the OKLCH standardization decision)
+  - `web/components/about/about-story-section.tsx` (updated to conditionally render the side-note card)
+  - `web/app/about/page.tsx` (updated to use the shared `ContactUsSection`)
+  - `web/components/about/contact-form-section.tsx` (deleted)
+  - `findings.md` (updated with the shared contact-form decision)
 
 ### Phase 5: API integration
 - **Status:** pending

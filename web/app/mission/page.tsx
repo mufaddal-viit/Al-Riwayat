@@ -5,13 +5,14 @@ import { MissionStanceSection } from "@/components/mission/mission-stance-sectio
 import { MissionStatementSection } from "@/components/mission/mission-statement-section";
 import { MissionValuesSection } from "@/components/mission/mission-values-section";
 import { buildMetadata } from "@/lib/metadata";
+import { FeaturedIssueCard } from "@/components/home/featured-issue-card";
 
 export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "Mission",
     description:
       "Read the publication's mission, values, and editorial stance.",
-    path: "/mission"
+    path: "/mission",
   });
 }
 
@@ -21,7 +22,11 @@ export default function MissionPage() {
       <MissionStatementSection />
       <MissionValuesSection />
       <MissionStanceSection />
-      <MissionCtaSection />
+      <p className="text-xs uppercase tracking-[0.2em] text-primary">
+        Continue Reading
+      </p>
+      <FeaturedIssueCard />
+      {/* <MissionCtaSection /> */}
     </div>
   );
 }

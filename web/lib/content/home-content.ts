@@ -11,7 +11,7 @@ export const homeHeroContent = {
   },
   secondaryCta: {
     href: "/about",
-    label: "Know More of us",
+    label: "Know More of Us",
   },
   coverImageUrl: siteConfig.assets.homeHero,
   coverImageAlt:

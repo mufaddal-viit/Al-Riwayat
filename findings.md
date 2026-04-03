@@ -45,6 +45,11 @@
 - The local `.codex/skills/ui-ux-pro-max-skill` directory is a nested Git repository used only for local tooling and is not required for the deployed site.
 - The Netlify 404 after deploy is consistent with the site building but not publishing a usable Next runtime/site output for the current monorepo setup.
 - This frontend currently uses only static routes and client-side UI logic, so it is compatible with `output: "export"` and can be deployed as a plain static site from `web/out`.
+- The homepage hero image asset is a portrait WebP at `158 x 189`, so fixed-height media wrappers plus `object-cover` will crop it noticeably across breakpoints.
+- The current token system relies heavily on Tailwind opacity modifiers like `bg-card/90` and `border-border/60`, so dropping in raw OKLCH values directly would break a large part of the UI unless the color-token strategy is upgraded.
+- The cleanest multi-palette approach here is to keep semantic tokens (`--background`, `--primary`, etc.), add a separate `data-palette` attribute, and let dark mode continue to be controlled independently by `next-themes`.
+- The original editorial palette has now been numerically converted from HSL to OKLCH, so both available palettes share the same authoring color space.
+- The About page no longer needs its own second contact form implementation because the shared `ContactUsSection` already covers the same UX with better reuse.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -77,6 +82,11 @@
 | `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend |
 | The local `.codex/skills/ui-ux-pro-max-skill` repo should not be tracked by the main project repository | It is a local skill dependency, not app code, and a broken gitlink prevents Netlify from cloning the project |
 | Netlify should publish the frontend as a static export for now | The current site has no backend/runtime dependency, and explicit static export avoids framework detection/publish ambiguity that led to the deploy 404 |
+| The homepage hero should render with intrinsic image dimensions instead of a fixed-height `fill` wrapper | The current portrait asset needs the container to follow its natural aspect ratio so the full image remains visible on mobile and desktop |
+| Palette selection should be separate from theme selection | Light/dark is one axis, palette family is a second axis, and combining them cleanly avoids fighting `next-themes` |
+| Tailwind color utilities should use a color-function wrapper that supports any CSS color space | This allows the original HSL-based palette and the new OKLCH palette to coexist without rewriting component classes |
+| The project should standardize on OKLCH for palette authoring | It keeps both palette presets in one perceptual color space and makes future palette work more consistent |
+| The app should keep a single shared contact-form surface instead of separate About and issue variants | It reduces duplicate maintenance and keeps the contact UX consistent across pages |
 
 ## Phase 1 Output
 
