@@ -247,6 +247,11 @@
   - Updated the About story section so the accent side-note card renders only when `aboutStory.sideNote` contains non-whitespace content.
   - Replaced the About page's old `ContactFormSection` with the shared `ContactUsSection` so the project keeps one maintained contact-form implementation.
   - Removed the now-unused `web/components/about/contact-form-section.tsx` file.
+  - Performed a pre-Phase-5 readiness review against the current frontend integration surfaces and backend API contracts.
+  - Confirmed the main remaining integration risks are the Issue 1 contract mismatch, the divergent backend seed content, the hidden newsletter feedback UI, and the current static-export constraint for any runtime metadata plan.
+  - Removed the unused `body` field and rich-text block types from the local Issue 1 content model so the frontend reflects the current flipbook-only reading experience.
+  - Simplified `IssueRichContent` by deleting the dead article block renderer and leaving only the embedded flipbook UI.
+  - Intentionally skipped lint and build for this cleanup because the user did not ask for verification.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -354,6 +359,10 @@
   - `web/app/about/page.tsx` (updated to use the shared `ContactUsSection`)
   - `web/components/about/contact-form-section.tsx` (deleted)
   - `findings.md` (updated with the shared contact-form decision)
+  - `findings.md` (updated with the pre-Phase-5 review findings)
+  - `web/lib/content/issue-content.ts` (updated to remove the unused article body and rich-text block types)
+  - `web/components/issue/issue-rich-content.tsx` (updated to remove the unused block renderer and render only the flipbook reader)
+  - `findings.md` (updated with the flipbook-first frontend Issue 1 decision)
 
 ### Phase 5: API integration
 - **Status:** pending

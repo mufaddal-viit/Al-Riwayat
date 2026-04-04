@@ -14,10 +14,7 @@ export function MissionValuesSection() {
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {missionValues.map((value) => (
-          <Card
-            key={value.title}
-            className="bg-gradient-to-r from-primary/80 to-primary-foreground"
-          >
+          <Card key={value.title} className="bg-card/95">
             <CardHeader>
               <CardTitle>{value.title}</CardTitle>
             </CardHeader>

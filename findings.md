@@ -49,7 +49,12 @@
 - The current token system relies heavily on Tailwind opacity modifiers like `bg-card/90` and `border-border/60`, so dropping in raw OKLCH values directly would break a large part of the UI unless the color-token strategy is upgraded.
 - The cleanest multi-palette approach here is to keep semantic tokens (`--background`, `--primary`, etc.), add a separate `data-palette` attribute, and let dark mode continue to be controlled independently by `next-themes`.
 - The original editorial palette has now been numerically converted from HSL to OKLCH, so both available palettes share the same authoring color space.
+- The current frontend Issue 1 model uses local-only fields that the backend article endpoint does not return: `summary`, `isoPublishedAt`, `flipbookUrl`, and `coverImageAlt`.
+- The current backend issue seed content does not match the live frontend Issue 1 presentation model, so a direct API swap would visibly change the article title, cover image, and body content.
+- The newsletter preview section already has local validation state, but its visible feedback message is commented out, so success/error responses would still not be shown after wiring the API.
+- `output: "export"` is still active for Netlify. That is compatible with client-side API integration, but it is a constraint if Phase 5 is expected to make runtime metadata and JSON-LD come directly from the API.
 - The About page no longer needs its own second contact form implementation because the shared `ContactUsSection` already covers the same UX with better reuse.
+- The Issue 1 page is now intentionally flipbook-first on the frontend, so the local `body` field and rich-text block renderer were removed to avoid keeping dead article-rendering code around.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -86,7 +91,9 @@
 | Palette selection should be separate from theme selection | Light/dark is one axis, palette family is a second axis, and combining them cleanly avoids fighting `next-themes` |
 | Tailwind color utilities should use a color-function wrapper that supports any CSS color space | This allows the original HSL-based palette and the new OKLCH palette to coexist without rewriting component classes |
 | The project should standardize on OKLCH for palette authoring | It keeps both palette presets in one perceptual color space and makes future palette work more consistent |
+| Phase 5 should start only after choosing the Issue 1 source-of-truth shape | The frontend and backend currently disagree on Issue 1 fields and content, which would otherwise produce a visible regression during integration |
 | The app should keep a single shared contact-form surface instead of separate About and issue variants | It reduces duplicate maintenance and keeps the contact UX consistent across pages |
+| The frontend Issue 1 model should stay minimal while the page is flipbook-based | Removing the unused `body` field and renderer reduces dead code and makes the current source of truth clearer before API integration |
 
 ## Phase 1 Output
 
