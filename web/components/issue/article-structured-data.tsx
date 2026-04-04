@@ -9,13 +9,13 @@ export function ArticleStructuredData() {
     "@type": "Article",
     headline: issueOneArticle.title,
     description: issueOneArticle.summary,
-    datePublished: issueOneArticle.isoPublishedAt,
+    datePublished: issueOneArticle.publishedAt,
     author: {
       "@type": "Person",
       name: issueOneArticle.author
     },
     image: [articleImage],
-    mainEntityOfPage: `${siteConfig.url}/issue-1`,
+    mainEntityOfPage: `${siteConfig.url}/${issueOneArticle.slug}`,
     publisher: {
       "@type": "Organization",
       name: siteConfig.name

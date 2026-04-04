@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { getIssueOne } from "../controllers/magazine.controller";
+import { getIssue } from "../controllers/magazine.controller";
 
 const router = Router();
 
-router.get("/issue-1", getIssueOne);
+router.get("/issue/:id", getIssue);
 
 export default router;

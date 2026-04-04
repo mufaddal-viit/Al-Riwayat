@@ -1,6 +1,9 @@
 import Image from "next/image";
 
-import { issueOneArticle } from "@/lib/content/issue-content";
+import {
+  formatIssuePublishedAt,
+  issueOneArticle,
+} from "@/lib/content/issue-content";
 import { Badge } from "@/components/ui/badge";
 
 export function IssueCoverHero() {
@@ -29,7 +32,7 @@ export function IssueCoverHero() {
           </p>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm uppercase tracking-[0.16em] text-muted-foreground">
-          <span>{issueOneArticle.publishedAt}</span>
+          <span>{formatIssuePublishedAt(issueOneArticle.publishedAt)}</span>
           <span>{issueOneArticle.author}</span>
         </div>
       </div>

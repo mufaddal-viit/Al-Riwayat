@@ -13,7 +13,10 @@ async function main() {
       title: issue1MagazineSeed.title,
       issueNumber: issue1MagazineSeed.issueNumber,
       publishedAt: issue1MagazineSeed.publishedAt,
+      summary: issue1MagazineSeed.summary,
       coverImageUrl: issue1MagazineSeed.coverImageUrl,
+      coverImageAlt: issue1MagazineSeed.coverImageAlt,
+      flipbookUrl: issue1MagazineSeed.flipbookUrl,
       author: issue1MagazineSeed.author,
       body: issue1MagazineSeed.body
     },

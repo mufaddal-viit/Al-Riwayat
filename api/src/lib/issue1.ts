@@ -85,11 +85,16 @@ export const issue1Body: MagazineBodyBlock[] = [
 ];
 
 export const issue1MagazineSeed = {
-  title: "Magazine",
+  title: "The Quiet Return Of Intentional Reading",
   issueNumber: 1,
   slug: "issue-1",
   publishedAt: new Date("2026-01-15T09:00:00.000Z"),
-  coverImageUrl: "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1600/sample.jpg",
+  summary:
+    "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design.",
+  coverImageUrl: "/images/hero/home-hero.webp",
+  coverImageAlt:
+    "Issue 1 cover image framed as a premium editorial magazine cover.",
+  flipbookUrl: "https://heyzine.com/flip-book/7447c8853d.html",
   author: "Editorial Desk",
   body: issue1Body
 };

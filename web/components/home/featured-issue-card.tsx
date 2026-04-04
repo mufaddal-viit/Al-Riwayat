@@ -35,7 +35,7 @@ export function FeaturedIssueCard() {
             </p>
           </div>
           <Button asChild className="w-full sm:w-auto">
-            <Link href="/issue-1">Read Issue 1</Link>
+            <Link href={`/${issueOneArticle.slug}`}>Read Issue 1</Link>
           </Button>
         </div>
       </CardContent>

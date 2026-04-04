@@ -251,6 +251,12 @@
   - Confirmed the main remaining integration risks are the Issue 1 contract mismatch, the divergent backend seed content, the hidden newsletter feedback UI, and the current static-export constraint for any runtime metadata plan.
   - Removed the unused `body` field and rich-text block types from the local Issue 1 content model so the frontend reflects the current flipbook-only reading experience.
   - Simplified `IssueRichContent` by deleting the dead article block renderer and leaving only the embedded flipbook UI.
+  - Normalized the frontend Issue 1 `publishedAt` field to a single ISO string and removed the redundant `isoPublishedAt` field so it lines up with the backend `DateTime` model.
+  - Added `summary`, `coverImageAlt`, and `flipbookUrl` to the Prisma `Magazine` model and updated the backend seed/controller so those fields can be served later by the API.
+  - Updated the issue metadata path, homepage issue link, share fallback URL, structured data, and dormant cover-hero date display to use the normalized issue fields.
+  - Added a new `api/src/services` layer and moved contact, newsletter, and magazine business logic out of the controllers into dedicated service files.
+  - Changed the magazine route from a hardcoded `/issue-1` endpoint to `GET /api/magazine/issue/:id`, with controller/service lookup by slug-like `id`.
+  - Kept controllers thin so they now focus on HTTP status codes and response shaping instead of Prisma operations and business rules.
   - Intentionally skipped lint and build for this cleanup because the user did not ask for verification.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
@@ -362,6 +368,26 @@
   - `findings.md` (updated with the pre-Phase-5 review findings)
   - `web/lib/content/issue-content.ts` (updated to remove the unused article body and rich-text block types)
   - `web/components/issue/issue-rich-content.tsx` (updated to remove the unused block renderer and render only the flipbook reader)
+  - `web/lib/content/issue-content.ts` (updated to normalize `publishedAt` and add a display formatter)
+  - `web/app/issue-1/page.tsx` (updated to derive the path from the issue slug)
+  - `web/components/home/featured-issue-card.tsx` (updated to derive the issue link from the issue slug)
+  - `web/components/issue/article-structured-data.tsx` (updated to use the normalized `publishedAt` field and issue slug)
+  - `web/components/issue/issue-cover-hero.tsx` (updated to format the ISO `publishedAt` value for display)
+  - `web/components/issue/issue-share-actions.tsx` (updated to derive the fallback URL from the issue slug)
+  - `api/prisma/schema.prisma` (updated to add frontend-required issue metadata fields to `Magazine`)
+  - `api/src/lib/issue1.ts` (updated to align the Issue 1 seed fields with the frontend issue object)
+  - `api/prisma/seed.ts` (updated to persist the new issue metadata fields on upsert)
+  - `api/src/controllers/magazine.controller.ts` (updated to select and return the new issue metadata fields)
+  - `findings.md` (updated with the Issue 1 model alignment decision)
+  - `api/src/services/contact.service.ts` (created)
+  - `api/src/services/newsletter.service.ts` (created)
+  - `api/src/services/magazine.service.ts` (created)
+  - `api/src/controllers/contact.controller.ts` (updated to delegate to the contact service)
+  - `api/src/controllers/newsletter.controller.ts` (updated to delegate to the newsletter service)
+  - `api/src/controllers/magazine.controller.ts` (updated to delegate to the magazine service and use param-based issue lookup)
+  - `api/src/routes/magazine.ts` (updated to use `GET /issue/:id`)
+  - `api/README.md` (updated for the dynamic magazine route)
+  - `findings.md` (updated with the services-layer decision and dynamic issue route)
   - `findings.md` (updated with the flipbook-first frontend Issue 1 decision)
 
 ### Phase 5: API integration

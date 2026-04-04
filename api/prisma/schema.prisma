@@ -13,7 +13,10 @@ model Magazine {
   issueNumber   Int
   slug          String   @unique
   publishedAt   DateTime
+  summary       String
   coverImageUrl String
+  coverImageAlt String
+  flipbookUrl   String
   author        String
   body          Json
   createdAt     DateTime @default(now())

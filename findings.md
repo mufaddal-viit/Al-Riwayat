@@ -49,12 +49,13 @@
 - The current token system relies heavily on Tailwind opacity modifiers like `bg-card/90` and `border-border/60`, so dropping in raw OKLCH values directly would break a large part of the UI unless the color-token strategy is upgraded.
 - The cleanest multi-palette approach here is to keep semantic tokens (`--background`, `--primary`, etc.), add a separate `data-palette` attribute, and let dark mode continue to be controlled independently by `next-themes`.
 - The original editorial palette has now been numerically converted from HSL to OKLCH, so both available palettes share the same authoring color space.
-- The current frontend Issue 1 model uses local-only fields that the backend article endpoint does not return: `summary`, `isoPublishedAt`, `flipbookUrl`, and `coverImageAlt`.
+- The current frontend Issue 1 model still drives the page from one local object, so the backend `Magazine` model needs to include the same issue metadata fields rather than forcing a premature split.
 - The current backend issue seed content does not match the live frontend Issue 1 presentation model, so a direct API swap would visibly change the article title, cover image, and body content.
 - The newsletter preview section already has local validation state, but its visible feedback message is commented out, so success/error responses would still not be shown after wiring the API.
 - `output: "export"` is still active for Netlify. That is compatible with client-side API integration, but it is a constraint if Phase 5 is expected to make runtime metadata and JSON-LD come directly from the API.
 - The About page no longer needs its own second contact form implementation because the shared `ContactUsSection` already covers the same UX with better reuse.
 - The Issue 1 page is now intentionally flipbook-first on the frontend, so the local `body` field and rich-text block renderer were removed to avoid keeping dead article-rendering code around.
+- The backend now needs a `services` layer so controllers stay thin and HTTP-focused while Prisma access and business rules live in dedicated service files.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -94,6 +95,9 @@
 | Phase 5 should start only after choosing the Issue 1 source-of-truth shape | The frontend and backend currently disagree on Issue 1 fields and content, which would otherwise produce a visible regression during integration |
 | The app should keep a single shared contact-form surface instead of separate About and issue variants | It reduces duplicate maintenance and keeps the contact UX consistent across pages |
 | The frontend Issue 1 model should stay minimal while the page is flipbook-based | Removing the unused `body` field and renderer reduces dead code and makes the current source of truth clearer before API integration |
+| The backend `Magazine` model should include the frontend-required issue metadata fields | The eventual API needs to provide the same fixed Issue 1 fields the frontend currently reads locally: `summary`, `coverImageAlt`, and `flipbookUrl` |
+| `publishedAt` should be normalized as an ISO date value in the frontend issue object | It matches the backend `DateTime` field cleanly, removes the redundant `isoPublishedAt`, and keeps display formatting as a UI concern |
+| Controller files should delegate business logic to service files | This keeps request/response handling separate from persistence and makes the backend easier to extend and test |
 
 ## Phase 1 Output
 
@@ -122,7 +126,7 @@
 - Shared behavior is contract-based, not code-shared:
   - `POST /api/newsletter`
   - `POST /api/contact`
-  - `GET /api/magazine/issue-1`
+  - `GET /api/magazine/issue/:id`
 - The frontend should not assume Prisma model names or database-specific field shapes.
 
 ### API contract decisions
@@ -134,8 +138,8 @@
   - Request body: `{ "name": string, "email": string, "message": string, "honeypot": string }`
   - Success response for valid and honeypot-triggered submissions: `200 { "success": true, "message": "Message received." }`
   - Invalid user input returns validation errors from Zod in a safe client-facing shape.
-- `GET /api/magazine/issue-1`
-  - Success response: `{ "title": string, "issueNumber": number, "publishedAt": string, "coverImageUrl": string, "author": string, "body": MagazineBodyBlock[] }`
+- `GET /api/magazine/issue/:id`
+  - Success response: `{ "title": string, "issueNumber": number, "slug": string, "publishedAt": string, "summary": string, "coverImageUrl": string, "coverImageAlt": string, "flipbookUrl": string, "author": string, "body": MagazineBodyBlock[] }`
 
 ### Article body contract
 - `MagazineBodyBlock[]` will use a block-based JSON structure:
@@ -202,7 +206,7 @@
 - Implemented controllers and routes for:
   - `POST /api/contact`
   - `POST /api/newsletter`
-  - `GET /api/magazine/issue-1`
+  - `GET /api/magazine/issue/:id`
 - Added global security middleware in `/api/src/app.ts`:
   - `helmet()`
   - CORS restricted to `ALLOWED_ORIGIN`

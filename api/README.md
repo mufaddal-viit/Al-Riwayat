@@ -76,7 +76,7 @@ The API runs on port `4000` by default.
 
 - `POST /api/contact`
 - `POST /api/newsletter`
-- `GET /api/magazine/issue-1`
+- `GET /api/magazine/issue/:id`
 
 ## API Notes
 

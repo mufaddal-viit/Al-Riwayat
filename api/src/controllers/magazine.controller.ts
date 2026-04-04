@@ -1,42 +1,28 @@
 import type { Request, Response } from "express";
 
-import { prisma } from "../lib/prisma";
+import { findIssueById } from "../services/magazine.service";
 
-export async function getIssueOne(_req: Request, res: Response) {
+export async function getIssue(
+  req: Request<{ id: string }>,
+  res: Response
+) {
   try {
-    const issue = await prisma.magazine.findUnique({
-      where: { slug: "issue-1" },
-      select: {
-        title: true,
-        issueNumber: true,
-        publishedAt: true,
-        coverImageUrl: true,
-        author: true,
-        body: true
-      }
-    });
+    const issue = await findIssueById(req.params.id);
 
     if (!issue) {
       return res.status(404).json({
         success: false,
-        message: "Issue 1 not found. Run `npm run db:seed` to load development content."
+        message: "Issue not found. Run `npm run db:seed` to load development content."
       });
     }
 
-    return res.status(200).json({
-      title: issue.title,
-      issueNumber: issue.issueNumber,
-      publishedAt: issue.publishedAt.toISOString(),
-      coverImageUrl: issue.coverImageUrl,
-      author: issue.author,
-      body: issue.body
-    });
+    return res.status(200).json(issue);
   } catch (error) {
-    console.error("Failed to fetch Issue 1.", error);
+    console.error(`Failed to fetch issue "${req.params.id}".`, error);
 
     return res.status(500).json({
       success: false,
-      message: "Unable to load Issue 1 right now."
+      message: "Unable to load the requested issue right now."
     });
   }
 }
