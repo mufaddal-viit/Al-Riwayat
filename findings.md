@@ -63,6 +63,16 @@
 - The cleanest interpretation of `GET /api/magazine/issues/featured` for this MVP is "latest published issue" rather than introducing a second featured flag and admin feature-management route prematurely.
 - `swagger-ui-express` plus `swagger-autogen` is a workable fit for this backend because it adds a browser test surface quickly without rewriting the route layer, but it does rely on route annotations and a generated JSON artifact rather than deriving docs from Zod automatically.
 - The cleanest Swagger scope right now is the `magazine` module only; including contact and newsletter immediately would produce partially documented endpoints and dilute the admin/reader testing workflow.
+- The current frontend is ready to consume exactly three backend routes in Phase 5:
+  - `POST /api/newsletter` through `NewsletterPreviewSection`
+  - `POST /api/contact` through `ContactUsSection`
+  - `GET /api/magazine/issue/:id` through the `/issue-1` page
+- The current frontend is not yet ready to use:
+  - `GET /api/magazine/issues`
+  - `GET /api/magazine/issues/featured`
+  - `GET /api/magazine/issues/search`
+  - any `/api/admin/magazine/...` route
+- Because the frontend is currently exported statically, the safest Phase 5 approach is to keep metadata and JSON-LD on the existing local Issue 1 fallback object while fetching the visible Issue 1 content client-side from the API.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -111,6 +121,7 @@
 | Magazine admin create/update routes should manage content fields while publish/unpublish/archive use dedicated lifecycle endpoints | It keeps editorial state transitions explicit instead of hiding them inside generic update payloads |
 | `Magazine.status` should be the single lifecycle field for reader/admin filtering | A small `draft` / `published` / `archived` state model is enough for the current API surface without introducing extra flags |
 | Swagger docs should be served at a magazine-specific route for now | It keeps the visual API testing surface focused on the module currently being hardened before Phase 5 |
+| Phase 5 issue fetching should be limited to the `/issue-1` page, not the homepage issue card | It meets the current product requirement with less coupling and avoids expanding API-driven state into sections that are already stable locally |
 
 ## Phase 1 Output
 

@@ -5,7 +5,7 @@ import { createContactSubmission } from "./contact.service";
 
 export async function submitContactForm(
   req: Request<Record<string, never>, unknown, ContactInput>,
-  res: Response
+  res: Response,
 ) {
   try {
     const response = await createContactSubmission(req.body);

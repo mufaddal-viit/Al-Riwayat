@@ -284,6 +284,9 @@
   - Removed `body` from the Prisma `Magazine` model, the magazine Zod schemas, the seed data, the magazine service contract, and the Swagger examples so the backend now matches the current flipbook-first frontend model.
   - Regenerated `api/src/docs/magazine.swagger-output.json` after removing `body`, so the Swagger UI now shows the simplified issue contract.
   - A normal Prisma regenerate hit a locked Windows query-engine DLL, so I regenerated Prisma Client with `npx.cmd prisma generate --no-engine` using a temporary local MongoDB URL; that still refreshed the TypeScript client types for the updated schema.
+  - Re-reviewed the current frontend integration surfaces and locked the Phase 5 route scope to `POST /api/newsletter`, `POST /api/contact`, and `GET /api/magazine/issue/:id`.
+  - Explicitly deferred `GET /api/magazine/issues`, `GET /api/magazine/issues/featured`, `GET /api/magazine/issues/search`, and all admin magazine routes because the current frontend has no matching UI for them yet.
+  - Chose a Phase 5 approach that keeps Issue 1 metadata/JSON-LD on the local fallback object while fetching the visible reader data from the API client-side, which fits the current static-export frontend setup.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)

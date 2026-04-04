@@ -91,6 +91,7 @@ Phase 4 complete - backend reinforcement before Phase 5
 | Refactor the backend into feature-first modules before Phase 5 | Keeps domain code together and gives the API a stronger structure before integration work starts |
 | Add a `status` lifecycle and separate reader/admin magazine routes before Phase 5 | Lets public routes expose published content only while admin routes manage draft, publish, unpublish, archive, and duplicate workflows explicitly |
 | Add Swagger UI for the magazine module before Phase 5 | Gives the backend a fast visual contract-checking surface for reader and admin issue endpoints before frontend integration starts |
+| Phase 5 will use only `POST /api/newsletter`, `POST /api/contact`, and `GET /api/magazine/issue/:id` | Those are the only routes with current frontend consumers; list/search/featured/admin routes can stay unused until matching UI exists |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
