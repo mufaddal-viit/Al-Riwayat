@@ -1,11 +1,11 @@
 import { Prisma } from "@prisma/client";
 
-import { prisma } from "../lib/prisma";
-import type { NewsletterInput } from "../schemas/newsletter.schema";
+import { prisma } from "../../lib/prisma";
+import type { NewsletterInput } from "./newsletter.schema";
 
 const newsletterSuccessResponse = {
   success: true,
-  message: "If eligible, the address has been recorded."
+  message: "If eligible, the address has been recorded.",
 } as const;
 
 export async function createNewsletterSubscription(input: NewsletterInput) {
@@ -14,8 +14,8 @@ export async function createNewsletterSubscription(input: NewsletterInput) {
   try {
     await prisma.newsletterSubscriber.create({
       data: {
-        email
-      }
+        email,
+      },
     });
   } catch (error) {
     if (

@@ -50,12 +50,19 @@
 - The cleanest multi-palette approach here is to keep semantic tokens (`--background`, `--primary`, etc.), add a separate `data-palette` attribute, and let dark mode continue to be controlled independently by `next-themes`.
 - The original editorial palette has now been numerically converted from HSL to OKLCH, so both available palettes share the same authoring color space.
 - The current frontend Issue 1 model still drives the page from one local object, so the backend `Magazine` model needs to include the same issue metadata fields rather than forcing a premature split.
-- The current backend issue seed content does not match the live frontend Issue 1 presentation model, so a direct API swap would visibly change the article title, cover image, and body content.
+- The current backend issue seed content does not match the live frontend Issue 1 presentation model, so a direct API swap would visibly change the article title and cover image.
 - The newsletter preview section already has local validation state, but its visible feedback message is commented out, so success/error responses would still not be shown after wiring the API.
 - `output: "export"` is still active for Netlify. That is compatible with client-side API integration, but it is a constraint if Phase 5 is expected to make runtime metadata and JSON-LD come directly from the API.
 - The About page no longer needs its own second contact form implementation because the shared `ContactUsSection` already covers the same UX with better reuse.
 - The Issue 1 page is now intentionally flipbook-first on the frontend, so the local `body` field and rich-text block renderer were removed to avoid keeping dead article-rendering code around.
+- A repo-wide search confirms the frontend no longer reads `Magazine.body`; the only remaining `body` references in `/web` are unrelated comment text and normal HTML/CSS usage.
 - The backend now needs a `services` layer so controllers stay thin and HTTP-focused while Prisma access and business rules live in dedicated service files.
+- The backend now benefits more from a feature-first `modules` structure than from top-level `controllers`, `routes`, and `schemas` folders, because magazine, contact, and newsletter concerns each evolve mostly within their own boundary.
+- The backend does not need a separate repository layer at this stage; services can talk to Prisma directly while the codebase is still small and feature-focused.
+- The magazine module now needs an explicit lifecycle field to support public published-only routes and editorial management routes cleanly; inferring publish/archive state from `publishedAt` alone is too weak.
+- The cleanest interpretation of `GET /api/magazine/issues/featured` for this MVP is "latest published issue" rather than introducing a second featured flag and admin feature-management route prematurely.
+- `swagger-ui-express` plus `swagger-autogen` is a workable fit for this backend because it adds a browser test surface quickly without rewriting the route layer, but it does rely on route annotations and a generated JSON artifact rather than deriving docs from Zod automatically.
+- The cleanest Swagger scope right now is the `magazine` module only; including contact and newsletter immediately would produce partially documented endpoints and dilute the admin/reader testing workflow.
 
 ## Technical Decisions
 | Decision | Rationale |
@@ -63,7 +70,7 @@
 | Use separate `web` and `api` applications with explicit environment variables and no direct shared runtime dependency | Keeps the frontend and backend loosely coupled as requested |
 | Plan around `npm`-based scaffolding per app unless the repo reveals an existing package-manager constraint later | Simplest production-ready default for a fresh workspace |
 | Seed Issue 1 through Prisma-compatible application code rather than relying on manual database setup | Ensures article rendering works immediately in development |
-| Model article body as structured JSON blocks that map cleanly to typed frontend renderers | Supports headings, paragraphs, emphasis, images, and pull quotes without over-engineering a CMS |
+| Keep the Issue 1 contract focused on metadata plus the flipbook URL | Matches the current frontend reader experience and avoids carrying dead article-body data through the API |
 | Establish the editorial design system early: serif display headings, sans-serif body, restrained premium palette, 8px rhythm, and tokenized colors only | Prevents the MVP from drifting into a generic SaaS look |
 | Backend scaffolding will be completed before frontend scaffolding | The frontend needs stable API contracts for article loading, newsletter signup, and contact submission |
 | Frontend API access will be isolated behind small fetch helpers using `NEXT_PUBLIC_API_URL` | Keeps the UI independent from backend implementation details and makes environment switching trivial |
@@ -96,8 +103,14 @@
 | The app should keep a single shared contact-form surface instead of separate About and issue variants | It reduces duplicate maintenance and keeps the contact UX consistent across pages |
 | The frontend Issue 1 model should stay minimal while the page is flipbook-based | Removing the unused `body` field and renderer reduces dead code and makes the current source of truth clearer before API integration |
 | The backend `Magazine` model should include the frontend-required issue metadata fields | The eventual API needs to provide the same fixed Issue 1 fields the frontend currently reads locally: `summary`, `coverImageAlt`, and `flipbookUrl` |
+| The backend `Magazine` model should not keep a `body` field while the reader is flipbook-only | Keeping unused article-body data in the API would create avoidable schema and contract drift |
 | `publishedAt` should be normalized as an ISO date value in the frontend issue object | It matches the backend `DateTime` field cleanly, removes the redundant `isoPublishedAt`, and keeps display formatting as a UI concern |
 | Controller files should delegate business logic to service files | This keeps request/response handling separate from persistence and makes the backend easier to extend and test |
+| Backend source should be organized by feature modules instead of only technical layers | It keeps each domain's routes, schemas, services, and controllers together, which scales better as Phase 5 adds API behavior |
+| Services can talk to Prisma directly for now | A repository layer would add ceremony without enough complexity payoff at the current size of the backend |
+| Magazine admin create/update routes should manage content fields while publish/unpublish/archive use dedicated lifecycle endpoints | It keeps editorial state transitions explicit instead of hiding them inside generic update payloads |
+| `Magazine.status` should be the single lifecycle field for reader/admin filtering | A small `draft` / `published` / `archived` state model is enough for the current API surface without introducing extra flags |
+| Swagger docs should be served at a magazine-specific route for now | It keeps the visual API testing surface focused on the module currently being hardened before Phase 5 |
 
 ## Phase 1 Output
 
@@ -139,17 +152,7 @@
   - Success response for valid and honeypot-triggered submissions: `200 { "success": true, "message": "Message received." }`
   - Invalid user input returns validation errors from Zod in a safe client-facing shape.
 - `GET /api/magazine/issue/:id`
-  - Success response: `{ "title": string, "issueNumber": number, "slug": string, "publishedAt": string, "summary": string, "coverImageUrl": string, "coverImageAlt": string, "flipbookUrl": string, "author": string, "body": MagazineBodyBlock[] }`
-
-### Article body contract
-- `MagazineBodyBlock[]` will use a block-based JSON structure:
-  - `heading`: `{ "type": "heading", "level": 2 | 3, "content": RichTextSpan[] }`
-  - `paragraph`: `{ "type": "paragraph", "content": RichTextSpan[] }`
-  - `image`: `{ "type": "image", "imageUrl": string, "alt": string, "caption"?: string }`
-  - `pullQuote`: `{ "type": "pullQuote", "quote": string, "attribution"?: string }`
-- `RichTextSpan` shape:
-  - `{ "text": string, "bold"?: boolean, "italic"?: boolean }`
-- This structure is sufficient for the MVP feature set and maps directly to typed frontend renderers.
+  - Success response: `{ "title": string, "issueNumber": number, "slug": string, "publishedAt": string, "summary": string, "coverImageUrl": string, "coverImageAlt": string, "flipbookUrl": string, "author": string }`
 
 ### Initial design-system direction
 - Product style: premium editorial, readable, compact, and content-first.
@@ -200,13 +203,36 @@
 ### Backend implementation details
 - Added startup env validation in `/api/src/lib/env.ts`.
 - Added shared Prisma client management in `/api/src/lib/prisma.ts`.
-- Added Issue 1 content and block types in `/api/src/lib/issue1.ts`.
+- Added Issue 1 content seed data in the `magazine` module.
 - Added Zod schemas for contact and newsletter payloads.
 - Added reusable validation and rate-limiter middleware.
 - Implemented controllers and routes for:
   - `POST /api/contact`
   - `POST /api/newsletter`
   - `GET /api/magazine/issue/:id`
+- Backend feature code now lives under `api/src/modules/contact`, `api/src/modules/newsletter`, and `api/src/modules/magazine`.
+- Magazine reader routes now include:
+  - `GET /api/magazine/issues`
+  - `GET /api/magazine/issue/:id`
+  - `GET /api/magazine/issues/featured`
+  - `GET /api/magazine/issues/search?q=...`
+- Magazine admin routes now include:
+  - `POST /api/admin/magazine/issues`
+  - `GET /api/admin/magazine/issues`
+  - `GET /api/admin/magazine/issues/:id`
+  - `PATCH /api/admin/magazine/issues/:id`
+  - `PUT /api/admin/magazine/issues/:id`
+  - `DELETE /api/admin/magazine/issues/:id`
+  - `PATCH /api/admin/magazine/issues/:id/publish`
+  - `PATCH /api/admin/magazine/issues/:id/unpublish`
+  - `PATCH /api/admin/magazine/issues/:id/archive`
+  - `POST /api/admin/magazine/issues/:id/duplicate`
+- `Magazine` now carries a `status` lifecycle and `updatedAt` timestamp so admin and reader route behavior can be implemented explicitly.
+- Admin magazine routes are currently unauthenticated and should be protected before any public backend deployment.
+- Magazine Swagger docs are now served at:
+  - `GET /api/docs/magazine`
+  - `GET /api/docs/magazine.json`
+- The Swagger generator is driven by `api/src/docs/swagger-generator.ts` and a magazine-only route aggregator at `api/src/docs/magazine.swagger-routes.ts`.
 - Added global security middleware in `/api/src/app.ts`:
   - `helmet()`
   - CORS restricted to `ALLOWED_ORIGIN`
@@ -311,8 +337,7 @@
 - Issue 1 page now includes:
   - full-width cover hero
   - article metadata
-  - rich body rendering from block content
-  - pull quote and embedded image support
+  - embedded flipbook reader
   - social share actions
   - bottom newsletter CTA
   - Article JSON-LD

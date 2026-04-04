@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
-import type { NewsletterInput } from "../schemas/newsletter.schema";
-import { createNewsletterSubscription } from "../services/newsletter.service";
+import type { NewsletterInput } from "./newsletter.schema";
+import { createNewsletterSubscription } from "./newsletter.service";
 
 export async function subscribeToNewsletter(
   req: Request<Record<string, never>, unknown, NewsletterInput>,
@@ -16,7 +16,7 @@ export async function subscribeToNewsletter(
 
     return res.status(500).json({
       success: false,
-      message: "Unable to process the newsletter signup right now."
+      message: "Unable to process the newsletter signup right now.",
     });
   }
 }

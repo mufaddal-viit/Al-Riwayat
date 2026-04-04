@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import { PrismaClient } from "@prisma/client";
 
-import { issue1MagazineSeed } from "../src/lib/issue1";
+import { issue1MagazineSeed } from "../src/modules/magazine/magazine.seed";
 
 const prisma = new PrismaClient();
 
@@ -18,7 +18,7 @@ async function main() {
       coverImageAlt: issue1MagazineSeed.coverImageAlt,
       flipbookUrl: issue1MagazineSeed.flipbookUrl,
       author: issue1MagazineSeed.author,
-      body: issue1MagazineSeed.body
+      status: issue1MagazineSeed.status
     },
     create: issue1MagazineSeed
   });

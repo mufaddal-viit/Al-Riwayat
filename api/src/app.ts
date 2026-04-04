@@ -3,9 +3,14 @@ import express, { type ErrorRequestHandler } from "express";
 import helmet from "helmet";
 
 import { env } from "./lib/env";
-import contactRoutes from "./routes/contact";
-import magazineRoutes from "./routes/magazine";
-import newsletterRoutes from "./routes/newsletter";
+import {
+  magazineSwaggerSpec,
+  magazineSwaggerUi,
+} from "./docs/magazine.swagger";
+import contactRoutes from "./modules/contact/contact.routes";
+import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
+import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
+import newsletterRoutes from "./modules/newsletter/newsletter.routes";
 
 export const app = express();
 
@@ -13,7 +18,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: env.ALLOWED_ORIGIN,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     optionsSuccessStatus: 204
   })
 );
@@ -23,9 +28,15 @@ app.get("/api/health", (_req, res) => {
   res.status(200).json({ success: true, status: "ok" });
 });
 
+app.get("/api/docs/magazine.json", (_req, res) => {
+  res.status(200).json(magazineSwaggerSpec);
+});
+app.use("/api/docs/magazine", ...magazineSwaggerUi);
+
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
-app.use("/api/magazine", magazineRoutes);
+app.use("/api/magazine", magazineReaderRoutes);
+app.use("/api/admin/magazine", magazineAdminRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({

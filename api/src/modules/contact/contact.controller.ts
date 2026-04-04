@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 
-import type { ContactInput } from "../schemas/contact.schema";
-import { createContactSubmission } from "../services/contact.service";
+import type { ContactInput } from "./contact.schema";
+import { createContactSubmission } from "./contact.service";
 
 export async function submitContactForm(
   req: Request<Record<string, never>, unknown, ContactInput>,
@@ -16,7 +16,7 @@ export async function submitContactForm(
 
     return res.status(500).json({
       success: false,
-      message: "Unable to process the contact form right now."
+      message: "Unable to process the contact form right now.",
     });
   }
 }

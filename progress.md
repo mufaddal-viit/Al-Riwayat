@@ -257,7 +257,33 @@
   - Added a new `api/src/services` layer and moved contact, newsletter, and magazine business logic out of the controllers into dedicated service files.
   - Changed the magazine route from a hardcoded `/issue-1` endpoint to `GET /api/magazine/issue/:id`, with controller/service lookup by slug-like `id`.
   - Kept controllers thin so they now focus on HTTP status codes and response shaping instead of Prisma operations and business rules.
+  - Refactored the backend from layer-first folders into feature-first modules under `api/src/modules`.
+  - Moved contact, newsletter, and magazine route/controller/schema/service code into module folders and introduced dedicated `magazine.reader.*` files.
+  - Moved Issue 1 seed/types out of `src/lib` into the `magazine` module so content typing and bootstrap data live with the feature they belong to.
+  - Removed the extra `magazine.repository.ts` layer so the magazine service now talks directly to Prisma.
   - Intentionally skipped lint and build for this cleanup because the user did not ask for verification.
+  - Strengthened the `Magazine` model with an explicit `status` lifecycle and `updatedAt` timestamp to support published-only reader routes and admin editorial workflows.
+  - Added `api/src/modules/magazine/magazine.schema.ts` with Zod validation for magazine ids, search queries, create, patch, and replace payloads.
+  - Expanded the shared request validator so it can validate request `body`, `query`, and `params` instead of only request bodies.
+  - Rebuilt `api/src/modules/magazine/magazine.service.ts` around the full route surface for published issue listing, featured/latest issue lookup, public search, admin CRUD, publish/unpublish/archive, and draft duplication.
+  - Added dedicated admin controller and route files at `api/src/modules/magazine/magazine.admin.controller.ts` and `api/src/modules/magazine/magazine.admin.routes.ts`.
+  - Expanded `api/src/modules/magazine/magazine.reader.controller.ts` and `api/src/modules/magazine/magazine.reader.routes.ts` so the reader surface now includes `issues`, `issue/:id`, `issues/featured`, and `issues/search`.
+  - Mounted the new admin route tree under `/api/admin/magazine` and widened the allowed CORS methods in `api/src/app.ts`.
+  - Updated the Issue 1 seed data and Prisma seed script so the bootstrap issue now seeds as `published`.
+  - Updated the backend README and planning docs to record the magazine lifecycle decision and the full reader/admin route surface.
+  - Intentionally did a source-level review only and did not run build or lint, per the current instruction boundary.
+  - Installed `swagger-ui-express`, `swagger-autogen`, and the Swagger UI type package in `/api`.
+  - Added a magazine-only Swagger generator at `api/src/docs/swagger-generator.ts` plus a route aggregator at `api/src/docs/magazine.swagger-routes.ts`.
+  - Added route annotations to `magazine.reader.routes.ts` and `magazine.admin.routes.ts` so Swagger documents the full reader/admin issue surface with request and response details.
+  - Added runtime Swagger serving in `api/src/docs/magazine.swagger.ts` and mounted the UI and raw JSON in `api/src/app.ts` at `/api/docs/magazine` and `/api/docs/magazine.json`.
+  - Generated `api/src/docs/magazine.swagger-output.json` from the route annotations and confirmed it contains all magazine reader/admin paths.
+  - Synced `api/package.json`, `api/package-lock.json`, and `api/README.md` with the Swagger scripts and docs route.
+  - Attempted a plain `npm install` after moving the Swagger generator to dev dependencies; it failed because Prisma postinstall requires `DATABASE_URL`, so I reran `npm install --ignore-scripts` to sync the lockfile without triggering Prisma generation.
+  - Ran `npx.cmd prisma generate` in `/api` with a temporary local MongoDB URL so the generated Prisma client reflects the current `Magazine` fields, including `summary`, `coverImageAlt`, `flipbookUrl`, `status`, and `updatedAt`.
+  - Verified that the frontend no longer reads `Magazine.body`; the remaining `body` references were limited to backend magazine schema, seed, service, and Swagger examples.
+  - Removed `body` from the Prisma `Magazine` model, the magazine Zod schemas, the seed data, the magazine service contract, and the Swagger examples so the backend now matches the current flipbook-first frontend model.
+  - Regenerated `api/src/docs/magazine.swagger-output.json` after removing `body`, so the Swagger UI now shows the simplified issue contract.
+  - A normal Prisma regenerate hit a locked Windows query-engine DLL, so I regenerated Prisma Client with `npx.cmd prisma generate --no-engine` using a temporary local MongoDB URL; that still refreshed the TypeScript client types for the updated schema.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -388,6 +414,36 @@
   - `api/src/routes/magazine.ts` (updated to use `GET /issue/:id`)
   - `api/README.md` (updated for the dynamic magazine route)
   - `findings.md` (updated with the services-layer decision and dynamic issue route)
+  - `api/src/modules/contact/contact.schema.ts` (created)
+  - `api/src/modules/contact/contact.service.ts` (created)
+  - `api/src/modules/contact/contact.controller.ts` (created)
+  - `api/src/modules/contact/contact.routes.ts` (created)
+  - `api/src/modules/newsletter/newsletter.schema.ts` (created)
+  - `api/src/modules/newsletter/newsletter.service.ts` (created)
+  - `api/src/modules/newsletter/newsletter.controller.ts` (created)
+  - `api/src/modules/newsletter/newsletter.routes.ts` (created)
+  - `api/src/modules/magazine/magazine.types.ts` (created)
+  - `api/src/modules/magazine/magazine.seed.ts` (created)
+  - `api/src/modules/magazine/magazine.service.ts` (created)
+  - `api/src/modules/magazine/magazine.reader.controller.ts` (created)
+  - `api/src/modules/magazine/magazine.reader.routes.ts` (created)
+  - `api/src/app.ts` (updated to use module routes)
+  - `api/prisma/seed.ts` (updated to import Issue 1 seed data from the magazine module)
+  - `api/src/controllers/contact.controller.ts` (deleted)
+  - `api/src/controllers/magazine.controller.ts` (deleted)
+  - `api/src/controllers/newsletter.controller.ts` (deleted)
+  - `api/src/routes/contact.ts` (deleted)
+  - `api/src/routes/magazine.ts` (deleted)
+  - `api/src/routes/newsletter.ts` (deleted)
+  - `api/src/schemas/contact.schema.ts` (deleted)
+  - `api/src/schemas/newsletter.schema.ts` (deleted)
+  - `api/src/services/contact.service.ts` (deleted)
+  - `api/src/services/magazine.service.ts` (deleted)
+  - `api/src/services/newsletter.service.ts` (deleted)
+  - `api/src/lib/issue1.ts` (deleted)
+  - `api/src/modules/magazine/magazine.repository.ts` (deleted)
+  - `api/README.md` (updated with the feature-first module note)
+  - `findings.md` (updated with the feature-first module decision)
   - `findings.md` (updated with the flipbook-first frontend Issue 1 decision)
 
 ### Phase 5: API integration
@@ -425,6 +481,9 @@
 | Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
 | Frontend production build after Netlify prep | `npm run build` in `/web` | Netlify-targeted frontend should compile cleanly after deployment config and URL changes | Passed; all app routes built successfully on Next.js `14.2.35` | pass |
 | Frontend static-export build for Netlify | `npm run build` in `/web` after setting `output: "export"` | Build should succeed and emit a publishable `web/out` directory | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1` | pass |
+| Prisma client regeneration after magazine schema changes | `npx.cmd prisma generate` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client should regenerate against the current schema so updated Magazine fields are available in TypeScript | Passed; Prisma Client `v6.19.3` regenerated successfully | pass |
+| Swagger regeneration after removing `Magazine.body` | `npm.cmd run docs:generate` in `/api` | Swagger JSON should update to the simplified issue contract without `body` | Passed; `api/src/docs/magazine.swagger-output.json` regenerated successfully | pass |
+| Prisma client regeneration after removing `Magazine.body` | `npx.cmd prisma generate --no-engine` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client types should refresh to the simplified `Magazine` schema even if the Windows query-engine DLL is locked | Passed; Prisma Client `v6.19.3` regenerated successfully with `engine=none` | pass |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |

@@ -1,9 +1,9 @@
-import { prisma } from "../lib/prisma";
-import type { ContactInput } from "../schemas/contact.schema";
+import { prisma } from "../../lib/prisma";
+import type { ContactInput } from "./contact.schema";
 
 const contactSuccessResponse = {
   success: true,
-  message: "Message received."
+  message: "Message received.",
 } as const;
 
 export async function createContactSubmission(input: ContactInput) {
@@ -17,8 +17,8 @@ export async function createContactSubmission(input: ContactInput) {
     data: {
       name,
       email,
-      message
-    }
+      message,
+    },
   });
 
   return contactSuccessResponse;

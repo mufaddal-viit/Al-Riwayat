@@ -18,7 +18,8 @@ model Magazine {
   coverImageAlt String
   flipbookUrl   String
   author        String
-  body          Json
+  status        String   @default("draft")
+  updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
 }
 

@@ -4,7 +4,7 @@
 Scaffold a production-ready MVP digital magazine web application with a Next.js 14 frontend in `/web` and an Express + Prisma + MongoDB backend in `/api`, delivered phase by phase with working article, newsletter, contact, theme, consent, and SEO flows.
 
 ## Current Phase
-Phase 4 complete - awaiting user review
+Phase 4 complete - backend reinforcement before Phase 5
 
 ## Phases
 
@@ -64,7 +64,7 @@ Phase 4 complete - awaiting user review
 
 ## Key Questions
 1. What is the leanest runnable scaffold that still keeps `/web` and `/api` loosely coupled and production-oriented?
-2. How should Issue 1 content be modeled in JSON so the backend can seed it immediately and the frontend can render rich long-form blocks cleanly?
+2. How should Issue 1 content be modeled so the backend can seed it immediately and the frontend can render the current flipbook-first reader cleanly?
 3. Which shared design tokens and layout rules best support an editorial reading experience without introducing unnecessary complexity?
 
 ## Decisions Made
@@ -76,7 +76,7 @@ Phase 4 complete - awaiting user review
 | Treat UI direction as editorial and premium from the start, not as a later cosmetic pass | Prevents a generic scaffold that would need heavy redesign later |
 | Scaffold `/api` before `/web` | The frontend depends on the magazine and form endpoints, so backend contracts need to be fixed first |
 | Use explicit JSON contracts instead of frontend knowledge of Prisma models | Preserves loose coupling and avoids leaking backend persistence details into the client |
-| Represent article content as block-based JSON with inline text marks | Cleanly supports headings, paragraphs, images, and pull quotes while remaining easy to seed and render |
+| Keep the Issue 1 API contract focused on metadata plus the flipbook URL | Matches the current frontend reading flow and avoids carrying unused article-body data through the backend |
 | Use manual UI/UX synthesis from the skill guidance for Phase 1 | The local Python entry required by the skill search script is not runnable in this environment |
 | Use a file-based `prisma.config.ts` instead of deprecated `package.json#prisma` config | Keeps the backend aligned with the current Prisma configuration path and removes a known deprecation warning |
 | Validate environment variables at startup with Zod | Fails fast for missing `DATABASE_URL`, `ALLOWED_ORIGIN`, or invalid `PORT` values |
@@ -88,6 +88,9 @@ Phase 4 complete - awaiting user review
 | Use local preview-mode form logic in Phase 4 for newsletter and contact components | Lets the UI demonstrate validation and feedback without prematurely coupling the pages to Phase 5 API logic |
 | Implement article structured data during Phase 4 | JSON-LD is page-specific and can be rendered from the local article model before API wiring is swapped in |
 | Prepare Netlify deployment around `/web` only for now | The frontend is already deployable as a standalone Next.js app, while moving the Express API into Netlify Functions would be a separate architecture change outside the current scope |
+| Refactor the backend into feature-first modules before Phase 5 | Keeps domain code together and gives the API a stronger structure before integration work starts |
+| Add a `status` lifecycle and separate reader/admin magazine routes before Phase 5 | Lets public routes expose published content only while admin routes manage draft, publish, unpublish, archive, and duplicate workflows explicitly |
+| Add Swagger UI for the magazine module before Phase 5 | Gives the backend a fast visual contract-checking surface for reader and admin issue endpoints before frontend integration starts |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

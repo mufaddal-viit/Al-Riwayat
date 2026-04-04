@@ -1,0 +1,1196 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Magazine API Docs",
+    "description": "Interactive Swagger documentation for the magazine reader and admin endpoints.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Same-origin API server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Magazine Reader",
+      "description": "Public, read-only magazine endpoints."
+    },
+    {
+      "name": "Magazine Admin",
+      "description": "Editorial management endpoints for magazine issues."
+    }
+  ],
+  "paths": {
+    "/api/magazine/issues/featured": {
+      "get": {
+        "tags": [
+          "Magazine Reader"
+        ],
+        "summary": "Get the featured issue",
+        "description": "Returns the latest published issue for homepage-style use cases.",
+        "responses": {
+          "200": {
+            "description": "Featured published issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagazineIssueSummary"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagazineIssueSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No published issues were found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/magazine/issues/search": {
+      "get": {
+        "tags": [
+          "Magazine Reader"
+        ],
+        "summary": "Search published issues",
+        "description": "Searches published issues by title, summary, and author.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search phrase used against title, summary, and author.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of issue summaries to return.",
+            "required": false,
+            "default": 10,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MagazineIssueSummary"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MagazineIssueSummary"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The search query parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/magazine/issues": {
+      "get": {
+        "tags": [
+          "Magazine Reader"
+        ],
+        "summary": "List published issues",
+        "description": "Returns all published issues ordered from newest to oldest.",
+        "responses": {
+          "200": {
+            "description": "Published issue summaries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MagazineIssueSummary"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MagazineIssueSummary"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/magazine/issue/{id}": {
+      "get": {
+        "tags": [
+          "Magazine Reader"
+        ],
+        "summary": "Get one published issue",
+        "description": "Returns a single published issue by slug or Mongo id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published issue detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagazineIssueDetail"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagazineIssueDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The issue identifier was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested published issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues": {
+      "post": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Create a draft issue",
+        "description": "Creates a new magazine issue in draft status.",
+        "responses": {
+          "201": {
+            "description": "Draft issue created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another issue already uses the same slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMagazineRequest"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "List admin issues",
+        "description": "Returns all issues, including drafts and archived entries, with optional lifecycle filtering.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Optional lifecycle filter: draft, published, or archived.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Admin issue summaries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminMagazineIssue"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminMagazineIssue"
+                  },
+                  "xml": {
+                    "name": "main"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The query string was invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues/{id}": {
+      "get": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Get one issue for editing",
+        "description": "Returns a full issue record by slug or Mongo id, regardless of status.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Full admin issue detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Patch an issue",
+        "description": "Updates one or more issue fields without replacing the full record.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body or path parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another issue already uses the requested slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMagazineRequest"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Replace an issue",
+        "description": "Replaces the full issue document with a validated payload.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Replaced issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request body or path parameters were invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another issue already uses the requested slug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMagazineRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Delete an issue",
+        "description": "Deletes an issue permanently.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deletion result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteMagazineResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteMagazineResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues/{id}/publish": {
+      "patch": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Publish an issue",
+        "description": "Moves an issue into the published lifecycle state.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues/{id}/unpublish": {
+      "patch": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Unpublish an issue",
+        "description": "Moves an issue back into draft state.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Draft issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues/{id}/archive": {
+      "patch": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Archive an issue",
+        "description": "Moves an issue into the archived lifecycle state.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archived issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/admin/magazine/issues/{id}/duplicate": {
+      "post": {
+        "tags": [
+          "Magazine Admin"
+        ],
+        "summary": "Duplicate an issue",
+        "description": "Creates a draft copy of an existing issue with a generated copy slug.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Issue slug or issue id."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Duplicated draft issue.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMagazineIssue"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "The requested issue was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A safe duplicate slug could not be generated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MagazineIssueSummary": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "The Quiet Return Of Intentional Reading"
+          },
+          "issueNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "issue-1"
+          },
+          "publishedAt": {
+            "type": "string",
+            "example": "2026-01-15T09:00:00.000Z"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design."
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "/images/hero/home-hero.webp"
+          },
+          "coverImageAlt": {
+            "type": "string",
+            "example": "Issue 1 cover image framed as a premium editorial magazine cover."
+          },
+          "author": {
+            "type": "string",
+            "example": "Editorial Desk"
+          }
+        },
+        "xml": {
+          "name": "MagazineIssueSummary"
+        }
+      },
+      "MagazineIssueDetail": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "The Quiet Return Of Intentional Reading"
+          },
+          "issueNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "issue-1"
+          },
+          "publishedAt": {
+            "type": "string",
+            "example": "2026-01-15T09:00:00.000Z"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design."
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "/images/hero/home-hero.webp"
+          },
+          "coverImageAlt": {
+            "type": "string",
+            "example": "Issue 1 cover image framed as a premium editorial magazine cover."
+          },
+          "author": {
+            "type": "string",
+            "example": "Editorial Desk"
+          },
+          "flipbookUrl": {
+            "type": "string",
+            "example": "https://heyzine.com/flip-book/7447c8853d.html"
+          }
+        },
+        "xml": {
+          "name": "MagazineIssueDetail"
+        }
+      },
+      "AdminMagazineIssue": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "The Quiet Return Of Intentional Reading"
+          },
+          "issueNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "issue-1"
+          },
+          "publishedAt": {
+            "type": "string",
+            "example": "2026-01-15T09:00:00.000Z"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design."
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "/images/hero/home-hero.webp"
+          },
+          "coverImageAlt": {
+            "type": "string",
+            "example": "Issue 1 cover image framed as a premium editorial magazine cover."
+          },
+          "author": {
+            "type": "string",
+            "example": "Editorial Desk"
+          },
+          "flipbookUrl": {
+            "type": "string",
+            "example": "https://heyzine.com/flip-book/7447c8853d.html"
+          },
+          "status": {
+            "type": "string",
+            "example": "published"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-01-10T09:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-01-15T09:00:00.000Z"
+          }
+        },
+        "xml": {
+          "name": "AdminMagazineIssue"
+        }
+      },
+      "CreateMagazineRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "The Quiet Return Of Intentional Reading"
+          },
+          "issueNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "slug": {
+            "type": "string",
+            "example": "issue-1"
+          },
+          "publishedAt": {
+            "type": "string",
+            "example": "2026-01-15T09:00:00.000Z"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design."
+          },
+          "coverImageUrl": {
+            "type": "string",
+            "example": "/images/hero/home-hero.webp"
+          },
+          "coverImageAlt": {
+            "type": "string",
+            "example": "Issue 1 cover image framed as a premium editorial magazine cover."
+          },
+          "flipbookUrl": {
+            "type": "string",
+            "example": "https://heyzine.com/flip-book/7447c8853d.html"
+          },
+          "author": {
+            "type": "string",
+            "example": "Editorial Desk"
+          }
+        },
+        "xml": {
+          "name": "CreateMagazineRequest"
+        }
+      },
+      "UpdateMagazineRequest": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "example": "An updated issue summary tuned for clarity after editorial review."
+          },
+          "flipbookUrl": {
+            "type": "string",
+            "example": "https://heyzine.com/flip-book/7447c8853d.html"
+          }
+        },
+        "xml": {
+          "name": "UpdateMagazineRequest"
+        }
+      },
+      "DeleteMagazineResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Issue deleted."
+          },
+          "issue": {
+            "xml": {
+              "name": "adminmagazineissue"
+            },
+            "$ref": "#/components/schemas/AdminMagazineIssue"
+          }
+        },
+        "xml": {
+          "name": "DeleteMagazineResponse"
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Issue not found."
+          }
+        },
+        "xml": {
+          "name": "ErrorResponse"
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid request body."
+          },
+          "errors": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "array",
+                "example": [
+                  "Title must be at least 3 characters long."
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "ValidationErrorResponse"
+        }
+      }
+    }
+  }
+}
