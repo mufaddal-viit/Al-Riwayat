@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
-
+import { env } from "../../lib/env";
+import mockRaw from "../../data/mock-magazines.json";
+// console.log(mockRaw);
 import { prisma } from "../../lib/prisma";
 import type {
   AdminMagazineListQuery,
@@ -206,18 +208,36 @@ export async function findPublishedIssueById(id: string) {
   return serializePublicIssueDetail(issue);
 }
 
-export async function findFeaturedIssue() {
-  const issue = await prisma.magazine.findFirst({
+export async function findPublishedIssues() {
+  if (env.MOCK_DB) {
+    const mockData = mockRaw as any[];
+    const published = mockData
+      .filter((i: any) => i.status === "published")
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+      )
+      .map((latest: any) => ({
+        title: latest.title,
+        issueNumber: latest.issueNumber,
+        slug: latest.slug,
+        publishedAt: new Date(latest.publishedAt),
+        summary: latest.summary,
+        coverImageUrl: latest.coverImageUrl,
+        coverImageAlt: latest.coverImageAlt,
+        author: latest.author,
+      }));
+
+    return published.map((issue: any) => serializePublicIssueSummary(issue));
+  }
+
+  const issues = await prisma.magazine.findMany({
     where: { status: "published" },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     select: publicIssueSummarySelect,
   });
 
-  if (!issue) {
-    return null;
-  }
-
-  return serializePublicIssueSummary(issue);
+  return issues.map(serializePublicIssueSummary);
 }
 
 export async function searchPublishedIssues(query: MagazineSearchQuery) {

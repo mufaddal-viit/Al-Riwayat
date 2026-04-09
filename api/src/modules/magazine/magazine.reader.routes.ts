@@ -6,7 +6,7 @@ import {
   magazineSearchQuerySchema,
 } from "./magazine.schema";
 import {
-  getFeaturedIssue,
+  getPublishedIssues,
   getIssue,
   listIssues,
   searchIssues,
@@ -28,7 +28,7 @@ router.get(
        schema: { $ref: '#/definitions/ErrorResponse' }
      }
   */
-  getFeaturedIssue
+  getPublishedIssues,
 );
 router.get(
   "/issues/search",
@@ -70,7 +70,7 @@ router.get(
        schema: [{ $ref: '#/definitions/MagazineIssueSummary' }]
      }
   */
-  listIssues
+  listIssues,
 );
 router.get(
   "/issue/:id",
@@ -97,7 +97,7 @@ router.get(
      }
   */
   validate(magazineIdParamsSchema, "params"),
-  getIssue
+  getIssue,
 );
 
 export default router;

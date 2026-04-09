@@ -2,8 +2,9 @@ import type { Request, Response } from "express";
 
 import type { MagazineIdParams, MagazineSearchQuery } from "./magazine.schema";
 import {
-  findFeaturedIssue,
+  // findFeaturedIssue,
   findPublishedIssueById,
+  findPublishedIssues,
   listPublishedIssues,
   searchPublishedIssues,
 } from "./magazine.service";
@@ -23,10 +24,7 @@ export async function listIssues(_req: Request, res: Response) {
   }
 }
 
-export async function getIssue(
-  req: Request<MagazineIdParams>,
-  res: Response
-) {
+export async function getIssue(req: Request<MagazineIdParams>, res: Response) {
   try {
     const issue = await findPublishedIssueById(req.params.id);
 
@@ -48,31 +46,27 @@ export async function getIssue(
   }
 }
 
-export async function getFeaturedIssue(_req: Request, res: Response) {
+export async function getPublishedIssues(_req: Request, res: Response) {
   try {
-    const issue = await findFeaturedIssue();
+    const issues = await findPublishedIssues();
 
-    if (!issue) {
-      return res.status(404).json({
-        success: false,
-        message: "No published issues are available yet.",
-      });
-    }
-
-    return res.status(200).json(issue);
+    return res.status(200).json({
+      success: true,
+      message: "Issues retrieved successfully.",
+      data: issues,
+    });
   } catch (error) {
-    console.error("Failed to fetch the featured issue.", error);
+    console.error("Failed to fetch published issues.", error);
 
     return res.status(500).json({
       success: false,
-      message: "Unable to load the featured issue right now.",
+      message: "Unable to load issues right now.",
     });
   }
 }
-
 export async function searchIssues(
   req: Request<Record<string, never>, unknown, unknown, MagazineSearchQuery>,
-  res: Response
+  res: Response,
 ) {
   try {
     const issues = await searchPublishedIssues(req.query);
