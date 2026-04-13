@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const MONGO_URI =
-  "mongodb+srv://mufaddalcalcutta1999_db_user:tQ90e9iDAGXoVoWh@cluster0.7gxxmz0.mongodb.net/Cafedb?appName=Cluster0";
+  "";
 const DB_NAME = "Cafedb";
 const TIMEOUT_MS = 5_000;
 
