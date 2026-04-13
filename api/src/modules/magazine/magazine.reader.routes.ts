@@ -28,7 +28,7 @@ router.get(
        schema: { $ref: '#/definitions/ErrorResponse' }
      }
   */
-  getPublishedIssues,
+  getPublishedIssues, // RETURNS A LIST OF ALL ISSUES
 );
 router.get(
   "/issues/search",
@@ -70,7 +70,7 @@ router.get(
        schema: [{ $ref: '#/definitions/MagazineIssueSummary' }]
      }
   */
-  listIssues,
+  listIssues, //RETURNS ALL ISSUES
 );
 router.get(
   "/issue/:id",

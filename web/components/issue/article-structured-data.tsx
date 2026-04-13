@@ -1,25 +1,30 @@
+import type { Magazine } from "@/types/api";
 import { siteConfig } from "@/lib/site";
 import { issueOneArticle } from "@/lib/content/issue-content";
 
-export function ArticleStructuredData() {
-  const articleImage = new URL(issueOneArticle.coverImageUrl, siteConfig.url).toString();
+export function ArticleStructuredData({ magazine }: { magazine?: Magazine }) {
+  const article = magazine || issueOneArticle;
+  const articleImage = new URL(
+    article.coverImageUrl,
+    siteConfig.url,
+  ).toString();
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: issueOneArticle.title,
-    description: issueOneArticle.summary,
-    datePublished: issueOneArticle.publishedAt,
+    headline: article.title,
+    description: article.summary,
+    datePublished: article.publishedAt,
     author: {
       "@type": "Person",
-      name: issueOneArticle.author
+      name: article.author,
     },
     image: [articleImage],
-    mainEntityOfPage: `${siteConfig.url}/${issueOneArticle.slug}`,
+    mainEntityOfPage: `${siteConfig.url}/issue/${article.slug}`,
     publisher: {
       "@type": "Organization",
-      name: siteConfig.name
-    }
+      name: siteConfig.name,
+    },
   };
 
   return (
