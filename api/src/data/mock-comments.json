@@ -1,0 +1,36 @@
+[
+  {
+    "id": "1",
+    "body": "Great issue! The design choices really elevate the reading experience.",
+    "authorName": "Sarah Johnson",
+    "authorEmail": "sarah@example.com",
+    "pageSlug": "home",
+    "parentId": null,
+    "createdAt": "2024-04-15T10:30:00Z",
+    "updatedAt": "2024-04-15T10:30:00Z",
+    "replies": [
+      {
+        "id": "2",
+        "body": "Absolutely agree. The typography is top-notch.",
+        "authorName": "Mike Chen",
+        "authorEmail": "mike@example.com",
+        "pageSlug": "issues/issue-1",
+        "parentId": "1",
+        "createdAt": "2024-04-15T11:00:00Z",
+        "updatedAt": "2024-04-15T11:00:00Z",
+        "replies": []
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "body": "Loving the editorial stance in this month's piece. Thought-provoking content.",
+    "authorName": "Emma Rodriguez",
+    "authorEmail": "emma@example.com",
+    "pageSlug": "issues/issue-1",
+    "parentId": null,
+    "createdAt": "2024-04-16T14:20:00Z",
+    "updatedAt": "2024-04-16T14:20:00Z",
+    "replies": []
+  }
+]

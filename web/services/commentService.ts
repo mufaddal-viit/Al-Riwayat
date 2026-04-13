@@ -6,6 +6,7 @@ export async function fetchComments(pageSlug: string): Promise<Comment[]> {
   const { data } = await apiClient.get("/comments", {
     params: { slug: pageSlug },
   });
+  // console.log(data);
   return data.data;
 }
 
@@ -14,6 +15,7 @@ export async function submitComment(
   input: CreateCommentInput,
 ): Promise<Comment> {
   const { data } = await apiClient.post("/comments", input);
+  console.log(data);
   return data.data;
 }
 
