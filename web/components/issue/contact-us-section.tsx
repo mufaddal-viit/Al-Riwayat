@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+
+import { submitContactForm } from "@/services/contactService";
+import type { ContactInput } from "@/types/api";
 
 type ContactUsErrors = {
   name?: string;
@@ -37,8 +40,9 @@ const promptChips = [
 export function ContactUsSection({ className }: ContactUsSectionProps) {
   const [errors, setErrors] = useState<ContactUsErrors>({});
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
@@ -47,6 +51,7 @@ export function ContactUsSection({ className }: ContactUsSectionProps) {
     const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const message = String(formData.get("message") ?? "").trim();
+    const honeypot = String(formData.get("honeypot") ?? "").trim();
 
     if (name.length < 2) {
       nextErrors.name = "Enter at least 2 characters.";
@@ -64,15 +69,30 @@ export function ContactUsSection({ className }: ContactUsSectionProps) {
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
-      setStatusMessage(
-        "Resolve the highlighted fields to preview the contact flow.",
-      );
+      setStatusMessage("Resolve the highlighted fields before sending.");
       return;
     }
 
-    setStatusMessage(
-      "Contact form UI is ready. Live submission wiring stays in the integration phase.",
-    );
+    if (honeypot.length > 0) {
+      setStatusMessage("Please leave hidden fields empty.");
+      return;
+    }
+    const form = event.currentTarget;
+
+    startTransition(async () => {
+      try {
+        setStatusMessage(null);
+        await submitContactForm({ name, email, message });
+        setStatusMessage("Message sent to editorial desk. Thank you!");
+        setErrors({});
+        // event.currentTarget.reset();
+        form.reset(); // ✅ captured before async, safe to use
+      } catch (error: any) {
+        const msg =
+          error instanceof Error ? error.message : "Failed to send message.";
+        setStatusMessage(msg);
+      }
+    });
   }
 
   return (
@@ -173,9 +193,10 @@ export function ContactUsSection({ className }: ContactUsSectionProps) {
                 <Button
                   type="submit"
                   className="w-full sm:w-auto"
-                  variant={"outline"}
+                  variant="outline"
+                  disabled={isPending}
                 >
-                  Send Message
+                  {isPending ? "Sending..." : "Send Message"}
                 </Button>
               </div>
             </CardFooter>

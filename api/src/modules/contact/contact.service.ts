@@ -8,6 +8,7 @@ const contactSuccessResponse = {
 
 export async function createContactSubmission(input: ContactInput) {
   const { name, email, message, honeypot } = input;
+  // console.log(input);
 
   if (honeypot.trim().length > 0) {
     return contactSuccessResponse;

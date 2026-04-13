@@ -37,3 +37,26 @@ model NewsletterSubscriber {
   subscribedAt DateTime @default(now())
   isActive     Boolean  @default(true)
 }
+
+model Comment {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  body        String
+  authorName  String
+  authorEmail String
+  pageSlug    String
+
+  parentId String?
+  parent   Comment? @relation("replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  replies Comment[] @relation("replies")
+
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  SPAM
+}

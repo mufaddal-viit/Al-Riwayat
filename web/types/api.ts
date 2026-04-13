@@ -21,6 +21,24 @@ export interface ApiError {
   errors?: Record<string, string[]>; // field-level validation errors
 }
 
+export interface ContactInput {
+  name: string;
+  email: string;
+  message: string;
+  honeypot?: string;
+}
+
+export type ContactResponse = ApiResponse<{ success: boolean }>;
+
+export interface NewsletterInput {
+  email: string;
+}
+
+export type NewsletterResponse = ApiResponse<{
+  success: boolean;
+  message?: string;
+}>;
+
 export interface Magazine {
   id: string;
   title: string;

@@ -3,6 +3,7 @@
 ## Session: 2026-04-02
 
 ### Phase 1: Project setup
+
 - **Status:** complete
 - **Started:** 2026-04-02 14:18:24 +04:00
 - Actions taken:
@@ -28,6 +29,7 @@
   - `progress.md` (updated with completed Phase 1 log)
 
 ### Phase 2: Backend setup
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files and the planning skill instructions before starting implementation.
@@ -67,6 +69,7 @@
   - `api/src/server.ts` (created)
 
 ### Phase 3: Frontend foundation
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files before starting the frontend implementation.
@@ -122,6 +125,7 @@
   - `web/components/ui/label.tsx` (created)
 
 ### Phase 4: UI implementation
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files before starting the page-level UI implementation.
@@ -450,59 +454,67 @@
   - `findings.md` (updated with the flipbook-first frontend Issue 1 decision)
 
 ### Phase 5: API integration
-- **Status:** pending
+
+- **Status:** in progress
 - Actions taken:
-  -
+  - Wired contact-us form: created `web/services/contactService.ts`, added types to `web/types/api.ts`, integrated into `web/components/issue/contact-us-section.tsx` with `useTransition`, validation, loading states, success/error feedback.
+  - Wired newsletter signup: created `web/services/newsletterService.ts`, added types, integrated into `web/components/home/newsletter-preview-section.tsx` with matching UX.
 - Files created/modified:
-  -
+  - `web/services/contactService.ts` (created)
+  - `web/services/newsletterService.ts` (created)
+  - `web/types/api.ts` (updated with ContactInput, ContactResponse, NewsletterInput, NewsletterResponse)
+  - `web/components/issue/contact-us-section.tsx` (updated with API integration)
+  - `web/components/home/newsletter-preview-section.tsx` (updated with API integration)
 
 ### Phase 6: Testing and polish
+
 - **Status:** pending
-- Actions taken:
-  -
-- Files created/modified:
-  -
+- ## Actions taken:
+- ## Files created/modified:
 
 ## Test Results
-| Test | Input | Expected | Actual | Status |
-|------|-------|----------|--------|--------|
-| Planning file presence | Repo root inspection | Required planning files should exist before implementation | Files were missing initially and have now been created | pass |
-| Workspace state check | Root directory inspection | Confirm whether apps already exist | `/web` and `/api` do not exist yet | pass |
-| Node toolchain check | `where.exe node; where.exe npm; node -v; npm -v` | Verify whether the planned Node-based scaffold is feasible | Node `v22.13.0` and npm `10.9.2` are available | pass |
-| Git repository check | `git status --short` | Confirm repository cleanliness and Git presence | Workspace is not a Git repository | pass |
-| UI/UX design-system script check | `python ...search.py ... --design-system` | Run the local skill helper to produce a design system | Failed because `python.exe` is not executable in this environment; manual synthesis used instead | adjusted |
-| Backend dependency install | `npm.cmd install` in `/api` | Install runtime and dev dependencies successfully | Install succeeded and generated Prisma Client `v6.19.3` | pass |
-| Backend compile | `npm.cmd run build` in `/api` | TypeScript should compile without errors | Build succeeded | pass |
-| Prisma client generation | `npx.cmd prisma generate` with temporary `DATABASE_URL` | Prisma config and schema should generate a client successfully | Generation succeeded after switching from blocked `npx.ps1` and rerunning outside sandbox | pass |
-| Frontend dependency install | `npm.cmd install` in `/web` | Install frontend dependencies successfully | Install succeeded on the second attempt after increasing timeout | pass |
-| Frontend lint | `npm.cmd run lint` in `/web` | Lint should pass with no structural issues | Passed with no ESLint warnings or errors | pass |
-| Frontend build | `npm.cmd run build` in `/web` | Next.js app should compile and prerender current routes | Passed after correcting one `next-themes` type import | pass |
-| Frontend production audit | `npm.cmd audit --omit=dev` in `/web` | Identify whether runtime vulnerabilities remain | Reported one high-severity Next.js advisory on the pinned Next 14 line | risk_logged |
-| Phase 4 frontend lint | `npm.cmd run lint` in `/web` after UI implementation | UI refactor should remain clean | Passed with no ESLint warnings or errors | pass |
-| Phase 4 frontend build | `npm.cmd run build` in `/web` after UI implementation | Modular page UI should compile and prerender | Passed; all app routes built successfully | pass |
-| Cover asset refinement lint | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp` | Asset-source change should remain lint-clean | Passed with no ESLint warnings or errors | pass |
-| Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
-| Frontend production build after Netlify prep | `npm run build` in `/web` | Netlify-targeted frontend should compile cleanly after deployment config and URL changes | Passed; all app routes built successfully on Next.js `14.2.35` | pass |
-| Frontend static-export build for Netlify | `npm run build` in `/web` after setting `output: "export"` | Build should succeed and emit a publishable `web/out` directory | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1` | pass |
-| Prisma client regeneration after magazine schema changes | `npx.cmd prisma generate` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client should regenerate against the current schema so updated Magazine fields are available in TypeScript | Passed; Prisma Client `v6.19.3` regenerated successfully | pass |
-| Swagger regeneration after removing `Magazine.body` | `npm.cmd run docs:generate` in `/api` | Swagger JSON should update to the simplified issue contract without `body` | Passed; `api/src/docs/magazine.swagger-output.json` regenerated successfully | pass |
-| Prisma client regeneration after removing `Magazine.body` | `npx.cmd prisma generate --no-engine` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client types should refresh to the simplified `Magazine` schema even if the Windows query-engine DLL is locked | Passed; Prisma Client `v6.19.3` regenerated successfully with `engine=none` | pass |
+
+| Test                                                      | Input                                                                                                            | Expected                                                                                                              | Actual                                                                                           | Status      |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------- |
+| Planning file presence                                    | Repo root inspection                                                                                             | Required planning files should exist before implementation                                                            | Files were missing initially and have now been created                                           | pass        |
+| Workspace state check                                     | Root directory inspection                                                                                        | Confirm whether apps already exist                                                                                    | `/web` and `/api` do not exist yet                                                               | pass        |
+| Node toolchain check                                      | `where.exe node; where.exe npm; node -v; npm -v`                                                                 | Verify whether the planned Node-based scaffold is feasible                                                            | Node `v22.13.0` and npm `10.9.2` are available                                                   | pass        |
+| Git repository check                                      | `git status --short`                                                                                             | Confirm repository cleanliness and Git presence                                                                       | Workspace is not a Git repository                                                                | pass        |
+| UI/UX design-system script check                          | `python ...search.py ... --design-system`                                                                        | Run the local skill helper to produce a design system                                                                 | Failed because `python.exe` is not executable in this environment; manual synthesis used instead | adjusted    |
+| Backend dependency install                                | `npm.cmd install` in `/api`                                                                                      | Install runtime and dev dependencies successfully                                                                     | Install succeeded and generated Prisma Client `v6.19.3`                                          | pass        |
+| Backend compile                                           | `npm.cmd run build` in `/api`                                                                                    | TypeScript should compile without errors                                                                              | Build succeeded                                                                                  | pass        |
+| Prisma client generation                                  | `npx.cmd prisma generate` with temporary `DATABASE_URL`                                                          | Prisma config and schema should generate a client successfully                                                        | Generation succeeded after switching from blocked `npx.ps1` and rerunning outside sandbox        | pass        |
+| Frontend dependency install                               | `npm.cmd install` in `/web`                                                                                      | Install frontend dependencies successfully                                                                            | Install succeeded on the second attempt after increasing timeout                                 | pass        |
+| Frontend lint                                             | `npm.cmd run lint` in `/web`                                                                                     | Lint should pass with no structural issues                                                                            | Passed with no ESLint warnings or errors                                                         | pass        |
+| Frontend build                                            | `npm.cmd run build` in `/web`                                                                                    | Next.js app should compile and prerender current routes                                                               | Passed after correcting one `next-themes` type import                                            | pass        |
+| Frontend production audit                                 | `npm.cmd audit --omit=dev` in `/web`                                                                             | Identify whether runtime vulnerabilities remain                                                                       | Reported one high-severity Next.js advisory on the pinned Next 14 line                           | risk_logged |
+| Phase 4 frontend lint                                     | `npm.cmd run lint` in `/web` after UI implementation                                                             | UI refactor should remain clean                                                                                       | Passed with no ESLint warnings or errors                                                         | pass        |
+| Phase 4 frontend build                                    | `npm.cmd run build` in `/web` after UI implementation                                                            | Modular page UI should compile and prerender                                                                          | Passed; all app routes built successfully                                                        | pass        |
+| Cover asset refinement lint                               | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp`                                    | Asset-source change should remain lint-clean                                                                          | Passed with no ESLint warnings or errors                                                         | pass        |
+| Cover asset refinement build                              | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp`                                   | Local asset imports and SEO image normalization should compile                                                        | Passed; all app routes built successfully                                                        | pass        |
+| Frontend production build after Netlify prep              | `npm run build` in `/web`                                                                                        | Netlify-targeted frontend should compile cleanly after deployment config and URL changes                              | Passed; all app routes built successfully on Next.js `14.2.35`                                   | pass        |
+| Frontend static-export build for Netlify                  | `npm run build` in `/web` after setting `output: "export"`                                                       | Build should succeed and emit a publishable `web/out` directory                                                       | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1`             | pass        |
+| Prisma client regeneration after magazine schema changes  | `npx.cmd prisma generate` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine`             | Prisma Client should regenerate against the current schema so updated Magazine fields are available in TypeScript     | Passed; Prisma Client `v6.19.3` regenerated successfully                                         | pass        |
+| Swagger regeneration after removing `Magazine.body`       | `npm.cmd run docs:generate` in `/api`                                                                            | Swagger JSON should update to the simplified issue contract without `body`                                            | Passed; `api/src/docs/magazine.swagger-output.json` regenerated successfully                     | pass        |
+| Prisma client regeneration after removing `Magazine.body` | `npx.cmd prisma generate --no-engine` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client types should refresh to the simplified `Magazine` schema even if the Windows query-engine DLL is locked | Passed; Prisma Client `v6.19.3` regenerated successfully with `engine=none`                      | pass        |
 
 ## Error Log
-| Timestamp | Error | Attempt | Resolution |
-|-----------|-------|---------|------------|
-| 2026-04-02 14:18:24 +04:00 | Windows sandbox `CreateProcessWithLogonW failed: 1056` during one parallel shell batch | 1 | Re-ran the inspection in smaller independent commands |
-| 2026-04-02 14:18:24 +04:00 | `python.exe` failed with `The file cannot be accessed by the system` when running the UI/UX skill script | 1 | Switched to manual use of the loaded UI/UX skill guidance |
-| 2026-04-02 14:41:54 +04:00 | PowerShell blocked `npx.ps1` due to execution policy | 1 | Switched to `npx.cmd prisma generate` |
-| 2026-04-02 14:41:54 +04:00 | `npx.cmd prisma generate` failed inside sandbox with `EPERM` resolving `C:\Users\DELL` | 1 | Re-ran the same command with approval outside the sandbox and it succeeded |
-| 2026-04-02 15:06:07 +04:00 | Initial `npm.cmd install` in `/web` timed out | 1 | Checked partial install state and reran with a longer timeout |
-| 2026-04-02 15:06:07 +04:00 | Frontend build failed because `next-themes/dist/types` could not be resolved | 1 | Imported `ThemeProviderProps` from `next-themes` and rebuilt successfully |
+
+| Timestamp                  | Error                                                                                                    | Attempt | Resolution                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| 2026-04-02 14:18:24 +04:00 | Windows sandbox `CreateProcessWithLogonW failed: 1056` during one parallel shell batch                   | 1       | Re-ran the inspection in smaller independent commands                      |
+| 2026-04-02 14:18:24 +04:00 | `python.exe` failed with `The file cannot be accessed by the system` when running the UI/UX skill script | 1       | Switched to manual use of the loaded UI/UX skill guidance                  |
+| 2026-04-02 14:41:54 +04:00 | PowerShell blocked `npx.ps1` due to execution policy                                                     | 1       | Switched to `npx.cmd prisma generate`                                      |
+| 2026-04-02 14:41:54 +04:00 | `npx.cmd prisma generate` failed inside sandbox with `EPERM` resolving `C:\Users\DELL`                   | 1       | Re-ran the same command with approval outside the sandbox and it succeeded |
+| 2026-04-02 15:06:07 +04:00 | Initial `npm.cmd install` in `/web` timed out                                                            | 1       | Checked partial install state and reran with a longer timeout              |
+| 2026-04-02 15:06:07 +04:00 | Frontend build failed because `next-themes/dist/types` could not be resolved                             | 1       | Imported `ThemeProviderProps` from `next-themes` and rebuilt successfully  |
 
 ## 5-Question Reboot Check
-| Question | Answer |
-|----------|--------|
-| Where am I? | Phase 4 complete and waiting for user review |
-| Where am I going? | Phase 5 API integration after review, then testing/polish |
-| What's the goal? | A runnable production-ready MVP digital magazine with separate Next.js and Express apps |
+
+| Question             | Answer                                                                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Where am I?          | Phase 4 complete and waiting for user review                                                                                                                       |
+| Where am I going?    | Phase 5 API integration after review, then testing/polish                                                                                                          |
+| What's the goal?     | A runnable production-ready MVP digital magazine with separate Next.js and Express apps                                                                            |
 | What have I learned? | The page UI now renders through modular feature components, the long-form issue view builds cleanly, and form submission remains intentionally deferred to Phase 5 |
-| What have I done? | Completed the UI implementation phase by building the modular page sections and re-verifying the frontend build |
+| What have I done?    | Completed the UI implementation phase by building the modular page sections and re-verifying the frontend build                                                    |
