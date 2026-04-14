@@ -459,12 +459,44 @@
 - Actions taken:
   - Wired contact-us form: created `web/services/contactService.ts`, added types to `web/types/api.ts`, integrated into `web/components/issue/contact-us-section.tsx` with `useTransition`, validation, loading states, success/error feedback.
   - Wired newsletter signup: created `web/services/newsletterService.ts`, added types, integrated into `web/components/home/newsletter-preview-section.tsx` with matching UX.
+  - Created API client library: `web/lib/api/client.ts` (axios instance, auth interceptors, 401 refresh queue), `web/lib/api/endpoints.ts` (typed endpoint constants for all magazine, contact, newsletter, and comments routes), `web/lib/api/error.ts` (error normalization).
+  - Created dynamic issue route `web/app/issue/[slug]/page.tsx` with server-side `generateMetadata` and `generateStaticParams` fetching from the API, `notFound()` on 404, and article structured data/share/content rendering.
+  - Built full-stack comments system:
+    - Backend: `api/src/modules/comments/` — Zod schema, service (mock data for approval flow + Prisma write path), controller, and routes mounted at `/api/comments`.
+    - Prisma: added `Comment` model with threaded `replies` self-relation and `status` lifecycle to `api/prisma/schema.prisma`.
+    - Mock seed: `api/src/data/mock-comments.json` for development without live DB.
+    - Frontend components: `web/components/comments/CommentsSection.tsx`, `CommentCard.tsx`, `CommentForm.tsx`, `CommentList.tsx`, `CommentReply.tsx`.
+    - Service: `web/services/commentService.ts` (fetchComments, submitComment, deleteComment, approveComment).
+    - Types: `web/types/comment.ts` (`Comment`, `CreateCommentInput`).
+    - Hook: `web/hooks/useComments.ts` using `@tanstack/react-query` for query + mutation with cache invalidation.
+    - UI primitive: `web/components/ui/avatar.tsx` (shadcn-style avatar for comment cards).
 - Files created/modified:
   - `web/services/contactService.ts` (created)
   - `web/services/newsletterService.ts` (created)
-  - `web/types/api.ts` (updated with ContactInput, ContactResponse, NewsletterInput, NewsletterResponse)
+  - `web/services/commentService.ts` (created)
+  - `web/types/api.ts` (updated with ContactInput, ContactResponse, NewsletterInput, NewsletterResponse, Magazine, MagazineListResponse, MagazineResponse, CreateMagazineInput)
+  - `web/types/comment.ts` (created)
+  - `web/lib/api/client.ts` (created)
+  - `web/lib/api/endpoints.ts` (created)
+  - `web/lib/api/error.ts` (created)
+  - `web/app/issue/[slug]/page.tsx` (created)
+  - `web/hooks/useComments.ts` (created)
+  - `web/components/comments/CommentsSection.tsx` (created)
+  - `web/components/comments/CommentCard.tsx` (created)
+  - `web/components/comments/CommentForm.tsx` (created)
+  - `web/components/comments/CommentList.tsx` (created)
+  - `web/components/comments/CommentReply.tsx` (created)
+  - `web/components/ui/avatar.tsx` (created)
   - `web/components/issue/contact-us-section.tsx` (updated with API integration)
   - `web/components/home/newsletter-preview-section.tsx` (updated with API integration)
+  - `api/src/modules/comments/comments.controller.ts` (created)
+  - `api/src/modules/comments/comments.routes.ts` (created)
+  - `api/src/modules/comments/comments.schema.ts` (created)
+  - `api/src/modules/comments/comments.service.ts` (created)
+  - `api/src/data/mock-comments.json` (created)
+  - `api/prisma/schema.prisma` (updated — Comment model added)
+  - `api/src/app.ts` (updated — comments routes mounted at `/api/comments`)
+  - `web/package.json` (updated — `@tanstack/react-query` and `axios` added)
 
 ### Phase 6: Testing and polish
 

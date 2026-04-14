@@ -2,11 +2,11 @@
 
 ## Goal
 
-Scaffold a production-ready MVP digital magazine web application with a Next.js 14 frontend in `/web` and an Express + Prisma + MongoDB backend in `/api`, delivered phase by phase with working article, newsletter, contact, theme, consent, and SEO flows.
+Scaffold a production-ready MVP digital magazine web application with a Next.js 14 frontend in `/web` and an Express + Prisma + MongoDB backend in `/api`, delivered phase by phase with working article, newsletter, contact, comments, theme, consent, and SEO flows.
 
 ## Current Phase
 
-Phase 4 complete - backend reinforcement before Phase 5
+Phase 5 in progress — dynamic issue route done, comments system done, GA consent-gating and final contract verification remaining
 
 ## Phases
 
@@ -54,9 +54,11 @@ Phase 4 complete - backend reinforcement before Phase 5
 
 - [x] Connect newsletter signup to backend with clear success and error feedback
 - [x] Connect contact form with validation, honeypot, and submission states
-- [ ] Fetch and render Issue 1 content from the API
-- [ ] Add GA consent-gated loading and social share behavior
-- [ ] Verify explicit API contracts between frontend and backend
+- [x] Create API client library (axios, typed endpoints, error normalization)
+- [x] Build dynamic issue route `/issue/[slug]` with server-side API fetch and metadata
+- [x] Build full-stack comments system (backend module + frontend components + service + hook)
+- [ ] Add GA consent-gated loading (wire existing consent provider to actual GA4 script injection)
+- [ ] Verify explicit API contracts between frontend and backend (run both apps and confirm end-to-end)
 - [ ] Refine component boundaries where integration exposes coupling
 - **Status:** in progress
 
@@ -101,7 +103,11 @@ Phase 4 complete - backend reinforcement before Phase 5
 | Refactor the backend into feature-first modules before Phase 5                                       | Keeps domain code together and gives the API a stronger structure before integration work starts                                                                                      |
 | Add a `status` lifecycle and separate reader/admin magazine routes before Phase 5                    | Lets public routes expose published content only while admin routes manage draft, publish, unpublish, archive, and duplicate workflows explicitly                                     |
 | Add Swagger UI for the magazine module before Phase 5                                                | Gives the backend a fast visual contract-checking surface for reader and admin issue endpoints before frontend integration starts                                                     |
-| Phase 5 will use only `POST /api/newsletter`, `POST /api/contact`, and `GET /api/magazine/issue/:id` | Those are the only routes with current frontend consumers; list/search/featured/admin routes can stay unused until matching UI exists                                                 |
+| Phase 5 uses `POST /api/newsletter`, `POST /api/contact`, `GET /api/magazine/issue/:id`, `GET /api/comments`, `POST /api/comments` | Those are the routes with current frontend consumers                                                                                             |
+| Build comments as a full-stack Phase 5 feature                                                       | Reader engagement (threaded comments with approval flow) was identified as a needed extension before Phase 6 testing                                                                 |
+| Comments service uses mock data for the read path and live Prisma for the write path                 | Lets the comments UI work without a running DB seed while still exercising real write/moderation logic once the DB is connected                                                       |
+| Use `@tanstack/react-query` for frontend comment fetching                                            | Provides cache invalidation on submit, loading/error states, and a reusable hook surface without adding Redux or extra boilerplate                                                   |
+| Dynamic issue route lives at `/issue/[slug]` not `/issue-1`                                          | Slug-based routing matches the backend `Magazine.slug` field and scales to future issues without new route files                                                                     |
 
 ## Errors Encountered
 
@@ -124,3 +130,7 @@ Phase 4 complete - backend reinforcement before Phase 5
 - Phase 2 deliverables are complete for the backend scaffold and stop short of Phase 3 frontend work.
 - Phase 3 deliverables are complete for the frontend foundation and stop short of Phase 4's full page implementation work.
 - Phase 4 deliverables are complete for the modular page UI and stop short of Phase 5 API integration.
+- Phase 5 is in progress: newsletter ✓, contact ✓, API client ✓, dynamic issue route ✓, comments system ✓. Remaining: GA wiring, end-to-end contract verification, component boundary cleanup.
+- The old `/issue-1` static route and the new `/issue/[slug]` dynamic route currently coexist. The dynamic route is the intended production path; the static one can be removed once the API is confirmed live.
+- Admin magazine routes are unauthenticated and should be protected before any public backend deployment.
+- Comments read path currently uses mock JSON; the Prisma write path is live. Full DB-backed reads will activate once the `Comment` model is pushed to the database.

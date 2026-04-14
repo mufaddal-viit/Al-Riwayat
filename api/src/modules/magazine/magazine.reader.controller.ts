@@ -65,19 +65,20 @@ export async function getPublishedIssues(_req: Request, res: Response) {
   }
 }
 export async function searchIssues(
-  req: Request<Record<string, never>, unknown, unknown, MagazineSearchQuery>,
+  req: Request,
   res: Response,
 ) {
   try {
-    const issues = await searchPublishedIssues(req.query);
+    const issues = await searchPublishedIssues(req.query as unknown as MagazineSearchQuery);
 
     return res.status(200).json(issues);
   } catch (error) {
-    console.error(`Failed to search issues for "${req.query.q}".`, error);
+    console.error(`Failed to search issues for "${(req.query as unknown as MagazineSearchQuery).q}".`, error);
 
     return res.status(500).json({
       success: false,
       message: "Unable to search issues right now.",
     });
+
   }
 }
