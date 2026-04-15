@@ -1,30 +1,34 @@
-import type { Metadata } from "next";
-import type { Magazine } from "@/types/api";
-
-import { notFound } from "next/navigation";
-
-import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
-import { ArticleStructuredData } from "@/components/issue/article-structured-data";
-import { IssueRichContent } from "@/components/issue/issue-rich-content";
-import { IssueShareActions } from "@/components/issue/issue-share-actions";
-import { buildMetadata } from "@/lib/metadata";
-import { ENDPOINTS } from "@/lib/api/endpoints";
-import { apiClient } from "@/lib/api/client";
-import type { ApiResponse, PaginatedResponse } from "@/types/api";
+import type { Magazine, ApiResponse, PaginatedResponse } from "@/types/api";
 import { AppError } from "@/lib/api/error";
+import { ENDPOINTS } from "@/lib/api/endpoints";
+import { buildMetadata } from "@/lib/metadata";
+import { IssuePageClient } from "./IssuePageClient";
+import type { Metadata } from "next";
 
 // ─── Server-side helper ───────────────────────────────────────────────────────
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
-async function serverFetch<T>(
-  endpoint: string,
-  init?: RequestInit,
-): Promise<T> {
-  const res = await fetch(`${API_URL}${endpoint}`, init);
+async function serverFetch<T>(endpoint: string): Promise<T> {
+  const res = await fetch(`${API_URL}${endpoint}`);
   if (!res.ok)
     throw new AppError({ message: res.statusText, status: res.status });
   return res.json();
+}
+
+// ─── Static params (required for output: "export") ───────────────────────────
+
+export async function generateStaticParams() {
+  try {
+    const { data: issues } = await serverFetch<PaginatedResponse<Magazine>>(
+      ENDPOINTS.magazine.list,
+    );
+    return issues.map((issue) => ({ slug: issue.slug }));
+  } catch {
+    // API not reachable at build time — no pages pre-rendered.
+    // The client component will fetch data at runtime instead.
+    return [];
+  }
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -37,61 +41,24 @@ export async function generateMetadata({
   try {
     const { data: magazine } = await serverFetch<ApiResponse<Magazine>>(
       ENDPOINTS.magazine.byId(params.slug),
-      { next: { revalidate: 3600 } },
     );
-
     return buildMetadata({
       title: magazine.title,
       description: magazine.summary,
-      path: `/issues/${params.slug}`, // ← canonical URL path
+      path: `/issue/${params.slug}`,
       image: magazine.coverImageUrl,
     });
   } catch {
     return buildMetadata({
-      title: "Issue Not Found",
-      description: "This issue could not be found.",
-      path: `/issues/${params.slug}`,
+      title: "Issue",
+      description: "Al-Riwayat Magazine issue.",
+      path: `/issue/${params.slug}`,
     });
   }
 }
 
-// ─── Static Params ───────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
-export async function generateStaticParams() {
-  try {
-    const { data: issues } = await serverFetch<PaginatedResponse<Magazine>>(
-      ENDPOINTS.magazine.list,
-      { next: { revalidate: 3600 } },
-    );
-    return issues.map((issue) => ({ slug: issue.slug }));
-  } catch {
-    return [];
-  }
-}
-
-// ─── Page ────────────────────────────────────────────────────────────────────
-
-export default async function IssuePage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  try {
-    const { data: response } = await apiClient.get<ApiResponse<Magazine>>(
-      ENDPOINTS.magazine.byId(params.slug),
-    );
-    const magazine = response.data;
-
-    return (
-      <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
-        <ArticleStructuredData magazine={magazine} />
-        <IssueShareActions />
-        <IssueRichContent magazine={magazine} />
-        <NewsletterPreviewSection />
-      </div>
-    );
-  } catch (err) {
-    if (err instanceof AppError && err.status === 404) notFound();
-    throw err;
-  }
+export default function IssuePage({ params }: { params: { slug: string } }) {
+  return <IssuePageClient slug={params.slug} />;
 }

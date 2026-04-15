@@ -1,35 +1,66 @@
 export const ENDPOINTS = {
-  // Magazine Reader (public)
+  // ─── Auth ──────────────────────────────────────────────────────────────────
+  auth: {
+    register:           "/auth/register",
+    login:              "/auth/login",
+    logout:             "/auth/logout",
+    refresh:            "/auth/refresh",
+    me:                 "/auth/me",
+    updateProfile:      "/auth/me",
+    changePassword:     "/auth/me/password",
+    deleteAccount:      "/auth/me",
+    verifyEmail:        "/auth/verify-email",
+    resendVerification: "/auth/resend-verification",
+    forgotPassword:     "/auth/forgot-password",
+    resetPassword:      "/auth/reset-password",
+  },
+
+  // ─── Magazine Reader (public) ──────────────────────────────────────────────
   magazine: {
     featured: "/magazine/issues/featured",
-    list: "/magazine/issues",
-    byId: (id: string) => `/magazine/issue/${id}`,
-    search: (q: string) => `/magazine/issues/search?q=${encodeURIComponent(q)}`,
+    list:     "/magazine/issues",
+    byId:     (id: string) => `/magazine/issue/${id}`,
+    search:   (q: string) => `/magazine/issues/search?q=${encodeURIComponent(q)}`,
   },
-  // Magazine Admin
+
+  // ─── Magazine Admin ────────────────────────────────────────────────────────
   "magazine.admin": {
     issues: {
-      list: "/admin/magazine/issues",
-      create: "/admin/magazine/issues",
-      byId: (id: string) => `/admin/magazine/issues/${id}`,
-      update: (id: string) => `/admin/magazine/issues/${id}`,
-      replace: (id: string) => `/admin/magazine/issues/${id}`,
-      publish: (id: string) => `/admin/magazine/issues/${id}/publish`,
+      list:      "/admin/magazine/issues",
+      create:    "/admin/magazine/issues",
+      byId:      (id: string) => `/admin/magazine/issues/${id}`,
+      update:    (id: string) => `/admin/magazine/issues/${id}`,
+      replace:   (id: string) => `/admin/magazine/issues/${id}`,
+      publish:   (id: string) => `/admin/magazine/issues/${id}/publish`,
       unpublish: (id: string) => `/admin/magazine/issues/${id}/unpublish`,
-      archive: (id: string) => `/admin/magazine/issues/${id}/archive`,
+      archive:   (id: string) => `/admin/magazine/issues/${id}/archive`,
       duplicate: (id: string) => `/admin/magazine/issues/${id}/duplicate`,
     },
   },
-  // Forms
-  contact: {
-    submit: "/contact",
+
+  // ─── Admin Users ───────────────────────────────────────────────────────────
+  "admin.users": {
+    list:   "/admin/users",
+    byId:   (id: string) => `/admin/users/${id}`,
+    update: (id: string) => `/admin/users/${id}`,
+    delete: (id: string) => `/admin/users/${id}`,
   },
-  newsletter: {
-    subscribe: "/newsletter",
+
+  // ─── Forms ─────────────────────────────────────────────────────────────────
+  contact:    { submit:    "/contact" },
+  newsletter: { subscribe: "/newsletter" },
+
+  // ─── Comments ──────────────────────────────────────────────────────────────
+  comments: {
+    list:    "/comments",
+    create:  "/comments",
+    approve: (id: string) => `/comments/${id}/approve`,
+    delete:  (id: string) => `/comments/${id}`,
   },
-  // Utils
+
+  // ─── Utils ─────────────────────────────────────────────────────────────────
   health: "/health",
-  docs: "/docs/magazine.json",
+  docs:   "/docs/magazine.json",
 } as const;
 
 export type ApiEndpoints = typeof ENDPOINTS;

@@ -1,20 +1,49 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { normalizeError } from "./error";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api";
-console.log(BASE_URL);
-const REQUEST_TIMEOUT = 15_000; // 15s
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const REQUEST_TIMEOUT = 15_000; // 15 s
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: REQUEST_TIMEOUT,
+  withCredentials: true,          // sends httpOnly refresh-token cookie on every request
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// ─── Request Interceptor ─────────────────────────────────────────────────────
+// ─── Token helpers ─────────────────────────────────────────────────────────────
+// Access token lives in memory (module-level variable) so it is never readable
+// by third-party scripts.  Falls back to localStorage for page refreshes.
+
+const ACCESS_TOKEN_KEY = "access_token";
+
+export function getAccessToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function setAccessToken(token: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(ACCESS_TOKEN_KEY, token);
+}
+
+export function clearAccessToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+}
+
+// Called by the auth context on logout / session expiry
+export function clearSession(): void {
+  clearAccessToken();
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+}
+
+// ─── Request interceptor — attach Bearer token ────────────────────────────────
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -25,15 +54,15 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// ─── Response Interceptor ────────────────────────────────────────────────────
+// ─── Response interceptor — silent token refresh on 401 ──────────────────────
 
 let isRefreshing = false;
 let failedQueue: Array<{
-  resolve: (v: unknown) => void;
-  reject: (e: unknown) => void;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
 }> = [];
 
-function processQueue(error: unknown, token: string | null = null) {
+function processQueue(error: unknown, token: string | null = null): void {
   failedQueue.forEach(({ resolve, reject }) =>
     error ? reject(error) : resolve(token),
   );
@@ -47,9 +76,12 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    // Token refresh on 401
-    if (error.response?.status === 401 && !original._retry) {
+    // Only attempt refresh on 401s that haven't been retried yet
+    // and are not the refresh endpoint itself (prevents infinite loop)
+    const isRefreshEndpoint = original.url?.includes("/auth/refresh");
+    if (error.response?.status === 401 && !original._retry && !isRefreshEndpoint) {
       if (isRefreshing) {
+        // Queue the failed request — it will be retried after refresh resolves
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -71,41 +103,28 @@ apiClient.interceptors.response.use(
         return apiClient(original);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        clearSession(); // logout user
+        clearSession();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(normalizeError(error as AxiosError));
+    return Promise.reject(normalizeError(error as AxiosError<import("@/types/api").ApiError>));
   },
 );
 
-// ─── Token Helpers (swap with your auth solution) ────────────────────────────
-
-function getAccessToken(): string | null {
-  return typeof window !== "undefined"
-    ? localStorage.getItem("access_token")
-    : null;
-}
-
-function setAccessToken(token: string): void {
-  localStorage.setItem("access_token", token);
-}
-
-function clearSession(): void {
-  localStorage.removeItem("access_token");
-  window.location.href = "/login";
-}
+// ─── Refresh helper ───────────────────────────────────────────────────────────
 
 async function refreshAccessToken(): Promise<string> {
-  const { data } = await axios.post<{ accessToken: string }>(
+  // Use a plain axios call (not apiClient) to avoid triggering the interceptor again
+  const { data } = await axios.post<{
+    success: boolean;
+    data: { accessToken: string };
+  }>(
     `${BASE_URL}/auth/refresh`,
     null,
-    {
-      withCredentials: true, // refresh token sent via httpOnly cookie
-    },
+    { withCredentials: true },
   );
-  return data.accessToken;
+  return data.data.accessToken;
 }

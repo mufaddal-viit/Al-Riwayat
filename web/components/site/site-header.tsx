@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, LogOut, Menu, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -57,8 +58,149 @@ function NavLink({
   );
 }
 
+// ─── User nav (desktop) ────────────────────────────────────────────────────────
+
+function UserNav() {
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  if (isLoading) return null;
+
+  if (!isAuthenticated) {
+    return (
+      <Button asChild size="sm" variant="outline" className="border-border/60 bg-card/55 shadow-lifted backdrop-blur-xl hover:-translate-y-0.5 hover:bg-card/80">
+        <Link href="/login">Sign in</Link>
+      </Button>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            navChipClass,
+            "gap-2 border-border/60 bg-card/55 shadow-lifted backdrop-blur-xl hover:-translate-y-0.5 hover:bg-card/80",
+          )}
+          aria-label="Account menu"
+        >
+          <User className="h-4 w-4 shrink-0" />
+          <span className="max-w-[120px] truncate text-sm">
+            {user?.firstName}
+          </span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-48 border-border/60 bg-background/82 p-2 shadow-editorial backdrop-blur-2xl"
+      >
+        <DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground">
+          {user?.email}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="bg-border/80" />
+        <DropdownMenuItem asChild>
+          <Link href="/account" className="gap-2">
+            <User className="h-4 w-4" />
+            Account
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-border/80" />
+        <DropdownMenuItem
+          onClick={() => logout()}
+          className="gap-2 text-destructive focus:text-destructive"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ─── Mobile nav ────────────────────────────────────────────────────────────────
+
+function MobileNav({
+  pathname,
+  onClose,
+  isAuthenticated,
+}: {
+  pathname: string;
+  onClose: () => void;
+  isAuthenticated: boolean;
+}) {
+  const { user, logout } = useAuth();
+  const mobileLinkClass = cn(
+    "rounded-[1.25rem] border px-4 py-3 text-base font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+  );
+
+  return (
+    <nav className="mt-8 flex flex-col gap-2">
+      {[...siteConfig.navItems, ...siteConfig.moreItems].map((item) => (
+        <Link
+          key={`${item.href}-${item.label}`}
+          href={item.href}
+          onClick={onClose}
+          aria-current={pathname === item.href ? "page" : undefined}
+          className={cn(
+            mobileLinkClass,
+            pathname === item.href
+              ? "border-border/70 bg-card/80 text-foreground shadow-lifted"
+              : "border-transparent bg-card/45 text-muted-foreground hover:border-border/60 hover:bg-card/70 hover:text-foreground",
+          )}
+        >
+          {item.label}
+        </Link>
+      ))}
+
+      {/* Auth links */}
+      <div className="mt-4 border-t border-border/50 pt-4">
+        {isAuthenticated ? (
+          <>
+            <p className="mb-2 truncate px-1 text-xs text-muted-foreground">{user?.email}</p>
+            <Link
+              href="/account"
+              onClick={onClose}
+              className={cn(
+                mobileLinkClass,
+                "flex items-center gap-2 border-transparent bg-card/45 text-muted-foreground hover:border-border/60 hover:bg-card/70 hover:text-foreground",
+              )}
+            >
+              <User className="h-4 w-4" />
+              Account
+            </Link>
+            <button
+              onClick={() => { onClose(); logout(); }}
+              className={cn(
+                mobileLinkClass,
+                "mt-2 flex w-full items-center gap-2 border-transparent bg-card/45 text-destructive hover:border-border/60 hover:bg-card/70",
+              )}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link
+            href="/login"
+            onClick={onClose}
+            className={cn(
+              mobileLinkClass,
+              "flex items-center justify-center border-border/60 bg-card/55 text-foreground shadow-lifted",
+            )}
+          >
+            Sign in
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+// ─── SiteHeader ────────────────────────────────────────────────────────────────
+
 export function SiteHeader() {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
@@ -110,6 +252,7 @@ export function SiteHeader() {
             <div className="hidden items-center justify-end gap-2 md:flex">
               <PaletteToggle />
               <ThemeToggle />
+              <UserNav />
             </div>
 
             <div className="flex items-center justify-end gap-2 md:hidden">
@@ -136,28 +279,11 @@ export function SiteHeader() {
                       Explore the magazine through a calmer, mobile-first reading menu.
                     </SheetDescription>
                   </SheetHeader>
-                  <nav className="mt-8 flex flex-col gap-2">
-                    {[...siteConfig.navItems, ...siteConfig.moreItems].map(
-                      (item) => (
-                        <Link
-                          key={`${item.href}-${item.label}`}
-                          href={item.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          aria-current={
-                            pathname === item.href ? "page" : undefined
-                          }
-                          className={cn(
-                            "rounded-[1.25rem] border px-4 py-3 text-base font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                            pathname === item.href
-                              ? "border-border/70 bg-card/80 text-foreground shadow-lifted"
-                              : "border-transparent bg-card/45 text-muted-foreground hover:border-border/60 hover:bg-card/70 hover:text-foreground",
-                          )}
-                        >
-                          {item.label}
-                        </Link>
-                      ),
-                    )}
-                  </nav>
+                  <MobileNav
+                    pathname={pathname}
+                    onClose={() => setIsMobileMenuOpen(false)}
+                    isAuthenticated={isAuthenticated}
+                  />
                 </SheetContent>
               </Sheet>
             </div>
