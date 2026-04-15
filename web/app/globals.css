@@ -34,14 +34,15 @@
     --card-foreground: oklch(0.366 0.0251 49.6085);
     --popover: oklch(0.9686 0.0091 78.2818);
     --popover-foreground: oklch(0.366 0.0251 49.6085);
-    --primary: oklch(0.5553 0.1455 48.9975);
+    --primary: oklch(62.314% 0.1033 56.814);
     --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.8276 0.0752 74.44);
     --secondary-foreground: oklch(0.4444 0.0096 73.639);
     --muted: oklch(0.9363 0.0218 83.2637);
     --muted-foreground: oklch(0.5534 0.0116 58.0708);
-    --accent: oklch(0.9 0.05 74.9889);
-    --accent-foreground: oklch(0.4444 0.0096 73.639);
+    --accent: oklch(0.4067 0.0574 50.5998);
+    /* --accent-foreground: oklch(0.4444 0.0096 73.639); */
+    --accent-foreground: oklch(0.9232 0.0026 48.7171);
     --destructive: oklch(0.4437 0.1613 26.8994);
     --destructive-foreground: oklch(1 0 0);
     --border: oklch(0.8866 0.0404 89.6994);
@@ -80,13 +81,14 @@
     --card-foreground: oklch(0.9699 0.0013 106.4238);
     --popover: oklch(0.2685 0.0063 34.2976);
     --popover-foreground: oklch(0.9699 0.0013 106.4238);
-    --primary: oklch(0.7049 0.1867 47.6044) ;
+    --primary: oklch(62.314% 0.1033 56.814);
     --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.4444 0.0096 73.639);
     --secondary-foreground: oklch(0.9232 0.0026 48.7171);
     --muted: oklch(0.233 0.0073 67.4563);
     --muted-foreground: oklch(0.7161 0.0091 56.259);
-    --accent: oklch(0.3598 0.0497 229.3202);
+    /* --accent: oklch(0.3598 0.0497 229.3202); */
+    --accent: oklch(0.4067 0.0574 50.5998);
     --accent-foreground: oklch(0.9232 0.0026 48.7171);
     --destructive: oklch(0.5771 0.2152 27.325);
     --destructive-foreground: oklch(1 0 0);
@@ -107,7 +109,11 @@
     @apply bg-background font-body text-foreground antialiased;
     line-height: 1.7;
     background-image:
-      radial-gradient(circle at top, color-mix(in oklab, var(--secondary) 42%, transparent), transparent 28%),
+      radial-gradient(
+        circle at top,
+        color-mix(in oklab, var(--secondary) 42%, transparent),
+        transparent 28%
+      ),
       linear-gradient(
         to bottom,
         var(--background),

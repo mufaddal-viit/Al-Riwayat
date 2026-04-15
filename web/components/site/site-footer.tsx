@@ -22,7 +22,7 @@ const socialIconMap: Record<string, LucideIcon> = {
 export function SiteFooter() {
   return (
     <footer className="mt-16 px-4 pb-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[1280px]">
         <div className="overflow-hidden rounded-[2.5rem] border border-border/60 bg-background/72 shadow-editorial backdrop-blur-2xl">
           <div className="px-6 py-8 sm:px-8 sm:py-10">
             {/* Top row — brand + social */}

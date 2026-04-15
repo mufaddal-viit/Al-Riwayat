@@ -61,12 +61,12 @@ export function FeaturedIssueCard() {
         <div className="space-y-4">
           <Badge
             variant="outline"
-            className="border-accent-foreground/20 bg-card/40"
+            className="border-accent-foreground/20 bg-card/40 text-accent-foreground/80"
           >
             Featured Issue
           </Badge>
           <div className="space-y-2">
-            <h3 className="font-heading text-2xl leading-tight">
+            <h3 className="font-heading text-2xl leading-tight text-accent-foreground/80">
               {featured.title}
             </h3>
             <p className="text-sm leading-7 text-accent-foreground/80">

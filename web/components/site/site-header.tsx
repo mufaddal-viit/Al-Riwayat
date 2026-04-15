@@ -213,7 +213,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-[1280px]">
         <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-background/72 shadow-editorial backdrop-blur-2xl">
           <div className="relative grid min-h-[88px] grid-cols-[1fr_auto] items-center gap-4 px-4 py-3 md:grid-cols-[1fr_auto_1fr] md:px-6">
             <SiteBrand priority />

@@ -22,9 +22,13 @@ export default function MissionPage() {
       <MissionStatementSection />
       <MissionValuesSection />
       <MissionStanceSection />
-      <p className="text-xs uppercase tracking-[0.2em] text-primary">
-        Continue Reading
-      </p>
+      <div className="space-y-3">
+        {/* <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Issue 1
+        </p> */}
+        <h2 className="text-3xl sm:text-4xl">Continue Reading</h2>
+      </div>
+
       <FeaturedIssueCard />
       {/* <MissionCtaSection /> */}
     </div>
