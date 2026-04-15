@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 
+import { Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -76,14 +78,14 @@ export function NewsletterPreviewSection() {
                 aria-describedby="newsletter-preview-message"
                 className="sm:flex-1"
               />
-              <Button
-                type="submit"
-                className="sm:min-w-[168px]"
-                variant="outline"
-                disabled={isPending}
-              >
-                {isPending ? "Joining..." : "Join the List"}
-              </Button>
+              <SubmitButton
+                icon={Newspaper}
+                label="Join the List"
+                pendingLabel="Joining…"
+                isPending={isPending}
+                // variant="outline"
+                className="w-auto sm:min-w-[168px]"
+              />
             </div>
             <p
               id="newsletter-preview-message"

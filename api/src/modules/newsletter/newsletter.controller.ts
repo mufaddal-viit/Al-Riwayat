@@ -5,7 +5,7 @@ import { createNewsletterSubscription } from "./newsletter.service";
 
 export async function subscribeToNewsletter(
   req: Request<Record<string, never>, unknown, NewsletterInput>,
-  res: Response
+  res: Response,
 ) {
   try {
     const response = await createNewsletterSubscription(req.body);

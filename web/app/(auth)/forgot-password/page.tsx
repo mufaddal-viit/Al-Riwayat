@@ -3,8 +3,11 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 
+import { Mail } from "lucide-react";
+
 import { forgotPassword } from "@/services/authService";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -90,9 +93,12 @@ export default function ForgotPasswordPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-2">
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Sending…" : "Send reset link"}
-          </Button>
+          <SubmitButton
+            icon={Mail}
+            label="Send reset link"
+            pendingLabel="Sending…"
+            isPending={isPending}
+          />
           <Link href="/login" className="text-center text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
             Back to sign in
           </Link>

@@ -1,36 +1,178 @@
 [
   {
-    "id": "1",
-    "body": "Great issue! The design choices really elevate the reading experience.",
-    "authorName": "Sarah Johnson",
-    "authorEmail": "sarah@example.com",
+    "id": "6645a1f2e4b0c3d7a9f12301",
+    "body": "This issue genuinely surprised me. The editorial on memory and place hit closer to home than I expected — I grew up in a city that no longer exists in the way I remember it. The way the piece holds grief and nostalgia at arm's length without dismissing either one is rare in print.",
+    "authorName": "Layla Hassan",
+    "authorEmail": "layla.h@example.com",
     "pageSlug": "home",
     "parentId": null,
-    "createdAt": "2024-04-15T10:30:00Z",
-    "updatedAt": "2024-04-15T10:30:00Z",
-    "replies": [
-      {
-        "id": "2",
-        "body": "Absolutely agree. The typography is top-notch.",
-        "authorName": "Mike Chen",
-        "authorEmail": "mike@example.com",
-        "pageSlug": "issues/issue-1",
-        "parentId": "1",
-        "createdAt": "2024-04-15T11:00:00Z",
-        "updatedAt": "2024-04-15T11:00:00Z",
-        "replies": []
-      }
-    ]
+    "status": "APPROVED",
+    "createdAt": "2024-05-01T08:14:00Z",
+    "updatedAt": "2024-05-01T08:14:00Z"
   },
   {
-    "id": "3",
-    "body": "Loving the editorial stance in this month's piece. Thought-provoking content.",
-    "authorName": "Emma Rodriguez",
-    "authorEmail": "emma@example.com",
-    "pageSlug": "issues/issue-1",
+    "id": "6645a1f2e4b0c3d7a9f12302",
+    "body": "Beautifully said. I felt the same — there's a restraint to the writing that makes it land harder, not softer.",
+    "authorName": "Omar Siddiqui",
+    "authorEmail": "omar.s@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645a1f2e4b0c3d7a9f12301",
+    "status": "APPROVED",
+    "createdAt": "2024-05-01T09:40:00Z",
+    "updatedAt": "2024-05-01T09:40:00Z"
+  },
+  {
+    "id": "6645a1f2e4b0c3d7a9f12303",
+    "body": "I'd push back gently on that read. I thought the restraint sometimes tipped into distance — a few passages felt like the writer was observing grief rather than inside it. Still a strong piece, just not flawless.",
+    "authorName": "Nadia Farooq",
+    "authorEmail": "nadia.f@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645a1f2e4b0c3d7a9f12301",
+    "status": "APPROVED",
+    "createdAt": "2024-05-01T11:05:00Z",
+    "updatedAt": "2024-05-01T11:05:00Z"
+  },
+  {
+    "id": "6645a2e3f5c1d8b0a7e43401",
+    "body": "Quick question for anyone who has read the full archive: is the visual language consistent across all issues, or does it shift dramatically? The layout in this one felt very considered — almost architectural.",
+    "authorName": "Tariq Mehmood",
+    "authorEmail": "tariq.m@example.com",
+    "pageSlug": "issue-1",
     "parentId": null,
-    "createdAt": "2024-04-16T14:20:00Z",
-    "updatedAt": "2024-04-16T14:20:00Z",
-    "replies": []
+    "status": "APPROVED",
+    "createdAt": "2024-05-02T14:22:00Z",
+    "updatedAt": "2024-05-02T14:22:00Z"
+  },
+  {
+    "id": "6645a2e3f5c1d8b0a7e43402",
+    "body": "The grid shifts significantly in later issues — issue 3 onwards gets much looser. This first one is the most structured. Worth reading them in order if you can.",
+    "authorName": "Sara Al-Amin",
+    "authorEmail": "sara.a@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645a2e3f5c1d8b0a7e43401",
+    "status": "APPROVED",
+    "createdAt": "2024-05-02T15:48:00Z",
+    "updatedAt": "2024-05-02T15:48:00Z"
+  },
+  {
+    "id": "6645b3c4a6d2e9c1b8f56501",
+    "body": "مقال رائع. أتمنى أن يُترجم إلى العربية حتى يصل إلى جمهور أوسع — المحتوى يستحق ذلك بجدارة.",
+    "authorName": "Yousef Al-Rashid",
+    "authorEmail": "yousef.r@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-03T07:11:00Z",
+    "updatedAt": "2024-05-03T07:11:00Z"
+  },
+  {
+    "id": "6645b3c4a6d2e9c1b8f56502",
+    "body": "أتفق تماماً. الترجمة ستفتح الباب لقراء كثيرين لم يتعرضوا لهذا النوع من الكتابة من قبل.",
+    "authorName": "Hana Karimi",
+    "authorEmail": "hana.k@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645b3c4a6d2e9c1b8f56501",
+    "status": "APPROVED",
+    "createdAt": "2024-05-03T09:30:00Z",
+    "updatedAt": "2024-05-03T09:30:00Z"
+  },
+  {
+    "id": "6645c4d5b7e3f0d2c9a67601",
+    "body": "Honest take: the photography outshines the writing this issue. Not a criticism of the text — the images are just extraordinary. The spread on pages 18–21 stopped me for a long time.",
+    "authorName": "Bilal Chaudhry",
+    "authorEmail": "bilal.c@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-04T16:55:00Z",
+    "updatedAt": "2024-05-04T16:55:00Z"
+  },
+  {
+    "id": "6645c4d5b7e3f0d2c9a67602",
+    "body": "Those pages stopped me too. Do you know who the photographer is? I didn't see a byline.",
+    "authorName": "Mariam Jafar",
+    "authorEmail": "mariam.j@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645c4d5b7e3f0d2c9a67601",
+    "status": "APPROVED",
+    "createdAt": "2024-05-04T18:10:00Z",
+    "updatedAt": "2024-05-04T18:10:00Z"
+  },
+  {
+    "id": "6645c4d5b7e3f0d2c9a67603",
+    "body": "It's credited in the colophon at the back — Reem Al-Zahrani. Well worth looking up her other work.",
+    "authorName": "Bilal Chaudhry",
+    "authorEmail": "bilal.c@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645c4d5b7e3f0d2c9a67601",
+    "status": "APPROVED",
+    "createdAt": "2024-05-04T19:02:00Z",
+    "updatedAt": "2024-05-04T19:02:00Z"
+  },
+  {
+    "id": "6645d5e6c8f4a1e3d0b78701",
+    "body": "First time reader here. Found this through a link shared in a reading group. Subscribed immediately after finishing. The combination of literary and visual content is exactly what I've been looking for.",
+    "authorName": "Priya Nair",
+    "authorEmail": "priya.n@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-05T10:33:00Z",
+    "updatedAt": "2024-05-05T10:33:00Z"
+  },
+  {
+    "id": "6645d5e6c8f4a1e3d0b78702",
+    "body": "Welcome! The back issues are all worth reading in order — each one builds on the last in ways that aren't always obvious until later.",
+    "authorName": "Layla Hassan",
+    "authorEmail": "layla.h@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6645d5e6c8f4a1e3d0b78701",
+    "status": "APPROVED",
+    "createdAt": "2024-05-05T11:50:00Z",
+    "updatedAt": "2024-05-05T11:50:00Z"
+  },
+  {
+    "id": "6645e6f7d9a5b2f4e1c89801",
+    "body": "One thing I'd love to see in future issues: longer conversations with the contributors. The brief bio notes are fine but I always want to know more about the process behind a piece — especially the translated work.",
+    "authorName": "Faisal Al-Otaibi",
+    "authorEmail": "faisal.o@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-06T13:17:00Z",
+    "updatedAt": "2024-05-06T13:17:00Z"
+  },
+  {
+    "id": "6645f7a8e0b6c3a5f2d90901",
+    "body": "Received my print copy today. The paper stock and binding feel premium — you can tell care went into the physical object, not just the content. Stacking this alongside Granta and The Paris Review without hesitation.",
+    "authorName": "Zainab Mirza",
+    "authorEmail": "zainab.m@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-07T20:44:00Z",
+    "updatedAt": "2024-05-07T20:44:00Z"
+  },
+  {
+    "id": "6646a1b2c3d4e5f6a7b8c901",
+    "body": "I've been following Al-Riwayat since the very first issue. What strikes me about this one is how the theme of displacement is threaded across every piece — even the ones that don't explicitly name it. That kind of editorial cohesion is hard to achieve.",
+    "authorName": "Khaled Mansour",
+    "authorEmail": "khaled.m@example.com",
+    "pageSlug": "issue-1",
+    "parentId": null,
+    "status": "APPROVED",
+    "createdAt": "2024-05-08T09:05:00Z",
+    "updatedAt": "2024-05-08T09:05:00Z"
+  },
+  {
+    "id": "6646a1b2c3d4e5f6a7b8c902",
+    "body": "Agreed on the thematic cohesion. The poem on page 34 does it most quietly — it's ostensibly about a garden but reads entirely differently once you've absorbed the rest of the issue.",
+    "authorName": "Sara Al-Amin",
+    "authorEmail": "sara.a@example.com",
+    "pageSlug": "issue-1",
+    "parentId": "6646a1b2c3d4e5f6a7b8c901",
+    "status": "APPROVED",
+    "createdAt": "2024-05-08T10:22:00Z",
+    "updatedAt": "2024-05-08T10:22:00Z"
   }
 ]

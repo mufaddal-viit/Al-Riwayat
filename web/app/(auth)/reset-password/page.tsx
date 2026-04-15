@@ -5,9 +5,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 
+import { KeyRound } from "lucide-react";
+
 import { resetPassword } from "@/services/authService";
 import { AppError } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -132,9 +135,12 @@ function ResetPasswordContent() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-2">
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Saving…" : "Set new password"}
-          </Button>
+          <SubmitButton
+            icon={KeyRound}
+            label="Set new password"
+            pendingLabel="Saving…"
+            isPending={isPending}
+          />
           <Link href="/login" className="text-center text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
             Back to sign in
           </Link>

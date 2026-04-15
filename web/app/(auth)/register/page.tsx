@@ -4,9 +4,12 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 
+import { UserPlus } from "lucide-react";
+
 import { useAuth } from "@/hooks/useAuth";
 import { AppError } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -174,9 +177,12 @@ export default function RegisterPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-2">
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Creating account…" : "Create account"}
-          </Button>
+          <SubmitButton
+            icon={UserPlus}
+            label="Create Account"
+            pendingLabel="Creating account…"
+            isPending={isPending}
+          />
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link

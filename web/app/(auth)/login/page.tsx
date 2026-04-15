@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
+import { LogIn } from "lucide-react";
+
 import { useAuth } from "@/hooks/useAuth";
 import { AppError } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -128,13 +131,12 @@ export default function LoginPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-2">
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isPending}
-          >
-            {isPending ? "Signing in…" : "Sign in"}
-          </Button>
+          <SubmitButton
+            icon={LogIn}
+            label="Sign In"
+            pendingLabel="Signing in…"
+            isPending={isPending}
+          />
 
           <p className="text-center text-sm text-muted-foreground">
             No account?{" "}

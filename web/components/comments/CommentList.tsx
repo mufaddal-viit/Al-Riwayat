@@ -6,13 +6,14 @@ import type { Comment } from "@/types/comment";
 interface CommentListProps {
   comments: Comment[];
   slug: string;
+  onReplySubmitted: () => void;
 }
 
-export function CommentList({ comments, slug }: CommentListProps) {
+export function CommentList({ comments, slug, onReplySubmitted }: CommentListProps) {
   if (!comments.length) {
     return (
       <div className="py-12 text-center text-muted-foreground">
-        No comments yet. Be the first to comment.
+        No notes yet. Be the first to share your thoughts.
       </div>
     );
   }
@@ -20,7 +21,12 @@ export function CommentList({ comments, slug }: CommentListProps) {
   return (
     <div className="space-y-6">
       {comments.map((comment) => (
-        <CommentCard key={comment.id} comment={comment} slug={slug} />
+        <CommentCard
+          key={comment.id}
+          comment={comment}
+          slug={slug}
+          onReplySubmitted={onReplySubmitted}
+        />
       ))}
     </div>
   );

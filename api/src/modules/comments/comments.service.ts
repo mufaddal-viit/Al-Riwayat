@@ -3,7 +3,21 @@ import sanitizeHtml from "sanitize-html";
 
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../lib/AppError";
+import { env } from "../../lib/env";
 import type { CreateCommentInput } from "./comments.schema";
+
+// ─── Mock data (MOCK_DB=true) ─────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const mockComments = require("../../data/mock-comments.json") as Array<{
+  id: string;
+  body: string;
+  authorName: string;
+  pageSlug: string;
+  parentId: string | null;
+  createdAt: string;
+  replies?: unknown[];
+}>;
 
 // ─── Sanitize config ──────────────────────────────────────────────────────────
 
@@ -50,13 +64,26 @@ function handlePrismaNotFound(error: unknown, id: string): never {
 /**
  * Fetch all approved top-level comments for a page slug,
  * with their approved replies nested in each comment.
+ *
+ * When MOCK_DB=true the response is built from mock-comments.json so the
+ * feature can be demoed without a live database connection.
  */
 export async function getApprovedComments(slug: string) {
+  if (env.MOCK_DB) {
+    const topLevel = mockComments.filter(
+      (c) => c.pageSlug === slug && c.parentId === null,
+    );
+    return topLevel.map((c) => ({
+      ...c,
+      replies: mockComments.filter((r) => r.parentId === c.id),
+    }));
+  }
+
   return prisma.comment.findMany({
     where: {
       pageSlug: slug,
       status: Status.APPROVED,
-      parentId: null,          // top-level only — replies come via nested select
+      parentId: null, // top-level only — replies come via nested select
     },
     select: publicCommentWithRepliesSelect,
     orderBy: { createdAt: Prisma.SortOrder.desc },
@@ -76,11 +103,7 @@ export async function createComment(data: CreateCommentInput) {
     });
 
     if (!parent) {
-      throw new AppError(
-        "Parent comment not found.",
-        404,
-        "PARENT_NOT_FOUND",
-      );
+      throw new AppError("Parent comment not found.", 404, "PARENT_NOT_FOUND");
     }
 
     // Prevent nesting beyond one level (reply-to-reply not allowed)

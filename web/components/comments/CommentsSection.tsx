@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchComments, submitComment } from "@/services/commentService";
 import { CommentForm } from "./CommentForm";
 import { CommentList } from "./CommentList";
 import type { Comment, CreateCommentInput } from "@/types/comment";
+import { SubmitButton } from "@/components/ui/submit-button";
+import { PenLine, X } from "lucide-react";
 
 interface CommentsSectionProps {
   slug: string;
@@ -17,39 +18,37 @@ export function CommentsSection({ slug }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const loadComments = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchComments(slug);
-        setComments(data);
-      } catch (error) {
-        console.error("Failed to load comments:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadComments();
+  const loadComments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setComments(await fetchComments(slug));
+    } catch {
+      // silently fail — empty state is acceptable
+    } finally {
+      setLoading(false);
+    }
   }, [slug]);
 
-  const handleSubmit = async (input: CreateCommentInput) => {
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
+
+  async function handleSubmit(input: CreateCommentInput) {
     try {
-      setIsSubmitting(true);
-      const newComment = await submitComment(input);
-      setComments([newComment, ...comments]);
+      setSubmitting(true);
+      await submitComment(input);
       setShowForm(false);
-    } catch (error) {
-      console.error("Failed to submit comment:", error);
+      // Submitted comments are PENDING — no need to add them to the list.
+      // Just close the form and let the user know via the form's own status message.
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <Card className="border-border/50">
+    <Card className="border-border shadow-none">
       <CardHeader>
         <div className="flex items-center gap-2">
           <CardTitle>Reader Notes</CardTitle>
@@ -58,6 +57,7 @@ export function CommentsSection({ slug }: CommentsSectionProps) {
           </span>
         </div>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {loading ? (
           <div className="space-y-4">
@@ -67,14 +67,21 @@ export function CommentsSection({ slug }: CommentsSectionProps) {
           </div>
         ) : (
           <>
-            <CommentList comments={comments} slug={slug} />
-            <Button
-              onClick={() => setShowForm(!showForm)}
-              variant="outline"
-              className="w-full"
-            >
-              {showForm ? "Cancel" : "Add Comment"}
-            </Button>
+            <CommentList
+              comments={comments}
+              slug={slug}
+              onReplySubmitted={loadComments}
+            />
+
+            <SubmitButton
+              type="button"
+              icon={showForm ? X : PenLine}
+              label={showForm ? "Cancel" : "Leave a note"}
+              pendingLabel="Leave a note"
+              onClick={() => setShowForm((v) => !v)}
+              variant={showForm ? "outline" : "default"}
+            />
+
             {showForm && (
               <CommentForm
                 slug={slug}

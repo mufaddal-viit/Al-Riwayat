@@ -11,7 +11,7 @@ router.post(
   "/",
   newsletterRateLimiter,
   validate(newsletterSchema),
-  subscribeToNewsletter
+  subscribeToNewsletter,
 );
 
 export default router;

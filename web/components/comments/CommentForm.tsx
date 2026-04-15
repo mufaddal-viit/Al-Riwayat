@@ -1,18 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import type { CreateCommentInput } from "@/types/comment";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-
-interface CommentFormErrors {
-  authorName?: string;
-  authorEmail?: string;
-  body?: string;
-}
+import type { CreateCommentInput } from "@/types/comment";
 
 interface CommentFormProps {
   slug: string;
@@ -21,154 +18,163 @@ interface CommentFormProps {
 }
 
 export function CommentForm({ slug, onSubmit, isPending }: CommentFormProps) {
-  const [formData, setFormData] = useState({
-    authorName: "",
-    authorEmail: "",
-    body: "",
-    honeypot: "",
-  });
-  const [errors, setErrors] = useState<CommentFormErrors>({});
-  const [status, setStatus] = useState("");
+  const { isAuthenticated, user } = useAuth();
 
+  const [form, setForm] = useState({
+    authorName:  "",
+    authorEmail: "",
+    body:        "",
+    honeypot:    "",
+  });
+  const [errors, setErrors]   = useState<Partial<typeof form>>({});
+  const [status, setStatus]   = useState("");
   const [isTransitionPending, startTransition] = useTransition();
 
-  const validate = (): boolean => {
-    const newErrors: CommentFormErrors = {};
+  const busy = isPending || isTransitionPending;
 
-    if (formData.authorName.length < 2) {
-      newErrors.authorName = "Name must be at least 2 characters.";
-    }
+  // When logged in, use the authenticated user's details
+  const resolvedName  = isAuthenticated ? `${user!.firstName} ${user!.lastName}` : form.authorName;
+  const resolvedEmail = isAuthenticated ? user!.email : form.authorEmail;
 
-    if (!/\S+@\S+\.\S+/.test(formData.authorEmail)) {
-      newErrors.authorEmail = "Please enter a valid email.";
-    }
+  function validate(): boolean {
+    const next: Partial<typeof form> = {};
 
-    if (formData.body.length < 10) {
-      newErrors.body = "Comment must be at least 10 characters.";
-    }
+    if (!isAuthenticated && resolvedName.trim().length < 2)
+      next.authorName = "Name must be at least 2 characters.";
 
-    if (formData.honeypot.length > 0) {
+    if (!isAuthenticated && !/\S+@\S+\.\S+/.test(resolvedEmail))
+      next.authorEmail = "Please enter a valid email.";
+
+    if (form.body.trim().length < 10)
+      next.body = "Comment must be at least 10 characters.";
+
+    if (form.honeypot.length > 0) {
       setStatus("Please leave the honeypot field empty.");
       return false;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("");
     setErrors({});
-
     if (!validate()) return;
-
-    const input: CreateCommentInput = {
-      authorName: formData.authorName.trim(),
-      authorEmail: formData.authorEmail.trim(),
-      body: formData.body.trim(),
-      pageSlug: slug,
-    };
 
     startTransition(async () => {
       try {
-        await onSubmit(input);
-        setStatus(
-          "Comment submitted for review. It will appear once approved.",
-        );
-        setFormData({
-          authorName: "",
-          authorEmail: "",
-          body: "",
-          honeypot: "",
+        await onSubmit({
+          authorName:  resolvedName.trim(),
+          authorEmail: resolvedEmail.trim(),
+          body:        form.body.trim(),
+          pageSlug:    slug,
         });
-      } catch (error: any) {
-        const msg = error.message || "Failed to submit comment.";
+        setStatus("Comment submitted for review. It will appear once approved.");
+        setForm({ authorName: "", authorEmail: "", body: "", honeypot: "" });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to submit comment.";
         setStatus(msg);
       }
     });
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Honeypot — hidden from real users, filled by bots */}
       <input
         type="text"
         name="honeypot"
-        value={formData.honeypot}
-        onChange={(e) => setFormData({ ...formData, honeypot: e.target.value })}
+        value={form.honeypot}
+        onChange={(e) => setForm({ ...form, honeypot: e.target.value })}
         tabIndex={-1}
         autoComplete="off"
+        aria-hidden="true"
         className="hidden"
       />
-      <div>
-        <Label htmlFor="authorName">Name</Label>
-        <Input
-          id="authorName"
-          value={formData.authorName}
-          onChange={(e) =>
-            setFormData({ ...formData, authorName: e.target.value })
-          }
-          className={cn(
-            errors.authorName &&
-              "border-destructive focus-visible:ring-destructive",
-          )}
-        />
-        {errors.authorName && (
-          <p className="text-sm text-destructive mt-1">{errors.authorName}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="authorEmail">Email</Label>
-        <Input
-          id="authorEmail"
-          type="email"
-          value={formData.authorEmail}
-          onChange={(e) =>
-            setFormData({ ...formData, authorEmail: e.target.value })
-          }
-          className={cn(
-            errors.authorEmail &&
-              "border-destructive focus-visible:ring-destructive",
-          )}
-        />
-        {errors.authorEmail && (
-          <p className="text-sm text-destructive mt-1">{errors.authorEmail}</p>
-        )}
-      </div>
-      <div>
-        <Label htmlFor="body">Comment</Label>
+
+      {/* Author fields — only shown when not logged in */}
+      {isAuthenticated ? (
+        <p className="text-sm text-muted-foreground">
+          Posting as{" "}
+          <span className="font-medium text-foreground">
+            {user!.firstName} {user!.lastName}
+          </span>
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cf-authorName">Name</Label>
+              <Input
+                id="cf-authorName"
+                value={form.authorName}
+                autoComplete="given-name"
+                onChange={(e) => setForm({ ...form, authorName: e.target.value })}
+                className={cn(errors.authorName && "border-destructive focus-visible:ring-destructive")}
+              />
+              {errors.authorName && (
+                <p className="text-xs text-destructive">{errors.authorName}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="cf-authorEmail">Email</Label>
+              <Input
+                id="cf-authorEmail"
+                type="email"
+                value={form.authorEmail}
+                autoComplete="email"
+                onChange={(e) => setForm({ ...form, authorEmail: e.target.value })}
+                className={cn(errors.authorEmail && "border-destructive focus-visible:ring-destructive")}
+              />
+              {errors.authorEmail && (
+                <p className="text-xs text-destructive">{errors.authorEmail}</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="space-y-1.5">
+        <Label htmlFor="cf-body">Comment</Label>
         <Textarea
-          id="body"
-          value={formData.body}
-          onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+          id="cf-body"
+          value={form.body}
+          onChange={(e) => setForm({ ...form, body: e.target.value })}
           rows={4}
-          placeholder="Share your thoughts..."
+          placeholder="Share your thoughts…"
+          disabled={busy}
           className={cn(
+            "resize-none",
             errors.body && "border-destructive focus-visible:ring-destructive",
           )}
         />
         {errors.body && (
-          <p className="text-sm text-destructive mt-1">{errors.body}</p>
+          <p className="text-xs text-destructive">{errors.body}</p>
         )}
       </div>
+
       {status && (
-        <div
-          className={`p-3 rounded-md text-sm border ${
+        <p
+          className={cn(
+            "rounded-xl border px-4 py-3 text-sm",
             status.includes("review")
-              ? "bg-green-100 border-green-200 text-green-800"
-              : "bg-destructive/10 border-destructive/20 text-destructive"
-          }`}
+              ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
+              : "border-destructive/30 bg-destructive/10 text-destructive",
+          )}
         >
           {status}
-        </div>
+        </p>
       )}
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isPending || isTransitionPending}
-      >
-        {isPending || isTransitionPending ? "Posting..." : "Post Comment"}
-      </Button>
+
+      <SubmitButton
+        icon={MessageSquare}
+        label="Post comment"
+        pendingLabel="Posting…"
+        isPending={busy}
+      />
     </form>
   );
 }

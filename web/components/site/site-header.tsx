@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronDown, LogOut, Menu, User } from "lucide-react";
+import { ChevronDown, LogIn, LogOut, Menu, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,13 +64,16 @@ function NavLink({
 function UserNav() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
 
-  if (isLoading) return null;
-
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isLoading) {
     return (
-      <Button asChild size="sm" variant="outline" className="border-border/60 bg-card/55 shadow-lifted backdrop-blur-xl hover:-translate-y-0.5 hover:bg-card/80">
-        <Link href="/login">Sign in</Link>
-      </Button>
+      <SubmitButton
+        type="button"
+        icon={LogIn}
+        label="Sign in"
+        size="sm"
+        className="w-auto"
+        onClick={() => (window.location.href = "/login")}
+      />
     );
   }
 
@@ -156,7 +160,9 @@ function MobileNav({
       <div className="mt-4 border-t border-border/50 pt-4">
         {isAuthenticated ? (
           <>
-            <p className="mb-2 truncate px-1 text-xs text-muted-foreground">{user?.email}</p>
+            <p className="mb-2 truncate px-1 text-xs text-muted-foreground">
+              {user?.email}
+            </p>
             <Link
               href="/account"
               onClick={onClose}
@@ -169,7 +175,10 @@ function MobileNav({
               Account
             </Link>
             <button
-              onClick={() => { onClose(); logout(); }}
+              onClick={() => {
+                onClose();
+                logout();
+              }}
               className={cn(
                 mobileLinkClass,
                 "mt-2 flex w-full items-center gap-2 border-transparent bg-card/45 text-destructive hover:border-border/60 hover:bg-card/70",
@@ -180,16 +189,15 @@ function MobileNav({
             </button>
           </>
         ) : (
-          <Link
-            href="/login"
-            onClick={onClose}
-            className={cn(
-              mobileLinkClass,
-              "flex items-center justify-center border-border/60 bg-card/55 text-foreground shadow-lifted",
-            )}
-          >
-            Sign in
-          </Link>
+          <SubmitButton
+            type="button"
+            icon={LogIn}
+            label="Sign in"
+            onClick={() => {
+              onClose();
+              window.location.href = "/login";
+            }}
+          />
         )}
       </div>
     </nav>
@@ -276,7 +284,8 @@ export function SiteHeader() {
                   <SheetHeader className="space-y-3">
                     <SheetTitle>{siteConfig.name}</SheetTitle>
                     <SheetDescription>
-                      Explore the magazine through a calmer, mobile-first reading menu.
+                      Explore the magazine through a calmer, mobile-first
+                      reading menu.
                     </SheetDescription>
                   </SheetHeader>
                   <MobileNav

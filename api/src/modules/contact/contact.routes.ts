@@ -7,6 +7,11 @@ import { contactSchema } from "./contact.schema";
 
 const router = Router();
 
-router.post("/", contactRateLimiter, validate(contactSchema), submitContactForm);
+router.post(
+  "/",
+  contactRateLimiter,
+  validate(contactSchema),
+  submitContactForm,
+);
 
 export default router;
