@@ -16,7 +16,7 @@ import contactRoutes from "./modules/contact/contact.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
 import newsletterRoutes from "./modules/newsletter/newsletter.routes";
-import commentsRoutes from "./modules/comments/comments.routes";
+import { commentsPublicRouter, commentsAdminRouter } from "./modules/comments/comments.routes";
 import adminUsersRoutes from "./modules/users/users.routes";
 
 // ─── App ──────────────────────────────────────────────────────────────────────
@@ -62,13 +62,14 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
-app.use("/api/comments", commentsRoutes);
+app.use("/api/comments", commentsPublicRouter);
 app.use("/api/magazine", magazineReaderRoutes);
 
 // ─── Admin routes (ADMIN role required — enforced inside each router) ─────────
 
 app.use("/api/admin/magazine", magazineAdminRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
+app.use("/api/admin/comments", commentsAdminRouter);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 

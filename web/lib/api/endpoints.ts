@@ -50,12 +50,17 @@ export const ENDPOINTS = {
   contact:    { submit:    "/contact" },
   newsletter: { subscribe: "/newsletter" },
 
-  // ─── Comments ──────────────────────────────────────────────────────────────
+  // ─── Comments (public) ────────────────────────────────────────────────────
   comments: {
-    list:    "/comments",
-    create:  "/comments",
-    approve: (id: string) => `/comments/${id}/approve`,
-    delete:  (id: string) => `/comments/${id}`,
+    list:   "/comments",
+    create: "/comments",
+  },
+
+  // ─── Comments (admin) ─────────────────────────────────────────────────────
+  "admin.comments": {
+    approve: (id: string) => `/admin/comments/${id}/approve`,
+    spam:    (id: string) => `/admin/comments/${id}/spam`,
+    delete:  (id: string) => `/admin/comments/${id}`,
   },
 
   // ─── Utils ─────────────────────────────────────────────────────────────────

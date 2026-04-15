@@ -1,247 +1,177 @@
-import { prisma } from "../../lib/prisma";
+import { Prisma, Status } from "@prisma/client";
 import sanitizeHtml from "sanitize-html";
-import type { CreateCommentInput, CommentParamInput } from "./comments.schema";
-import type { Status } from "@prisma/client";
 
-export async function getApprovedComments(slug: string) {
-  // mock data - uncomment DB above for live
-  const mockData = require("../../data/mock-comments.json");
-  const pageComments = mockData.filter((c: any) => c.pageSlug === slug);
-  return pageComments.map((c: any) => ({
-    ...c,
-    replies: mockData.filter((r: any) => r.parentId === c.id),
-  }));
+import { prisma } from "../../lib/prisma";
+import { AppError } from "../../lib/AppError";
+import type { CreateCommentInput } from "./comments.schema";
+
+// ─── Sanitize config ──────────────────────────────────────────────────────────
+
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ["p", "br", "strong", "em", "ul", "ol", "li"],
+  allowedAttributes: {},
+};
+
+// ─── Projection — never expose authorEmail to the public ─────────────────────
+
+const publicCommentSelect = {
+  id: true,
+  body: true,
+  authorName: true,
+  pageSlug: true,
+  parentId: true,
+  status: true,
+  createdAt: true,
+} satisfies Prisma.CommentSelect;
+
+const publicCommentWithRepliesSelect = {
+  ...publicCommentSelect,
+  replies: {
+    where: { status: Status.APPROVED },
+    select: publicCommentSelect,
+    orderBy: { createdAt: Prisma.SortOrder.asc },
+  },
+} satisfies Prisma.CommentSelect;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function handlePrismaNotFound(error: unknown, id: string): never {
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2025"
+  ) {
+    throw new AppError(`Comment not found: ${id}`, 404, "COMMENT_NOT_FOUND");
+  }
+  throw error;
 }
 
+// ─── Service ──────────────────────────────────────────────────────────────────
+
+/**
+ * Fetch all approved top-level comments for a page slug,
+ * with their approved replies nested in each comment.
+ */
+export async function getApprovedComments(slug: string) {
+  return prisma.comment.findMany({
+    where: {
+      pageSlug: slug,
+      status: Status.APPROVED,
+      parentId: null,          // top-level only — replies come via nested select
+    },
+    select: publicCommentWithRepliesSelect,
+    orderBy: { createdAt: Prisma.SortOrder.desc },
+  });
+}
+
+/**
+ * Create a new comment with PENDING status.
+ * - Validates parent comment exists (if parentId provided)
+ * - Sanitizes body against XSS before persisting
+ */
 export async function createComment(data: CreateCommentInput) {
-  // validate parent exists if provided
   if (data.parentId) {
     const parent = await prisma.comment.findUnique({
       where: { id: data.parentId },
+      select: { id: true, parentId: true },
     });
+
     if (!parent) {
-      throw new Error("Parent comment not found.");
+      throw new AppError(
+        "Parent comment not found.",
+        404,
+        "PARENT_NOT_FOUND",
+      );
+    }
+
+    // Prevent nesting beyond one level (reply-to-reply not allowed)
+    if (parent.parentId !== null) {
+      throw new AppError(
+        "Replies to replies are not supported.",
+        422,
+        "NESTED_REPLY_NOT_ALLOWED",
+      );
     }
   }
 
-  const sanitizedBody = sanitizeHtml(data.body, {
-    allowedTags: ["p", "br", "strong", "em", "ul", "ol", "li"],
-    allowedAttributes: {},
-  });
+  const sanitizedBody = sanitizeHtml(data.body.trim(), SANITIZE_OPTIONS);
+
+  if (!sanitizedBody) {
+    throw new AppError(
+      "Comment body is empty after sanitization.",
+      422,
+      "EMPTY_BODY",
+    );
+  }
 
   return prisma.comment.create({
     data: {
-      ...data,
       body: sanitizedBody,
-      status: "PENDING" as Status,
+      authorName: data.authorName.trim(),
+      authorEmail: data.authorEmail.toLowerCase().trim(),
+      pageSlug: data.pageSlug,
+      parentId: data.parentId ?? null,
+      status: Status.PENDING,
     },
+    select: publicCommentSelect,
   });
 }
 
-export async function deleteComment(id: string) {
-  return prisma.comment.deleteMany({
-    where: {
-      id,
-      OR: [
-        { status: "SPAM" },
-        // admin check here later
-      ],
-    },
-  });
-}
-
+/**
+ * Approve a comment by setting its status to APPROVED.
+ * Admin-only operation.
+ */
 export async function approveComment(id: string) {
-  return prisma.comment.update({
-    where: { id },
-    data: { status: "APPROVED" as Status },
-  });
+  try {
+    return await prisma.comment.update({
+      where: { id },
+      data: { status: Status.APPROVED },
+      select: { id: true, status: true, authorName: true, pageSlug: true },
+    });
+  } catch (error) {
+    handlePrismaNotFound(error, id);
+  }
 }
 
-//
-// import { prisma } from "../../lib/prisma";
-// import sanitizeHtml from "sanitize-html";
-// import { Prisma, Status } from "@prisma/client";
-// import type { CreateCommentInput } from "./comments.schema";
+/**
+ * Mark a comment as SPAM.
+ * Keeps the record for audit purposes — use deleteComment to hard-delete.
+ * Admin-only operation.
+ */
+export async function markAsSpam(id: string) {
+  try {
+    return await prisma.comment.update({
+      where: { id },
+      data: { status: Status.SPAM },
+      select: { id: true, status: true, authorName: true, pageSlug: true },
+    });
+  } catch (error) {
+    handlePrismaNotFound(error, id);
+  }
+}
 
-// // ─────────────────────────────────────────────
-// // Custom error classes for clean error handling
-// // ─────────────────────────────────────────────
+/**
+ * Hard-delete a comment.
+ * Due to the self-referential relation in MongoDB (NoAction), replies are
+ * left orphaned with a stale parentId rather than being cascade-deleted at
+ * the DB level.  We therefore delete in a transaction: replies first, then
+ * the parent.
+ * Admin-only operation.
+ */
+export async function deleteComment(id: string) {
+  const comment = await prisma.comment.findUnique({
+    where: { id },
+    select: { id: true },
+  });
 
-// export class CommentNotFoundError extends Error {
-//   constructor(id: string) {
-//     super(`Comment not found: ${id}`);
-//     this.name = "CommentNotFoundError";
-//   }
-// }
+  if (!comment) {
+    throw new AppError(`Comment not found: ${id}`, 404, "COMMENT_NOT_FOUND");
+  }
 
-// export class ParentCommentNotFoundError extends Error {
-//   constructor(id: string) {
-//     super(`Parent comment not found: ${id}`);
-//     this.name = "ParentCommentNotFoundError";
-//   }
-// }
+  // Delete orphaned replies first (MongoDB has no ON DELETE CASCADE here)
+  await prisma.$transaction([
+    prisma.comment.deleteMany({ where: { parentId: id } }),
+    prisma.comment.delete({ where: { id } }),
+  ]);
 
-// // ─────────────────────────────────────────────
-// // Sanitize config — reused across functions
-// // ─────────────────────────────────────────────
-
-// const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
-//   allowedTags: ["p", "br", "strong", "em", "ul", "ol", "li"],
-//   allowedAttributes: {},
-// };
-
-// // ─────────────────────────────────────────────
-// // Shape returned to client — never expose email
-// // ─────────────────────────────────────────────
-
-// const commentSelect = {
-//   id: true,
-//   body: true,
-//   authorName: true,
-//   pageSlug: true,
-//   parentId: true,
-//   status: true,
-//   createdAt: true,
-//   replies: {
-//     where: { status: Status.APPROVED },
-//     select: {
-//       id: true,
-//       body: true,
-//       authorName: true,
-//       pageSlug: true,
-//       parentId: true,
-//       status: true,
-//       createdAt: true,
-//     },
-//     orderBy: { createdAt: Prisma.SortOrder.asc },
-//   },
-// } satisfies Prisma.CommentSelect;
-
-// // ─────────────────────────────────────────────
-// // Service functions
-// // ─────────────────────────────────────────────
-
-// /**
-//  * Fetch all approved top-level comments for a given page slug,
-//  * with their approved replies nested inside.
-//  */
-// export async function getApprovedComments(slug: string) {
-//   return prisma.comment.findMany({
-//     where: {
-//       pageSlug: slug,
-//       status: Status.APPROVED,
-//       parentId: null,           // top-level only — replies come via select
-//     },
-//     select: commentSelect,
-//     orderBy: { createdAt: Prisma.SortOrder.desc },
-//   });
-// }
-
-// /**
-//  * Create a new comment with PENDING status.
-//  * Validates parent exists if parentId is provided.
-//  * Sanitizes body before saving.
-//  */
-// export async function createComment(data: CreateCommentInput) {
-//   if (data.parentId) {
-//     const parent = await prisma.comment.findUnique({
-//       where: { id: data.parentId },
-//       select: { id: true },     // only fetch what we need
-//     });
-
-//     if (!parent) {
-//       throw new ParentCommentNotFoundError(data.parentId);
-//     }
-//   }
-
-//   const sanitizedBody = sanitizeHtml(data.body, SANITIZE_OPTIONS);
-
-//   if (!sanitizedBody.trim()) {
-//     throw new Error("Comment body is empty after sanitization.");
-//   }
-
-//   return prisma.comment.create({
-//     data: {
-//       body: sanitizedBody,
-//       authorName: data.authorName,
-//       authorEmail: data.authorEmail,
-//       pageSlug: data.pageSlug,
-//       parentId: data.parentId ?? null,
-//       status: Status.PENDING,
-//     },
-//     select: {
-//       id: true,
-//       body: true,
-//       authorName: true,
-//       pageSlug: true,
-//       parentId: true,
-//       status: true,
-//       createdAt: true,
-//     },
-//   });
-// }
-
-// /**
-//  * Approve a comment by setting its status to APPROVED.
-//  * Throws if comment does not exist.
-//  */
-// export async function approveComment(id: string) {
-//   try {
-//     return await prisma.comment.update({
-//       where: { id },
-//       data: { status: Status.APPROVED },
-//       select: { id: true, status: true },
-//     });
-//   } catch (error) {
-//     if (
-//       error instanceof Prisma.PrismaClientKnownRequestError &&
-//       error.code === "P2025"              // prisma's "record not found" code
-//     ) {
-//       throw new CommentNotFoundError(id);
-//     }
-//     throw error;                          // rethrow anything unexpected
-//   }
-// }
-
-// /**
-//  * Hard delete a comment and all its replies (cascade).
-//  * Throws if comment does not exist.
-//  */
-// export async function deleteComment(id: string) {
-//   try {
-//     return await prisma.comment.delete({
-//       where: { id },
-//       select: { id: true },
-//     });
-//   } catch (error) {
-//     if (
-//       error instanceof Prisma.PrismaClientKnownRequestError &&
-//       error.code === "P2025"
-//     ) {
-//       throw new CommentNotFoundError(id);
-//     }
-//     throw error;
-//   }
-// }
-
-// /**
-//  * Mark a comment as SPAM.
-//  * Keeps the record for audit — use deleteComment to hard delete.
-//  */
-// export async function markAsSpam(id: string) {
-//   try {
-//     return await prisma.comment.update({
-//       where: { id },
-//       data: { status: Status.SPAM },
-//       select: { id: true, status: true },
-//     });
-//   } catch (error) {
-//     if (
-//       error instanceof Prisma.PrismaClientKnownRequestError &&
-//       error.code === "P2025"
-//     ) {
-//       throw new CommentNotFoundError(id);
-//     }
-//     throw error;
-//   }
-// }
+  return { id };
+}
