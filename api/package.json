@@ -10,7 +10,7 @@
     "predev": "npm run docs:generate",
     "prebuild": "npm run docs:generate",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p tsconfig.json && cp -r src/data dist/src/data",
+    "build": "tsc && mkdir -p dist/src/data && cp -r src/data/* dist/src/data",
     "start": "node dist/src/server.js",
     "db:push": "prisma db push && prisma generate",
     "db:seed": "prisma db seed",
