@@ -8,6 +8,7 @@ import { ENDPOINTS } from "@/lib/api/endpoints";
 import { AppError } from "@/lib/api/error";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { ArticleStructuredData } from "@/components/issue/article-structured-data";
+import { BookmarkFavouriteButtons } from "@/components/issue/bookmark-favourite-buttons";
 import { IssueRichContent } from "@/components/issue/issue-rich-content";
 import { IssueShareActions } from "@/components/issue/issue-share-actions";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -79,6 +80,9 @@ export function IssuePageClient({ slug }: { slug: string }) {
   return (
     <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
       <ArticleStructuredData magazine={magazine} />
+      <section className="mx-auto max-w-[72ch]">
+        <BookmarkFavouriteButtons slug={magazine.slug} />
+      </section>
       <IssueShareActions />
       <IssueRichContent magazine={magazine} />
       <NewsletterPreviewSection />

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Eye, EyeOff, LogOut, Trash2, User } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
+import { Bookmark, Eye, EyeOff, Heart, LogOut, Pencil, Trash2, User } from "lucide-react";
 
 import { useAuth, useProtectedRoute } from "@/hooks/useAuth";
+import { useProfile } from "@/context/profile-context";
 import { updateProfile, changePassword, deleteAccount } from "@/services/authService";
 import { AppError } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
@@ -18,6 +20,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  PROFILE_COMPLETENESS_DISMISS_KEY,
+  ProfileCompletenessBanner,
+} from "@/components/account/profile-completeness-banner";
 
 // ─── Profile Section ───────────────────────────────────────────────────────────
 
@@ -356,6 +362,23 @@ function DangerZoneSection() {
 export default function AccountPage() {
   const { isLoading, user } = useProtectedRoute();
   const { logout } = useAuth();
+  const { profile } = useProfile();
+
+  const [bannerDismissed, setBannerDismissed] = useState(true); // assume dismissed until storage read
+
+  useEffect(() => {
+    setBannerDismissed(
+      typeof window !== "undefined" &&
+        window.localStorage.getItem(PROFILE_COMPLETENESS_DISMISS_KEY) === "1",
+    );
+  }, []);
+
+  function dismissBanner() {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(PROFILE_COMPLETENESS_DISMISS_KEY, "1");
+    }
+    setBannerDismissed(true);
+  }
 
   if (isLoading || !user) {
     return (
@@ -395,25 +418,108 @@ export default function AccountPage() {
 
       <Separator className="bg-border/50" />
 
-      {/* Profile, password and delete-account sections are temporarily disabled
-          while the database layer is offline. Their components remain defined
-          above and will be re-enabled when the backend DB endpoints return. */}
+      <ProfileCompletenessBanner
+        profile={profile}
+        onDismiss={dismissBanner}
+        dismissed={bannerDismissed}
+      />
+
       <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
-        <CardHeader className="space-y-1 pb-4">
-          <CardTitle className="font-heading text-xl">Account details</CardTitle>
-          <CardDescription>Managed by your Google account.</CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+          <div className="space-y-1">
+            <CardTitle className="font-heading text-xl">Account details</CardTitle>
+            <CardDescription>Managed by your Google account.</CardDescription>
+          </div>
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link href="/account/profile">
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex justify-between border-b border-border/40 pb-2">
             <span className="text-muted-foreground">Name</span>
-            <span>{user.firstName} {user.lastName}</span>
+            <span>{profile?.displayName ?? `${user.firstName} ${user.lastName}`}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between border-b border-border/40 pb-2">
             <span className="text-muted-foreground">Email</span>
             <span>{user.email}</span>
           </div>
+          {profile?.occupation && (
+            <div className="flex justify-between border-b border-border/40 pb-2">
+              <span className="text-muted-foreground">Occupation</span>
+              <span>{profile.occupation}</span>
+            </div>
+          )}
+          {profile?.country && (
+            <div className="flex justify-between border-b border-border/40 pb-2">
+              <span className="text-muted-foreground">Country</span>
+              <span>{profile.country}</span>
+            </div>
+          )}
+          {profile && profile.interests.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-muted-foreground">Interests</span>
+              <div className="flex flex-wrap justify-end gap-1.5">
+                {profile.interests.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-border/60 bg-muted/40 px-2 py-0.5 text-xs"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {profile?.bio && (
+            <div className="pt-2 text-muted-foreground">
+              <p className="text-xs uppercase tracking-wider">Bio</p>
+              <p className="mt-1 text-sm text-foreground">{profile.bio}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/account/bookmarks"
+          className="group block focus-visible:outline-none"
+        >
+          <Card className="border-border/60 bg-card/80 shadow-editorial transition-shadow group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/60">
+            <CardContent className="flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/40 text-muted-foreground">
+                <Bookmark className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-medium">Bookmarks</p>
+                <p className="text-xs text-muted-foreground">
+                  {profile?.bookmarks.length ?? 0} saved
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link
+          href="/account/favourites"
+          className="group block focus-visible:outline-none"
+        >
+          <Card className="border-border/60 bg-card/80 shadow-editorial transition-shadow group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/60">
+            <CardContent className="flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/40 text-muted-foreground">
+                <Heart className="h-5 w-5" />
+              </span>
+              <div className="flex-1">
+                <p className="font-medium">Favourites</p>
+                <p className="text-xs text-muted-foreground">
+                  {profile?.favourites.length ?? 0} marked
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
 
       {/* Suppress unused-warnings for the preserved DB-dependent sections. */}
       {false && (

@@ -1,5 +1,6 @@
 import { AppError } from "../../lib/AppError";
 import { getAdminAuth } from "../../lib/firebase-admin";
+import { ensureUserDocument } from "../users/me.service";
 import { signAccessToken } from "./token.service";
 
 export interface GoogleAuthUser {
@@ -48,6 +49,20 @@ export async function loginWithGoogle(idToken: string): Promise<GoogleLoginResul
     picture: decoded.picture ?? null,
     role: "CUSTOMER",
   };
+
+  // Idempotent upsert — ensures every authenticated user has a profile doc.
+  try {
+    await ensureUserDocument({
+      uid: user.id,
+      email: user.email,
+      displayName: user.name,
+      photoUrl: user.picture,
+    });
+  } catch (err) {
+    // Failure here shouldn't block login; log and continue.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[auth.google] ensureUserDocument failed:", message);
+  }
 
   const accessToken = signAccessToken({
     sub: user.id,

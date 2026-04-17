@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { AuthProvider } from "@/context/auth-context";
+import { ProfileProvider } from "@/context/profile-context";
 import { ConsentProvider } from "@/components/providers/consent-provider";
 import { PaletteProvider } from "@/components/providers/palette-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -17,7 +18,9 @@ export function AppProviders({ children }: AppProvidersProps) {
       <PaletteProvider>
         <ConsentProvider>
           <AuthProvider>
-            {children}
+            <ProfileProvider>
+              {children}
+            </ProfileProvider>
           </AuthProvider>
         </ConsentProvider>
       </PaletteProvider>

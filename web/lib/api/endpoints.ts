@@ -51,6 +51,16 @@ export const ENDPOINTS = {
   contact:    { submit:    "/contact" },
   newsletter: { subscribe: "/newsletter" },
 
+  // ─── Me (authenticated self-service profile) ──────────────────────────────
+  me: {
+    get:             "/me",
+    update:          "/me",
+    addBookmark:     (slug: string) => `/me/bookmarks/${slug}`,
+    removeBookmark:  (slug: string) => `/me/bookmarks/${slug}`,
+    addFavourite:    (slug: string) => `/me/favourites/${slug}`,
+    removeFavourite: (slug: string) => `/me/favourites/${slug}`,
+  },
+
   // ─── Comments (public) ────────────────────────────────────────────────────
   comments: {
     list:   "/comments",
