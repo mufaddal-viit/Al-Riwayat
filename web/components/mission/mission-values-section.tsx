@@ -8,7 +8,9 @@ export function MissionValuesSection() {
         <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
           Editorial Values
         </p>
-        <h2 className="text-3xl sm:text-4xl">Principles that shape every page.</h2>
+        <h2 className="text-3xl sm:text-4xl">
+          Principles that shape every page.
+        </h2>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {missionValues.map((value) => (
@@ -17,7 +19,9 @@ export function MissionValuesSection() {
               <CardTitle>{value.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">{value.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {value.description}
+              </p>
             </CardContent>
           </Card>
         ))}

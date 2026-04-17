@@ -3,10 +3,11 @@
 import { Copy, Linkedin, MessageCircle, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { issueOneArticle } from "@/lib/content/issue-content";
 import { siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 
-const fallbackArticleUrl = `${siteConfig.url}/issue-1`;
+const fallbackArticleUrl = `${siteConfig.url}/${issueOneArticle.slug}`;
 const articleText = "Read Issue 1 of Al Riwayaat";
 
 export function IssueShareActions() {

@@ -13,9 +13,13 @@ model Magazine {
   issueNumber   Int
   slug          String   @unique
   publishedAt   DateTime
+  summary       String
   coverImageUrl String
+  coverImageAlt String
+  flipbookUrl   String
   author        String
-  body          Json
+  status        String   @default("draft")
+  updatedAt     DateTime @updatedAt
   createdAt     DateTime @default(now())
 }
 
@@ -32,4 +36,93 @@ model NewsletterSubscriber {
   email        String   @unique
   subscribedAt DateTime @default(now())
   isActive     Boolean  @default(true)
+}
+
+model Comment {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  body        String
+  authorName  String
+  authorEmail String
+  pageSlug    String
+
+  parentId String?
+  parent   Comment? @relation("replies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  replies Comment[] @relation("replies")
+
+  status    Status   @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  SPAM
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  email             String   @unique
+  passwordHash      String
+  firstName         String
+  lastName          String
+  avatarUrl         String?
+  role              Role     @default(CUSTOMER)
+  isEmailVerified   Boolean  @default(false)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  refreshTokens            RefreshToken[]
+  emailVerificationTokens  EmailVerificationToken[]
+  passwordResetTokens      PasswordResetToken[]
+}
+
+/// Refresh tokens — only the SHA-256 hash is stored, never the plain token
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  /// Optional device metadata for audit / suspicious-login detection
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Single-use email verification tokens — hashed before storage
+model EmailVerificationToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Single-use password reset tokens — hashed before storage
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

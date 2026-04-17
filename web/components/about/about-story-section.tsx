@@ -4,6 +4,8 @@ import { aboutStory } from "@/lib/content/about-content";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function AboutStorySection() {
+  const hasSideNote = aboutStory.sideNote.trim().length > 0;
+
   return (
     <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
       <Card className="overflow-hidden bg-card/90">
@@ -37,11 +39,13 @@ export function AboutStorySection() {
             sizes="(min-width: 1024px) 32vw, 100vw"
           />
         </div>
-        <Card className="border-none bg-accent text-accent-foreground">
-          <CardContent className="p-6 text-base leading-8">
-            {aboutStory.sideNote}
-          </CardContent>
-        </Card>
+        {hasSideNote ? (
+          <Card className="border-none bg-accent text-accent-foreground">
+            <CardContent className="p-6 text-base leading-8">
+              {aboutStory.sideNote}
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </section>
   );

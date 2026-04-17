@@ -1,6 +1,7 @@
 # Findings & Decisions
 
 ## Requirements
+
 - Build a digital magazine MVP with `/web` for Next.js 14 and `/api` for Express.
 - Use persistent planning files in the project root and work phase by phase.
 - Frontend must use TypeScript, Tailwind CSS, shadcn/ui, next-themes, `Playfair Display`, and `Inter`.
@@ -13,6 +14,7 @@
 - The final scaffold must be runnable and MVP-clean, not a one-shot placeholder dump.
 
 ## Research Findings
+
 - The `planning-with-files` skill requires restoring context first, creating `task_plan.md`, `findings.md`, and `progress.md`, and keeping them current after each phase.
 - The `ui-ux-pro-max` skill is mandatory for interface work here because the task changes structure, typography, layout, interaction patterns, and responsive behavior.
 - High-priority UI/UX checks from the skill for this project:
@@ -45,48 +47,107 @@
 - The local `.codex/skills/ui-ux-pro-max-skill` directory is a nested Git repository used only for local tooling and is not required for the deployed site.
 - The Netlify 404 after deploy is consistent with the site building but not publishing a usable Next runtime/site output for the current monorepo setup.
 - This frontend currently uses only static routes and client-side UI logic, so it is compatible with `output: "export"` and can be deployed as a plain static site from `web/out`.
+- The homepage hero image asset is a portrait WebP at `158 x 189`, so fixed-height media wrappers plus `object-cover` will crop it noticeably across breakpoints.
+- The current token system relies heavily on Tailwind opacity modifiers like `bg-card/90` and `border-border/60`, so dropping in raw OKLCH values directly would break a large part of the UI unless the color-token strategy is upgraded.
+- The cleanest multi-palette approach here is to keep semantic tokens (`--background`, `--primary`, etc.), add a separate `data-palette` attribute, and let dark mode continue to be controlled independently by `next-themes`.
+- The original editorial palette has now been numerically converted from HSL to OKLCH, so both available palettes share the same authoring color space.
+- The current frontend Issue 1 model still drives the page from one local object, so the backend `Magazine` model needs to include the same issue metadata fields rather than forcing a premature split.
+- The current backend issue seed content does not match the live frontend Issue 1 presentation model, so a direct API swap would visibly change the article title and cover image.
+- The newsletter preview section already has local validation state, but its visible feedback message is commented out, so success/error responses would still not be shown after wiring the API.
+- `output: "export"` is still active for Netlify. That is compatible with client-side API integration, but it is a constraint if Phase 5 is expected to make runtime metadata and JSON-LD come directly from the API.
+- The About page no longer needs its own second contact form implementation because the shared `ContactUsSection` already covers the same UX with better reuse.
+- The Issue 1 page is now intentionally flipbook-first on the frontend, so the local `body` field and rich-text block renderer were removed to avoid keeping dead article-rendering code around.
+- A repo-wide search confirms the frontend no longer reads `Magazine.body`; the only remaining `body` references in `/web` are unrelated comment text and normal HTML/CSS usage.
+- The backend now needs a `services` layer so controllers stay thin and HTTP-focused while Prisma access and business rules live in dedicated service files.
+- The backend now benefits more from a feature-first `modules` structure than from top-level `controllers`, `routes`, and `schemas` folders, because magazine, contact, and newsletter concerns each evolve mostly within their own boundary.
+- The backend does not need a separate repository layer at this stage; services can talk to Prisma directly while the codebase is still small and feature-focused.
+- The magazine module now needs an explicit lifecycle field to support public published-only routes and editorial management routes cleanly; inferring publish/archive state from `publishedAt` alone is too weak.
+- The cleanest interpretation of `GET /api/magazine/issues/featured` for this MVP is "latest published issue" rather than introducing a second featured flag and admin feature-management route prematurely.
+- `swagger-ui-express` plus `swagger-autogen` is a workable fit for this backend because it adds a browser test surface quickly without rewriting the route layer, but it does rely on route annotations and a generated JSON artifact rather than deriving docs from Zod automatically.
+- The cleanest Swagger scope right now is the `magazine` module only; including contact and newsletter immediately would produce partially documented endpoints and dilute the admin/reader testing workflow.
+- The current frontend is ready to consume exactly three backend routes in Phase 5:
+  - `POST /api/newsletter` through `NewsletterPreviewSection`
+  - `POST /api/contact` through `ContactUsSection`
+  - `GET /api/magazine/issue/:id` through the `/issue-1` page
+- The current frontend is not yet ready to use:
+  - `GET /api/magazine/issues`
+  - `GET /api/magazine/issues/featured`
+  - `GET /api/magazine/issues/search`
+  - any `/api/admin/magazine/...` route
+- Because the frontend is currently exported statically, the safest Phase 5 approach is to keep metadata and JSON-LD on the existing local Issue 1 fallback object while fetching the visible Issue 1 content client-side from the API.
 
 ## Technical Decisions
-| Decision | Rationale |
-|----------|-----------|
-| Use separate `web` and `api` applications with explicit environment variables and no direct shared runtime dependency | Keeps the frontend and backend loosely coupled as requested |
-| Plan around `npm`-based scaffolding per app unless the repo reveals an existing package-manager constraint later | Simplest production-ready default for a fresh workspace |
-| Seed Issue 1 through Prisma-compatible application code rather than relying on manual database setup | Ensures article rendering works immediately in development |
-| Model article body as structured JSON blocks that map cleanly to typed frontend renderers | Supports headings, paragraphs, emphasis, images, and pull quotes without over-engineering a CMS |
-| Establish the editorial design system early: serif display headings, sans-serif body, restrained premium palette, 8px rhythm, and tokenized colors only | Prevents the MVP from drifting into a generic SaaS look |
-| Backend scaffolding will be completed before frontend scaffolding | The frontend needs stable API contracts for article loading, newsletter signup, and contact submission |
-| Frontend API access will be isolated behind small fetch helpers using `NEXT_PUBLIC_API_URL` | Keeps the UI independent from backend implementation details and makes environment switching trivial |
-| The article endpoint will expose a presentation-friendly contract instead of the raw Prisma record | Reduces coupling and protects future schema evolution |
-| The homepage visual system will preserve the wireframe composition from `layout_prompt.md` while upgrading typography, rhythm, and interaction quality | Satisfies the provided layout intent without producing a generic landing page |
-| The backend will use Zod-validated environment parsing in `src/lib/env.ts` | Ensures bad startup configuration fails immediately rather than producing later runtime ambiguity |
-| The API will include a small `/api/health` route | Provides a simple operational readiness check without coupling it to database state |
-| Newsletter duplication will be handled by catching Prisma unique-constraint errors | Avoids leaking subscriber existence while keeping writes single-purpose and explicit |
-| The Prisma seed path will upsert Issue 1 by slug | Makes repeated development seeding idempotent |
-| The frontend foundation uses a manual shadcn-style component setup with `components.json` and local component files | Avoids CLI friction while still matching the requested design-system and component contract |
-| All required routes are present as metadata-aware skeleton pages in Phase 3 | Keeps routing, navigation, and build verification complete before content-heavy implementation begins |
-| Google Analytics loading is controlled by a client-side consent provider backed by `localStorage` | Meets the cookie-consent requirement without loading analytics before acceptance |
-| The Next.js image optimizer is disabled in config while preserving `next/image` usage | Cloudinary is the intended image layer, and this reduces self-hosted exposure on the pinned Next 14 branch |
-| Phase 4 page routes act only as composition layers | Keeps route files short and makes each page feature independently maintainable |
-| Homepage, About, Mission, and Issue 1 UI are split into dedicated feature components under page-specific folders | Aligns with the requested one-feature-per-file architecture |
-| Contact and newsletter forms use preview-mode validation and feedback before API integration | Preserves UX intent now without violating the phase boundary between UI and API work |
-| Issue 1 rendering uses a local frontend article model that mirrors the API contract shape | Enables realistic long-form UI rendering now and reduces swap cost in Phase 5 |
-| Frontend image assets are normalized under `web/public/images/...` and consumed via public URLs | Gives the Next app a stable static-asset structure and removes binary imports from the app root |
-| Shared brand lockups now use the local `web/public/images/logo.jpg` asset through a reusable `SiteBrand` component | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent |
-| Netlify deployment is configured around the Next.js frontend only | `/web` is already a valid Netlify target, while `/api` remains a separate Express service that should be deployed independently and allowed through CORS |
-| The frontend site URL should come from `NEXT_PUBLIC_SITE_URL` instead of a hardcoded placeholder domain | Canonical metadata, OG URLs, JSON-LD, and share links need a real deploy URL in production |
-| `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend |
-| The local `.codex/skills/ui-ux-pro-max-skill` repo should not be tracked by the main project repository | It is a local skill dependency, not app code, and a broken gitlink prevents Netlify from cloning the project |
-| Netlify should publish the frontend as a static export for now | The current site has no backend/runtime dependency, and explicit static export avoids framework detection/publish ambiguity that led to the deploy 404 |
+
+| Decision                                                                                                                                                | Rationale                                                                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Use separate `web` and `api` applications with explicit environment variables and no direct shared runtime dependency                                   | Keeps the frontend and backend loosely coupled as requested                                                                                              |
+| Plan around `npm`-based scaffolding per app unless the repo reveals an existing package-manager constraint later                                        | Simplest production-ready default for a fresh workspace                                                                                                  |
+| Seed Issue 1 through Prisma-compatible application code rather than relying on manual database setup                                                    | Ensures article rendering works immediately in development                                                                                               |
+| Keep the Issue 1 contract focused on metadata plus the flipbook URL                                                                                     | Matches the current frontend reader experience and avoids carrying dead article-body data through the API                                                |
+| Establish the editorial design system early: serif display headings, sans-serif body, restrained premium palette, 8px rhythm, and tokenized colors only | Prevents the MVP from drifting into a generic SaaS look                                                                                                  |
+| Backend scaffolding will be completed before frontend scaffolding                                                                                       | The frontend needs stable API contracts for article loading, newsletter signup, and contact submission                                                   |
+| Frontend API access will be isolated behind small fetch helpers using `NEXT_PUBLIC_API_URL`                                                             | Keeps the UI independent from backend implementation details and makes environment switching trivial                                                     |
+| The article endpoint will expose a presentation-friendly contract instead of the raw Prisma record                                                      | Reduces coupling and protects future schema evolution                                                                                                    |
+| The homepage visual system will preserve the wireframe composition from `layout_prompt.md` while upgrading typography, rhythm, and interaction quality  | Satisfies the provided layout intent without producing a generic landing page                                                                            |
+| The backend will use Zod-validated environment parsing in `src/lib/env.ts`                                                                              | Ensures bad startup configuration fails immediately rather than producing later runtime ambiguity                                                        |
+| The API will include a small `/api/health` route                                                                                                        | Provides a simple operational readiness check without coupling it to database state                                                                      |
+| Newsletter duplication will be handled by catching Prisma unique-constraint errors                                                                      | Avoids leaking subscriber existence while keeping writes single-purpose and explicit                                                                     |
+| The Prisma seed path will upsert Issue 1 by slug                                                                                                        | Makes repeated development seeding idempotent                                                                                                            |
+| The frontend foundation uses a manual shadcn-style component setup with `components.json` and local component files                                     | Avoids CLI friction while still matching the requested design-system and component contract                                                              |
+| All required routes are present as metadata-aware skeleton pages in Phase 3                                                                             | Keeps routing, navigation, and build verification complete before content-heavy implementation begins                                                    |
+| Google Analytics loading is controlled by a client-side consent provider backed by `localStorage`                                                       | Meets the cookie-consent requirement without loading analytics before acceptance                                                                         |
+| The Next.js image optimizer is disabled in config while preserving `next/image` usage                                                                   | Cloudinary is the intended image layer, and this reduces self-hosted exposure on the pinned Next 14 branch                                               |
+| Phase 4 page routes act only as composition layers                                                                                                      | Keeps route files short and makes each page feature independently maintainable                                                                           |
+| Homepage, About, Mission, and Issue 1 UI are split into dedicated feature components under page-specific folders                                        | Aligns with the requested one-feature-per-file architecture                                                                                              |
+| Contact and newsletter forms use preview-mode validation and feedback before API integration                                                            | Preserves UX intent now without violating the phase boundary between UI and API work                                                                     |
+| Issue 1 rendering uses a local frontend article model that mirrors the API contract shape                                                               | Enables realistic long-form UI rendering now and reduces swap cost in Phase 5                                                                            |
+| Frontend image assets are normalized under `web/public/images/...` and consumed via public URLs                                                         | Gives the Next app a stable static-asset structure and removes binary imports from the app root                                                          |
+| Shared brand lockups now use the local `web/public/images/logo.jpg` asset through a reusable `SiteBrand` component                                      | Replaces the temporary text monogram with a real logo while keeping header and footer branding consistent                                                |
+| Netlify deployment is configured around the Next.js frontend only                                                                                       | `/web` is already a valid Netlify target, while `/api` remains a separate Express service that should be deployed independently and allowed through CORS |
+| The frontend site URL should come from `NEXT_PUBLIC_SITE_URL` instead of a hardcoded placeholder domain                                                 | Canonical metadata, OG URLs, JSON-LD, and share links need a real deploy URL in production                                                               |
+| `NEXT_PUBLIC_API_URL` is optional for the current Netlify deploy                                                                                        | Phase 5 API integration has not been wired yet, so the frontend can be deployed by itself without a live backend                                         |
+| The local `.codex/skills/ui-ux-pro-max-skill` repo should not be tracked by the main project repository                                                 | It is a local skill dependency, not app code, and a broken gitlink prevents Netlify from cloning the project                                             |
+| Netlify should publish the frontend as a static export for now                                                                                          | The current site has no backend/runtime dependency, and explicit static export avoids framework detection/publish ambiguity that led to the deploy 404   |
+| The homepage hero should render with intrinsic image dimensions instead of a fixed-height `fill` wrapper                                                | The current portrait asset needs the container to follow its natural aspect ratio so the full image remains visible on mobile and desktop                |
+| Palette selection should be separate from theme selection                                                                                               | Light/dark is one axis, palette family is a second axis, and combining them cleanly avoids fighting `next-themes`                                        |
+| Tailwind color utilities should use a color-function wrapper that supports any CSS color space                                                          | This allows the original HSL-based palette and the new OKLCH palette to coexist without rewriting component classes                                      |
+| The project should standardize on OKLCH for palette authoring                                                                                           | It keeps both palette presets in one perceptual color space and makes future palette work more consistent                                                |
+| Phase 5 should start only after choosing the Issue 1 source-of-truth shape                                                                              | The frontend and backend currently disagree on Issue 1 fields and content, which would otherwise produce a visible regression during integration         |
+| The app should keep a single shared contact-form surface instead of separate About and issue variants                                                   | It reduces duplicate maintenance and keeps the contact UX consistent across pages                                                                        |
+| The frontend Issue 1 model should stay minimal while the page is flipbook-based                                                                         | Removing the unused `body` field and renderer reduces dead code and makes the current source of truth clearer before API integration                     |
+| The backend `Magazine` model should include the frontend-required issue metadata fields                                                                 | The eventual API needs to provide the same fixed Issue 1 fields the frontend currently reads locally: `summary`, `coverImageAlt`, and `flipbookUrl`      |
+| The backend `Magazine` model should not keep a `body` field while the reader is flipbook-only                                                           | Keeping unused article-body data in the API would create avoidable schema and contract drift                                                             |
+| `publishedAt` should be normalized as an ISO date value in the frontend issue object                                                                    | It matches the backend `DateTime` field cleanly, removes the redundant `isoPublishedAt`, and keeps display formatting as a UI concern                    |
+| Controller files should delegate business logic to service files                                                                                        | This keeps request/response handling separate from persistence and makes the backend easier to extend and test                                           |
+| Backend source should be organized by feature modules instead of only technical layers                                                                  | It keeps each domain's routes, schemas, services, and controllers together, which scales better as Phase 5 adds API behavior                             |
+| Services can talk to Prisma directly for now                                                                                                            | A repository layer would add ceremony without enough complexity payoff at the current size of the backend                                                |
+| Magazine admin create/update routes should manage content fields while publish/unpublish/archive use dedicated lifecycle endpoints                      | It keeps editorial state transitions explicit instead of hiding them inside generic update payloads                                                      |
+| `Magazine.status` should be the single lifecycle field for reader/admin filtering                                                                       | A small `draft` / `published` / `archived` state model is enough for the current API surface without introducing extra flags                             |
+| Swagger docs should be served at a magazine-specific route for now                                                                                      | It keeps the visual API testing surface focused on the module currently being hardened before Phase 5                                                    |
+| Phase 5 issue fetching should be limited to the `/issue-1` page, not the homepage issue card                                                            | It meets the current product requirement with less coupling and avoids expanding API-driven state into sections that are already stable locally          |
+
+## Phase 5 Output
+
+### Contact & Newsletter Integration
+
+- Created services layer: `web/services/contactService.ts`, `web/services/newsletterService.ts` (pure async functions using `apiClient`).
+- Extended types: `ContactInput`, `ContactResponse`, `NewsletterInput`, `NewsletterResponse` in `web/types/api.ts`.
+- Wired `ContactUsSection`: `useTransition`, local validation → API on success, form reset, error handling via `AppError`.
+- Wired `NewsletterPreviewSection`: matching pattern, email-only payload to `/newsletter`.
+- Backend contracts match: `/contact` (name/email/message/honeypot), `/newsletter` (email, idempotent duplicates).
+- UX preserved: loading buttons, success messages, field errors, honeypot client check optional (backend validates).
 
 ## Phase 1 Output
 
 ### Confirmed repo and environment state
+
 - Root contents currently include only planning docs, the prompt files, the layout reference assets, and the local `.codex` skill folder.
 - There is no existing `/web` or `/api` app yet.
 - There is no `.git` directory at the workspace root.
 - Node and npm are available for later scaffolding.
 
 ### Scaffolding strategy
+
 - `/api`
   - Initialize as an independent npm package.
   - Use TypeScript with a fast dev runner such as `tsx` and a compile target suitable for Node 22.
@@ -100,15 +161,17 @@
   - Keep image usage exclusively through `next/image` with Cloudinary remote patterns.
 
 ### Shared architecture boundaries
+
 - The backend owns validation, persistence, rate limiting, and API response shapes.
 - The frontend owns rendering, interaction states, theme handling, metadata, and consent-gated analytics.
 - Shared behavior is contract-based, not code-shared:
   - `POST /api/newsletter`
   - `POST /api/contact`
-  - `GET /api/magazine/issue-1`
+  - `GET /api/magazine/issue/:id`
 - The frontend should not assume Prisma model names or database-specific field shapes.
 
 ### API contract decisions
+
 - `POST /api/newsletter`
   - Request body: `{ "email": string }`
   - Success response: `200 { "success": true, "message": "If eligible, the address has been recorded." }`
@@ -117,20 +180,11 @@
   - Request body: `{ "name": string, "email": string, "message": string, "honeypot": string }`
   - Success response for valid and honeypot-triggered submissions: `200 { "success": true, "message": "Message received." }`
   - Invalid user input returns validation errors from Zod in a safe client-facing shape.
-- `GET /api/magazine/issue-1`
-  - Success response: `{ "title": string, "issueNumber": number, "publishedAt": string, "coverImageUrl": string, "author": string, "body": MagazineBodyBlock[] }`
-
-### Article body contract
-- `MagazineBodyBlock[]` will use a block-based JSON structure:
-  - `heading`: `{ "type": "heading", "level": 2 | 3, "content": RichTextSpan[] }`
-  - `paragraph`: `{ "type": "paragraph", "content": RichTextSpan[] }`
-  - `image`: `{ "type": "image", "imageUrl": string, "alt": string, "caption"?: string }`
-  - `pullQuote`: `{ "type": "pullQuote", "quote": string, "attribution"?: string }`
-- `RichTextSpan` shape:
-  - `{ "text": string, "bold"?: boolean, "italic"?: boolean }`
-- This structure is sufficient for the MVP feature set and maps directly to typed frontend renderers.
+- `GET /api/magazine/issue/:id`
+  - Success response: `{ "title": string, "issueNumber": number, "slug": string, "publishedAt": string, "summary": string, "coverImageUrl": string, "coverImageAlt": string, "flipbookUrl": string, "author": string }`
 
 ### Initial design-system direction
+
 - Product style: premium editorial, readable, compact, and content-first.
 - Typography:
   - `Playfair Display` for headings and issue titles.
@@ -162,6 +216,7 @@
 ## Phase 2 Output
 
 ### Backend scaffold created
+
 - `/api/package.json` with scripts for development, build, Prisma push, and Prisma seed.
 - `/api/tsconfig.json` for strict TypeScript compilation targeting Node 22.
 - `/api/.env.example` with `DATABASE_URL`, `ALLOWED_ORIGIN`, and `PORT`.
@@ -169,6 +224,7 @@
 - Root `.gitignore` now ignores `.env`, build artifacts, and dependency directories.
 
 ### Prisma and MongoDB setup
+
 - Added `/api/prisma/schema.prisma` with the three required MongoDB models:
   - `Magazine`
   - `ContactSubmission`
@@ -177,15 +233,39 @@
 - Added `/api/prisma.config.ts` so Prisma seed configuration uses the current file-based config style.
 
 ### Backend implementation details
+
 - Added startup env validation in `/api/src/lib/env.ts`.
 - Added shared Prisma client management in `/api/src/lib/prisma.ts`.
-- Added Issue 1 content and block types in `/api/src/lib/issue1.ts`.
+- Added Issue 1 content seed data in the `magazine` module.
 - Added Zod schemas for contact and newsletter payloads.
 - Added reusable validation and rate-limiter middleware.
 - Implemented controllers and routes for:
   - `POST /api/contact`
   - `POST /api/newsletter`
-  - `GET /api/magazine/issue-1`
+  - `GET /api/magazine/issue/:id`
+- Backend feature code now lives under `api/src/modules/contact`, `api/src/modules/newsletter`, and `api/src/modules/magazine`.
+- Magazine reader routes now include:
+  - `GET /api/magazine/issues`
+  - `GET /api/magazine/issue/:id`
+  - `GET /api/magazine/issues/featured`
+  - `GET /api/magazine/issues/search?q=...`
+- Magazine admin routes now include:
+  - `POST /api/admin/magazine/issues`
+  - `GET /api/admin/magazine/issues`
+  - `GET /api/admin/magazine/issues/:id`
+  - `PATCH /api/admin/magazine/issues/:id`
+  - `PUT /api/admin/magazine/issues/:id`
+  - `DELETE /api/admin/magazine/issues/:id`
+  - `PATCH /api/admin/magazine/issues/:id/publish`
+  - `PATCH /api/admin/magazine/issues/:id/unpublish`
+  - `PATCH /api/admin/magazine/issues/:id/archive`
+  - `POST /api/admin/magazine/issues/:id/duplicate`
+- `Magazine` now carries a `status` lifecycle and `updatedAt` timestamp so admin and reader route behavior can be implemented explicitly.
+- Admin magazine routes are currently unauthenticated and should be protected before any public backend deployment.
+- Magazine Swagger docs are now served at:
+  - `GET /api/docs/magazine`
+  - `GET /api/docs/magazine.json`
+- The Swagger generator is driven by `api/src/docs/swagger-generator.ts` and a magazine-only route aggregator at `api/src/docs/magazine.swagger-routes.ts`.
 - Added global security middleware in `/api/src/app.ts`:
   - `helmet()`
   - CORS restricted to `ALLOWED_ORIGIN`
@@ -194,6 +274,7 @@
   - central error handler
 
 ### Verification status
+
 - Verified:
   - `npm install`
   - `npm run build`
@@ -208,12 +289,14 @@
 ## Phase 3 Output
 
 ### Frontend scaffold created
+
 - `/web/package.json` with Next.js 14, Tailwind, next-themes, and the required shadcn-style dependencies.
 - `/web/tsconfig.json`, `next.config.mjs`, `postcss.config.js`, `tailwind.config.ts`, `.eslintrc.json`, and `components.json`.
 - `/web/.env.example` and `/web/README.md`.
 - `/web/package-lock.json` generated by `npm install`.
 
 ### Design system and shared shell
+
 - Added `Playfair Display` and `Inter` via `next/font`.
 - Added editorial CSS variables in `/web/app/globals.css` and mapped them into Tailwind theme tokens.
 - Added shared providers for:
@@ -227,6 +310,7 @@
   - consent-gated GA loader
 
 ### Metadata and routing foundation
+
 - Added metadata helpers in `/web/lib/metadata.ts`.
 - Added site and env helpers in `/web/lib/site.ts` and `/web/lib/public-env.ts`.
 - Added route-safe pages for:
@@ -237,6 +321,7 @@
 - Each current route includes `generateMetadata`.
 
 ### Verification status
+
 - Verified:
   - `npm install`
   - `npm run lint`
@@ -252,6 +337,7 @@
 ## Phase 4 Output
 
 ### Component architecture
+
 - Homepage features:
   - `/web/components/home/home-hero.tsx`
   - `/web/components/home/featured-issue-card.tsx`
@@ -273,6 +359,7 @@
   - `/web/components/issue/article-structured-data.tsx`
 
 ### Page implementation details
+
 - Homepage now includes:
   - editorial hero
   - featured issue card
@@ -290,13 +377,13 @@
 - Issue 1 page now includes:
   - full-width cover hero
   - article metadata
-  - rich body rendering from block content
-  - pull quote and embedded image support
+  - embedded flipbook reader
   - social share actions
   - bottom newsletter CTA
   - Article JSON-LD
 
 ### Supporting content modules
+
 - Added page-oriented content files:
   - `/web/lib/content/home-content.ts`
   - `/web/lib/content/about-content.ts`
@@ -319,6 +406,7 @@
 - These keep the UI realistic in Phase 4 without coupling page components directly to the backend.
 
 ### Verification status
+
 - Verified:
   - `npm run lint`
   - `npm run build`
@@ -343,17 +431,19 @@
   - The `hero` and `icons` directories now exist under `web/public/images` so future assets can drop into the expected structure without another refactor
 
 ## Issues Encountered
-| Issue | Resolution |
-|-------|------------|
-| One parallel shell invocation failed with a Windows sandbox process error | Retried the commands in smaller independent batches and continued successfully |
-| The local Python command failed with `The file cannot be accessed by the system` | Avoided repeating the failed attempt and derived the design-system direction manually from the skill guidance |
-| PowerShell execution policy blocked `npx.ps1` | Switched to the `npx.cmd` entry point |
-| Prisma generation failed inside the sandbox with an `EPERM` path error | Re-ran the command outside the sandbox and verified generation |
-| The initial frontend install timed out | Re-ran the install with a longer timeout and it succeeded |
-| The first frontend build failed on an invalid `next-themes` type import path | Corrected the import and rebuilt successfully |
-| Frontend production dependency audit reports one high-severity Next.js advisory | Kept the user-required Next 14 line, disabled the image optimizer path, and recorded the remaining risk for review |
+
+| Issue                                                                            | Resolution                                                                                                         |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| One parallel shell invocation failed with a Windows sandbox process error        | Retried the commands in smaller independent batches and continued successfully                                     |
+| The local Python command failed with `The file cannot be accessed by the system` | Avoided repeating the failed attempt and derived the design-system direction manually from the skill guidance      |
+| PowerShell execution policy blocked `npx.ps1`                                    | Switched to the `npx.cmd` entry point                                                                              |
+| Prisma generation failed inside the sandbox with an `EPERM` path error           | Re-ran the command outside the sandbox and verified generation                                                     |
+| The initial frontend install timed out                                           | Re-ran the install with a longer timeout and it succeeded                                                          |
+| The first frontend build failed on an invalid `next-themes` type import path     | Corrected the import and rebuilt successfully                                                                      |
+| Frontend production dependency audit reports one high-severity Next.js advisory  | Kept the user-required Next 14 line, disabled the image optimizer path, and recorded the remaining risk for review |
 
 ## Resources
+
 - User requirements source: `prompt.md`
 - Planning workflow: `.codex/skills/planning-with-files/SKILL.md`
 - UI/UX workflow: `.codex/skills/ui-ux-pro-max/SKILL.md`
@@ -365,6 +455,7 @@
 - next-themes repository: https://github.com/pacocoursey/next-themes
 
 ## Visual/Browser Findings
+
 - No visual reference has been reviewed yet. `layout.jpg` exists in the repo and may be useful later if the implementation needs to align with a provided composition or art direction.
 - `layout_prompt.md` describes a compact editorial homepage with a large rounded hero container, a tall vertical image block, a featured issue card inside the hero, two equal CTA cards below, and a rounded full-width footer.
 - The frontend foundation currently presents a consistent editorial shell with centered desktop navigation, a restrained card system, rounded containers, and responsive spacing that already reads coherently at the shell level before the full UI pages are built.

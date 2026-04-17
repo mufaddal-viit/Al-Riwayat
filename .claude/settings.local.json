@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\('Instagram:', !!l.Instagram\\); console.log\\('Linkedin:', !!l.Linkedin\\); console.log\\('Twitter:', !!l.Twitter\\);\")",
+      "Read(//c/Users/DELL/.claude/skills/**)",
+      "Read(//c/Users/DELL/.claude/**)"
+    ]
+  }
+}

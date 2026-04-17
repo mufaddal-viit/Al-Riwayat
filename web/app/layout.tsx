@@ -6,6 +6,7 @@ import { AnalyticsLoader } from "@/components/site/analytics-loader";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
+import { defaultPalette, paletteStorageKey } from "@/lib/palette";
 import { siteConfig } from "@/lib/site";
 
 import { AppProviders } from "./providers";
@@ -38,10 +39,19 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      data-palette={defaultPalette}
+    >
       <body
         className={`${bodyFont.variable} ${headingFont.variable} min-h-dvh`}
       >
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var palette=localStorage.getItem('${paletteStorageKey}');if(palette==='editorial'||palette==='amber'){document.documentElement.dataset.palette=palette;}}catch(e){document.documentElement.dataset.palette='${defaultPalette}';}`
+          }}
+        />
         <AppProviders>
           <div className="relative flex min-h-dvh flex-col">
             <SiteHeader />

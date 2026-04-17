@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { AboutStorySection } from "@/components/about/about-story-section";
 import { AboutTeamSection } from "@/components/about/about-team-section";
-import { ContactFormSection } from "@/components/about/contact-form-section";
+import { ContactUsSection } from "@/components/issue/contact-us-section";
 import { buildMetadata } from "@/lib/metadata";
 
 export function generateMetadata(): Metadata {
@@ -19,7 +19,7 @@ export default function AboutPage() {
     <div className="container space-y-8 py-8 pb-16 sm:py-10 lg:space-y-10 lg:py-14">
       <AboutStorySection />
       <AboutTeamSection />
-      <ContactFormSection />
+      <ContactUsSection />
     </div>
   );
 }

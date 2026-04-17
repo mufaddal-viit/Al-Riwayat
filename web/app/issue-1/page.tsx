@@ -12,7 +12,7 @@ export function generateMetadata(): Metadata {
   return buildMetadata({
     title: "Issue 1",
     description: issueOneArticle.summary,
-    path: "/issue-1",
+    path: `/${issueOneArticle.slug}`,
     image: issueOneArticle.coverImageUrl,
   });
 }

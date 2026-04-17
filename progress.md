@@ -3,6 +3,7 @@
 ## Session: 2026-04-02
 
 ### Phase 1: Project setup
+
 - **Status:** complete
 - **Started:** 2026-04-02 14:18:24 +04:00
 - Actions taken:
@@ -28,6 +29,7 @@
   - `progress.md` (updated with completed Phase 1 log)
 
 ### Phase 2: Backend setup
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files and the planning skill instructions before starting implementation.
@@ -67,6 +69,7 @@
   - `api/src/server.ts` (created)
 
 ### Phase 3: Frontend foundation
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files before starting the frontend implementation.
@@ -122,6 +125,7 @@
   - `web/components/ui/label.tsx` (created)
 
 ### Phase 4: UI implementation
+
 - **Status:** complete
 - Actions taken:
   - Re-read the planning files before starting the page-level UI implementation.
@@ -234,6 +238,59 @@
   - Switched the Next.js frontend to `output: "export"` so the build emits a plain static `web/out` directory.
   - Updated `netlify.toml` to publish `out`, making the Netlify deploy path explicit instead of relying on Next runtime detection.
   - Re-ran `npm run build` in `/web` with the static-export config and confirmed the build succeeds and produces `web/out` with `index.html`, `about.html`, `mission.html`, and `issue-1.html`.
+  - Checked the homepage hero image asset and confirmed it is a portrait WebP (`158 x 189`), which explained the visible cropping in the existing fixed-height `fill` wrapper.
+  - Updated the homepage hero media block to use intrinsic `width` and `height` with `w-full h-auto` so the container now follows the image naturally across breakpoints.
+  - Changed the desktop hero grid from stretched items to top-aligned items so the media column no longer gets forced taller than the image itself.
+  - Inspected the current token system before adding a second palette and confirmed the UI relies heavily on opacity-based color utilities like `bg-card/90`, `bg-background/72`, and `border-border/60`.
+  - Implemented palette selection as a second persisted preference using a `data-palette` attribute on the document root, separate from the existing light/dark theme class.
+  - Added a new `PaletteProvider` with localStorage persistence and a lightweight early script in the root layout so the selected palette can apply before the full app hydrates.
+  - Added a new header `PaletteToggle` dropdown so the original editorial palette and the new amber palette can be switched in the live UI.
+  - Upgraded the token system to support both the existing HSL palette and the new OKLCH palette through semantic CSS variables and a Tailwind `color-mix` wrapper that preserves alpha utilities.
+  - Converted the original editorial light and dark palette tokens from HSL to numeric OKLCH values so both palette presets now use the same authoring color space.
+  - Switched the token alpha/mix helpers from `srgb` to `oklab` so overlays, borders, and shadow tinting blend in a perceptual color space as well.
+  - Updated the About story section so the accent side-note card renders only when `aboutStory.sideNote` contains non-whitespace content.
+  - Replaced the About page's old `ContactFormSection` with the shared `ContactUsSection` so the project keeps one maintained contact-form implementation.
+  - Removed the now-unused `web/components/about/contact-form-section.tsx` file.
+  - Performed a pre-Phase-5 readiness review against the current frontend integration surfaces and backend API contracts.
+  - Confirmed the main remaining integration risks are the Issue 1 contract mismatch, the divergent backend seed content, the hidden newsletter feedback UI, and the current static-export constraint for any runtime metadata plan.
+  - Removed the unused `body` field and rich-text block types from the local Issue 1 content model so the frontend reflects the current flipbook-only reading experience.
+  - Simplified `IssueRichContent` by deleting the dead article block renderer and leaving only the embedded flipbook UI.
+  - Normalized the frontend Issue 1 `publishedAt` field to a single ISO string and removed the redundant `isoPublishedAt` field so it lines up with the backend `DateTime` model.
+  - Added `summary`, `coverImageAlt`, and `flipbookUrl` to the Prisma `Magazine` model and updated the backend seed/controller so those fields can be served later by the API.
+  - Updated the issue metadata path, homepage issue link, share fallback URL, structured data, and dormant cover-hero date display to use the normalized issue fields.
+  - Added a new `api/src/services` layer and moved contact, newsletter, and magazine business logic out of the controllers into dedicated service files.
+  - Changed the magazine route from a hardcoded `/issue-1` endpoint to `GET /api/magazine/issue/:id`, with controller/service lookup by slug-like `id`.
+  - Kept controllers thin so they now focus on HTTP status codes and response shaping instead of Prisma operations and business rules.
+  - Refactored the backend from layer-first folders into feature-first modules under `api/src/modules`.
+  - Moved contact, newsletter, and magazine route/controller/schema/service code into module folders and introduced dedicated `magazine.reader.*` files.
+  - Moved Issue 1 seed/types out of `src/lib` into the `magazine` module so content typing and bootstrap data live with the feature they belong to.
+  - Removed the extra `magazine.repository.ts` layer so the magazine service now talks directly to Prisma.
+  - Intentionally skipped lint and build for this cleanup because the user did not ask for verification.
+  - Strengthened the `Magazine` model with an explicit `status` lifecycle and `updatedAt` timestamp to support published-only reader routes and admin editorial workflows.
+  - Added `api/src/modules/magazine/magazine.schema.ts` with Zod validation for magazine ids, search queries, create, patch, and replace payloads.
+  - Expanded the shared request validator so it can validate request `body`, `query`, and `params` instead of only request bodies.
+  - Rebuilt `api/src/modules/magazine/magazine.service.ts` around the full route surface for published issue listing, featured/latest issue lookup, public search, admin CRUD, publish/unpublish/archive, and draft duplication.
+  - Added dedicated admin controller and route files at `api/src/modules/magazine/magazine.admin.controller.ts` and `api/src/modules/magazine/magazine.admin.routes.ts`.
+  - Expanded `api/src/modules/magazine/magazine.reader.controller.ts` and `api/src/modules/magazine/magazine.reader.routes.ts` so the reader surface now includes `issues`, `issue/:id`, `issues/featured`, and `issues/search`.
+  - Mounted the new admin route tree under `/api/admin/magazine` and widened the allowed CORS methods in `api/src/app.ts`.
+  - Updated the Issue 1 seed data and Prisma seed script so the bootstrap issue now seeds as `published`.
+  - Updated the backend README and planning docs to record the magazine lifecycle decision and the full reader/admin route surface.
+  - Intentionally did a source-level review only and did not run build or lint, per the current instruction boundary.
+  - Installed `swagger-ui-express`, `swagger-autogen`, and the Swagger UI type package in `/api`.
+  - Added a magazine-only Swagger generator at `api/src/docs/swagger-generator.ts` plus a route aggregator at `api/src/docs/magazine.swagger-routes.ts`.
+  - Added route annotations to `magazine.reader.routes.ts` and `magazine.admin.routes.ts` so Swagger documents the full reader/admin issue surface with request and response details.
+  - Added runtime Swagger serving in `api/src/docs/magazine.swagger.ts` and mounted the UI and raw JSON in `api/src/app.ts` at `/api/docs/magazine` and `/api/docs/magazine.json`.
+  - Generated `api/src/docs/magazine.swagger-output.json` from the route annotations and confirmed it contains all magazine reader/admin paths.
+  - Synced `api/package.json`, `api/package-lock.json`, and `api/README.md` with the Swagger scripts and docs route.
+  - Attempted a plain `npm install` after moving the Swagger generator to dev dependencies; it failed because Prisma postinstall requires `DATABASE_URL`, so I reran `npm install --ignore-scripts` to sync the lockfile without triggering Prisma generation.
+  - Ran `npx.cmd prisma generate` in `/api` with a temporary local MongoDB URL so the generated Prisma client reflects the current `Magazine` fields, including `summary`, `coverImageAlt`, `flipbookUrl`, `status`, and `updatedAt`.
+  - Verified that the frontend no longer reads `Magazine.body`; the remaining `body` references were limited to backend magazine schema, seed, service, and Swagger examples.
+  - Removed `body` from the Prisma `Magazine` model, the magazine Zod schemas, the seed data, the magazine service contract, and the Swagger examples so the backend now matches the current flipbook-first frontend model.
+  - Regenerated `api/src/docs/magazine.swagger-output.json` after removing `body`, so the Swagger UI now shows the simplified issue contract.
+  - A normal Prisma regenerate hit a locked Windows query-engine DLL, so I regenerated Prisma Client with `npx.cmd prisma generate --no-engine` using a temporary local MongoDB URL; that still refreshed the TypeScript client types for the updated schema.
+  - Re-reviewed the current frontend integration surfaces and locked the Phase 5 route scope to `POST /api/newsletter`, `POST /api/contact`, and `GET /api/magazine/issue/:id`.
+  - Explicitly deferred `GET /api/magazine/issues`, `GET /api/magazine/issues/featured`, `GET /api/magazine/issues/search`, and all admin magazine routes because the current frontend has no matching UI for them yet.
+  - Chose a Phase 5 approach that keeps Issue 1 metadata/JSON-LD on the local fallback object while fetching the visible reader data from the API client-side, which fits the current static-export frontend setup.
 - Files created/modified:
   - `web/lib/content/home-content.ts` (created)
   - `web/lib/content/about-content.ts` (created)
@@ -321,58 +378,175 @@
   - `netlify.toml` (updated to publish the static `out` directory)
   - `web/README.md` (updated to describe the static Netlify deploy path)
   - `findings.md` (updated with the static-export deployment decision)
+  - `web/components/home/home-hero-media.tsx` (updated to preserve the full portrait hero image without cropping)
+  - `web/components/home/home-hero.tsx` (updated so the desktop hero grid no longer stretches the media column)
+  - `findings.md` (updated with the hero-image aspect-ratio decision)
+  - `web/lib/palette.ts` (created with palette definitions and metadata)
+  - `web/components/providers/palette-provider.tsx` (created to persist and apply palette choice)
+  - `web/components/site/palette-toggle.tsx` (created to switch between the two palettes in the header)
+  - `web/app/providers.tsx` (updated to include the palette provider)
+  - `web/app/layout.tsx` (updated to seed the palette attribute before hydration)
+  - `web/components/site/site-header.tsx` (updated to render the palette switcher)
+  - `web/tailwind.config.ts` (updated to support mixed color spaces while preserving opacity utilities)
+  - `web/app/globals.css` (updated with the original palette plus the new amber palette for both light and dark modes)
+  - `findings.md` (updated with the palette-system decision)
+  - `web/app/globals.css` (updated so the editorial preset is also authored in OKLCH)
+  - `web/tailwind.config.ts` (updated to blend tokens in `oklab`)
+  - `web/lib/palette.ts` (updated so the editorial preview gradient also uses OKLCH)
+  - `findings.md` (updated with the OKLCH standardization decision)
+  - `web/components/about/about-story-section.tsx` (updated to conditionally render the side-note card)
+  - `web/app/about/page.tsx` (updated to use the shared `ContactUsSection`)
+  - `web/components/about/contact-form-section.tsx` (deleted)
+  - `findings.md` (updated with the shared contact-form decision)
+  - `findings.md` (updated with the pre-Phase-5 review findings)
+  - `web/lib/content/issue-content.ts` (updated to remove the unused article body and rich-text block types)
+  - `web/components/issue/issue-rich-content.tsx` (updated to remove the unused block renderer and render only the flipbook reader)
+  - `web/lib/content/issue-content.ts` (updated to normalize `publishedAt` and add a display formatter)
+  - `web/app/issue-1/page.tsx` (updated to derive the path from the issue slug)
+  - `web/components/home/featured-issue-card.tsx` (updated to derive the issue link from the issue slug)
+  - `web/components/issue/article-structured-data.tsx` (updated to use the normalized `publishedAt` field and issue slug)
+  - `web/components/issue/issue-cover-hero.tsx` (updated to format the ISO `publishedAt` value for display)
+  - `web/components/issue/issue-share-actions.tsx` (updated to derive the fallback URL from the issue slug)
+  - `api/prisma/schema.prisma` (updated to add frontend-required issue metadata fields to `Magazine`)
+  - `api/src/lib/issue1.ts` (updated to align the Issue 1 seed fields with the frontend issue object)
+  - `api/prisma/seed.ts` (updated to persist the new issue metadata fields on upsert)
+  - `api/src/controllers/magazine.controller.ts` (updated to select and return the new issue metadata fields)
+  - `findings.md` (updated with the Issue 1 model alignment decision)
+  - `api/src/services/contact.service.ts` (created)
+  - `api/src/services/newsletter.service.ts` (created)
+  - `api/src/services/magazine.service.ts` (created)
+  - `api/src/controllers/contact.controller.ts` (updated to delegate to the contact service)
+  - `api/src/controllers/newsletter.controller.ts` (updated to delegate to the newsletter service)
+  - `api/src/controllers/magazine.controller.ts` (updated to delegate to the magazine service and use param-based issue lookup)
+  - `api/src/routes/magazine.ts` (updated to use `GET /issue/:id`)
+  - `api/README.md` (updated for the dynamic magazine route)
+  - `findings.md` (updated with the services-layer decision and dynamic issue route)
+  - `api/src/modules/contact/contact.schema.ts` (created)
+  - `api/src/modules/contact/contact.service.ts` (created)
+  - `api/src/modules/contact/contact.controller.ts` (created)
+  - `api/src/modules/contact/contact.routes.ts` (created)
+  - `api/src/modules/newsletter/newsletter.schema.ts` (created)
+  - `api/src/modules/newsletter/newsletter.service.ts` (created)
+  - `api/src/modules/newsletter/newsletter.controller.ts` (created)
+  - `api/src/modules/newsletter/newsletter.routes.ts` (created)
+  - `api/src/modules/magazine/magazine.types.ts` (created)
+  - `api/src/modules/magazine/magazine.seed.ts` (created)
+  - `api/src/modules/magazine/magazine.service.ts` (created)
+  - `api/src/modules/magazine/magazine.reader.controller.ts` (created)
+  - `api/src/modules/magazine/magazine.reader.routes.ts` (created)
+  - `api/src/app.ts` (updated to use module routes)
+  - `api/prisma/seed.ts` (updated to import Issue 1 seed data from the magazine module)
+  - `api/src/controllers/contact.controller.ts` (deleted)
+  - `api/src/controllers/magazine.controller.ts` (deleted)
+  - `api/src/controllers/newsletter.controller.ts` (deleted)
+  - `api/src/routes/contact.ts` (deleted)
+  - `api/src/routes/magazine.ts` (deleted)
+  - `api/src/routes/newsletter.ts` (deleted)
+  - `api/src/schemas/contact.schema.ts` (deleted)
+  - `api/src/schemas/newsletter.schema.ts` (deleted)
+  - `api/src/services/contact.service.ts` (deleted)
+  - `api/src/services/magazine.service.ts` (deleted)
+  - `api/src/services/newsletter.service.ts` (deleted)
+  - `api/src/lib/issue1.ts` (deleted)
+  - `api/src/modules/magazine/magazine.repository.ts` (deleted)
+  - `api/README.md` (updated with the feature-first module note)
+  - `findings.md` (updated with the feature-first module decision)
+  - `findings.md` (updated with the flipbook-first frontend Issue 1 decision)
 
 ### Phase 5: API integration
-- **Status:** pending
+
+- **Status:** in progress
 - Actions taken:
-  -
+  - Wired contact-us form: created `web/services/contactService.ts`, added types to `web/types/api.ts`, integrated into `web/components/issue/contact-us-section.tsx` with `useTransition`, validation, loading states, success/error feedback.
+  - Wired newsletter signup: created `web/services/newsletterService.ts`, added types, integrated into `web/components/home/newsletter-preview-section.tsx` with matching UX.
+  - Created API client library: `web/lib/api/client.ts` (axios instance, auth interceptors, 401 refresh queue), `web/lib/api/endpoints.ts` (typed endpoint constants for all magazine, contact, newsletter, and comments routes), `web/lib/api/error.ts` (error normalization).
+  - Created dynamic issue route `web/app/issue/[slug]/page.tsx` with server-side `generateMetadata` and `generateStaticParams` fetching from the API, `notFound()` on 404, and article structured data/share/content rendering.
+  - Built full-stack comments system:
+    - Backend: `api/src/modules/comments/` — Zod schema, service (mock data for approval flow + Prisma write path), controller, and routes mounted at `/api/comments`.
+    - Prisma: added `Comment` model with threaded `replies` self-relation and `status` lifecycle to `api/prisma/schema.prisma`.
+    - Mock seed: `api/src/data/mock-comments.json` for development without live DB.
+    - Frontend components: `web/components/comments/CommentsSection.tsx`, `CommentCard.tsx`, `CommentForm.tsx`, `CommentList.tsx`, `CommentReply.tsx`.
+    - Service: `web/services/commentService.ts` (fetchComments, submitComment, deleteComment, approveComment).
+    - Types: `web/types/comment.ts` (`Comment`, `CreateCommentInput`).
+    - Hook: `web/hooks/useComments.ts` using `@tanstack/react-query` for query + mutation with cache invalidation.
+    - UI primitive: `web/components/ui/avatar.tsx` (shadcn-style avatar for comment cards).
 - Files created/modified:
-  -
+  - `web/services/contactService.ts` (created)
+  - `web/services/newsletterService.ts` (created)
+  - `web/services/commentService.ts` (created)
+  - `web/types/api.ts` (updated with ContactInput, ContactResponse, NewsletterInput, NewsletterResponse, Magazine, MagazineListResponse, MagazineResponse, CreateMagazineInput)
+  - `web/types/comment.ts` (created)
+  - `web/lib/api/client.ts` (created)
+  - `web/lib/api/endpoints.ts` (created)
+  - `web/lib/api/error.ts` (created)
+  - `web/app/issue/[slug]/page.tsx` (created)
+  - `web/hooks/useComments.ts` (created)
+  - `web/components/comments/CommentsSection.tsx` (created)
+  - `web/components/comments/CommentCard.tsx` (created)
+  - `web/components/comments/CommentForm.tsx` (created)
+  - `web/components/comments/CommentList.tsx` (created)
+  - `web/components/comments/CommentReply.tsx` (created)
+  - `web/components/ui/avatar.tsx` (created)
+  - `web/components/issue/contact-us-section.tsx` (updated with API integration)
+  - `web/components/home/newsletter-preview-section.tsx` (updated with API integration)
+  - `api/src/modules/comments/comments.controller.ts` (created)
+  - `api/src/modules/comments/comments.routes.ts` (created)
+  - `api/src/modules/comments/comments.schema.ts` (created)
+  - `api/src/modules/comments/comments.service.ts` (created)
+  - `api/src/data/mock-comments.json` (created)
+  - `api/prisma/schema.prisma` (updated — Comment model added)
+  - `api/src/app.ts` (updated — comments routes mounted at `/api/comments`)
+  - `web/package.json` (updated — `@tanstack/react-query` and `axios` added)
 
 ### Phase 6: Testing and polish
+
 - **Status:** pending
-- Actions taken:
-  -
-- Files created/modified:
-  -
+- ## Actions taken:
+- ## Files created/modified:
 
 ## Test Results
-| Test | Input | Expected | Actual | Status |
-|------|-------|----------|--------|--------|
-| Planning file presence | Repo root inspection | Required planning files should exist before implementation | Files were missing initially and have now been created | pass |
-| Workspace state check | Root directory inspection | Confirm whether apps already exist | `/web` and `/api` do not exist yet | pass |
-| Node toolchain check | `where.exe node; where.exe npm; node -v; npm -v` | Verify whether the planned Node-based scaffold is feasible | Node `v22.13.0` and npm `10.9.2` are available | pass |
-| Git repository check | `git status --short` | Confirm repository cleanliness and Git presence | Workspace is not a Git repository | pass |
-| UI/UX design-system script check | `python ...search.py ... --design-system` | Run the local skill helper to produce a design system | Failed because `python.exe` is not executable in this environment; manual synthesis used instead | adjusted |
-| Backend dependency install | `npm.cmd install` in `/api` | Install runtime and dev dependencies successfully | Install succeeded and generated Prisma Client `v6.19.3` | pass |
-| Backend compile | `npm.cmd run build` in `/api` | TypeScript should compile without errors | Build succeeded | pass |
-| Prisma client generation | `npx.cmd prisma generate` with temporary `DATABASE_URL` | Prisma config and schema should generate a client successfully | Generation succeeded after switching from blocked `npx.ps1` and rerunning outside sandbox | pass |
-| Frontend dependency install | `npm.cmd install` in `/web` | Install frontend dependencies successfully | Install succeeded on the second attempt after increasing timeout | pass |
-| Frontend lint | `npm.cmd run lint` in `/web` | Lint should pass with no structural issues | Passed with no ESLint warnings or errors | pass |
-| Frontend build | `npm.cmd run build` in `/web` | Next.js app should compile and prerender current routes | Passed after correcting one `next-themes` type import | pass |
-| Frontend production audit | `npm.cmd audit --omit=dev` in `/web` | Identify whether runtime vulnerabilities remain | Reported one high-severity Next.js advisory on the pinned Next 14 line | risk_logged |
-| Phase 4 frontend lint | `npm.cmd run lint` in `/web` after UI implementation | UI refactor should remain clean | Passed with no ESLint warnings or errors | pass |
-| Phase 4 frontend build | `npm.cmd run build` in `/web` after UI implementation | Modular page UI should compile and prerender | Passed; all app routes built successfully | pass |
-| Cover asset refinement lint | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp` | Asset-source change should remain lint-clean | Passed with no ESLint warnings or errors | pass |
-| Cover asset refinement build | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp` | Local asset imports and SEO image normalization should compile | Passed; all app routes built successfully | pass |
-| Frontend production build after Netlify prep | `npm run build` in `/web` | Netlify-targeted frontend should compile cleanly after deployment config and URL changes | Passed; all app routes built successfully on Next.js `14.2.35` | pass |
-| Frontend static-export build for Netlify | `npm run build` in `/web` after setting `output: "export"` | Build should succeed and emit a publishable `web/out` directory | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1` | pass |
+
+| Test                                                      | Input                                                                                                            | Expected                                                                                                              | Actual                                                                                           | Status      |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------- |
+| Planning file presence                                    | Repo root inspection                                                                                             | Required planning files should exist before implementation                                                            | Files were missing initially and have now been created                                           | pass        |
+| Workspace state check                                     | Root directory inspection                                                                                        | Confirm whether apps already exist                                                                                    | `/web` and `/api` do not exist yet                                                               | pass        |
+| Node toolchain check                                      | `where.exe node; where.exe npm; node -v; npm -v`                                                                 | Verify whether the planned Node-based scaffold is feasible                                                            | Node `v22.13.0` and npm `10.9.2` are available                                                   | pass        |
+| Git repository check                                      | `git status --short`                                                                                             | Confirm repository cleanliness and Git presence                                                                       | Workspace is not a Git repository                                                                | pass        |
+| UI/UX design-system script check                          | `python ...search.py ... --design-system`                                                                        | Run the local skill helper to produce a design system                                                                 | Failed because `python.exe` is not executable in this environment; manual synthesis used instead | adjusted    |
+| Backend dependency install                                | `npm.cmd install` in `/api`                                                                                      | Install runtime and dev dependencies successfully                                                                     | Install succeeded and generated Prisma Client `v6.19.3`                                          | pass        |
+| Backend compile                                           | `npm.cmd run build` in `/api`                                                                                    | TypeScript should compile without errors                                                                              | Build succeeded                                                                                  | pass        |
+| Prisma client generation                                  | `npx.cmd prisma generate` with temporary `DATABASE_URL`                                                          | Prisma config and schema should generate a client successfully                                                        | Generation succeeded after switching from blocked `npx.ps1` and rerunning outside sandbox        | pass        |
+| Frontend dependency install                               | `npm.cmd install` in `/web`                                                                                      | Install frontend dependencies successfully                                                                            | Install succeeded on the second attempt after increasing timeout                                 | pass        |
+| Frontend lint                                             | `npm.cmd run lint` in `/web`                                                                                     | Lint should pass with no structural issues                                                                            | Passed with no ESLint warnings or errors                                                         | pass        |
+| Frontend build                                            | `npm.cmd run build` in `/web`                                                                                    | Next.js app should compile and prerender current routes                                                               | Passed after correcting one `next-themes` type import                                            | pass        |
+| Frontend production audit                                 | `npm.cmd audit --omit=dev` in `/web`                                                                             | Identify whether runtime vulnerabilities remain                                                                       | Reported one high-severity Next.js advisory on the pinned Next 14 line                           | risk_logged |
+| Phase 4 frontend lint                                     | `npm.cmd run lint` in `/web` after UI implementation                                                             | UI refactor should remain clean                                                                                       | Passed with no ESLint warnings or errors                                                         | pass        |
+| Phase 4 frontend build                                    | `npm.cmd run build` in `/web` after UI implementation                                                            | Modular page UI should compile and prerender                                                                          | Passed; all app routes built successfully                                                        | pass        |
+| Cover asset refinement lint                               | `npm.cmd run lint` in `/web` after switching cover images to `homeImage.webp`                                    | Asset-source change should remain lint-clean                                                                          | Passed with no ESLint warnings or errors                                                         | pass        |
+| Cover asset refinement build                              | `npm.cmd run build` in `/web` after switching cover images to `homeImage.webp`                                   | Local asset imports and SEO image normalization should compile                                                        | Passed; all app routes built successfully                                                        | pass        |
+| Frontend production build after Netlify prep              | `npm run build` in `/web`                                                                                        | Netlify-targeted frontend should compile cleanly after deployment config and URL changes                              | Passed; all app routes built successfully on Next.js `14.2.35`                                   | pass        |
+| Frontend static-export build for Netlify                  | `npm run build` in `/web` after setting `output: "export"`                                                       | Build should succeed and emit a publishable `web/out` directory                                                       | Passed; `web/out` contains static HTML for `/`, `/about`, `/mission`, and `/issue-1`             | pass        |
+| Prisma client regeneration after magazine schema changes  | `npx.cmd prisma generate` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine`             | Prisma Client should regenerate against the current schema so updated Magazine fields are available in TypeScript     | Passed; Prisma Client `v6.19.3` regenerated successfully                                         | pass        |
+| Swagger regeneration after removing `Magazine.body`       | `npm.cmd run docs:generate` in `/api`                                                                            | Swagger JSON should update to the simplified issue contract without `body`                                            | Passed; `api/src/docs/magazine.swagger-output.json` regenerated successfully                     | pass        |
+| Prisma client regeneration after removing `Magazine.body` | `npx.cmd prisma generate --no-engine` in `/api` with temporary `DATABASE_URL=mongodb://127.0.0.1:27017/magazine` | Prisma Client types should refresh to the simplified `Magazine` schema even if the Windows query-engine DLL is locked | Passed; Prisma Client `v6.19.3` regenerated successfully with `engine=none`                      | pass        |
 
 ## Error Log
-| Timestamp | Error | Attempt | Resolution |
-|-----------|-------|---------|------------|
-| 2026-04-02 14:18:24 +04:00 | Windows sandbox `CreateProcessWithLogonW failed: 1056` during one parallel shell batch | 1 | Re-ran the inspection in smaller independent commands |
-| 2026-04-02 14:18:24 +04:00 | `python.exe` failed with `The file cannot be accessed by the system` when running the UI/UX skill script | 1 | Switched to manual use of the loaded UI/UX skill guidance |
-| 2026-04-02 14:41:54 +04:00 | PowerShell blocked `npx.ps1` due to execution policy | 1 | Switched to `npx.cmd prisma generate` |
-| 2026-04-02 14:41:54 +04:00 | `npx.cmd prisma generate` failed inside sandbox with `EPERM` resolving `C:\Users\DELL` | 1 | Re-ran the same command with approval outside the sandbox and it succeeded |
-| 2026-04-02 15:06:07 +04:00 | Initial `npm.cmd install` in `/web` timed out | 1 | Checked partial install state and reran with a longer timeout |
-| 2026-04-02 15:06:07 +04:00 | Frontend build failed because `next-themes/dist/types` could not be resolved | 1 | Imported `ThemeProviderProps` from `next-themes` and rebuilt successfully |
+
+| Timestamp                  | Error                                                                                                    | Attempt | Resolution                                                                 |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| 2026-04-02 14:18:24 +04:00 | Windows sandbox `CreateProcessWithLogonW failed: 1056` during one parallel shell batch                   | 1       | Re-ran the inspection in smaller independent commands                      |
+| 2026-04-02 14:18:24 +04:00 | `python.exe` failed with `The file cannot be accessed by the system` when running the UI/UX skill script | 1       | Switched to manual use of the loaded UI/UX skill guidance                  |
+| 2026-04-02 14:41:54 +04:00 | PowerShell blocked `npx.ps1` due to execution policy                                                     | 1       | Switched to `npx.cmd prisma generate`                                      |
+| 2026-04-02 14:41:54 +04:00 | `npx.cmd prisma generate` failed inside sandbox with `EPERM` resolving `C:\Users\DELL`                   | 1       | Re-ran the same command with approval outside the sandbox and it succeeded |
+| 2026-04-02 15:06:07 +04:00 | Initial `npm.cmd install` in `/web` timed out                                                            | 1       | Checked partial install state and reran with a longer timeout              |
+| 2026-04-02 15:06:07 +04:00 | Frontend build failed because `next-themes/dist/types` could not be resolved                             | 1       | Imported `ThemeProviderProps` from `next-themes` and rebuilt successfully  |
 
 ## 5-Question Reboot Check
-| Question | Answer |
-|----------|--------|
-| Where am I? | Phase 4 complete and waiting for user review |
-| Where am I going? | Phase 5 API integration after review, then testing/polish |
-| What's the goal? | A runnable production-ready MVP digital magazine with separate Next.js and Express apps |
+
+| Question             | Answer                                                                                                                                                             |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Where am I?          | Phase 4 complete and waiting for user review                                                                                                                       |
+| Where am I going?    | Phase 5 API integration after review, then testing/polish                                                                                                          |
+| What's the goal?     | A runnable production-ready MVP digital magazine with separate Next.js and Express apps                                                                            |
 | What have I learned? | The page UI now renders through modular feature components, the long-form issue view builds cleanly, and form submission remains intentionally deferred to Phase 5 |
-| What have I done? | Completed the UI implementation phase by building the modular page sections and re-verifying the frontend build |
+| What have I done?    | Completed the UI implementation phase by building the modular page sections and re-verifying the frontend build                                                    |

@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
+import { Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+import { subscribeToNewsletter } from "@/services/newsletterService";
 
 export function NewsletterPreviewSection() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const trimmedEmail = email.trim();
@@ -19,14 +24,26 @@ export function NewsletterPreviewSection() {
 
     if (!isValidEmail) {
       setIsError(true);
-      setMessage("Enter a valid email address to preview the signup flow.");
+      setMessage("Enter a valid email address.");
       return;
     }
 
-    setIsError(false);
-    setMessage(
-      "Signup UI is ready. Live submission connects in the next integration phase.",
-    );
+    startTransition(async () => {
+      try {
+        setMessage(null);
+        setIsError(false);
+        await subscribeToNewsletter(trimmedEmail);
+        setMessage("Welcome to the list. Thank you!");
+        setEmail("");
+      } catch (error: any) {
+        const msg =
+          error instanceof Error
+            ? error.message
+            : "Subscription failed. Please try again.";
+        setMessage(msg);
+        setIsError(true);
+      }
+    });
   }
 
   return (
@@ -61,21 +78,21 @@ export function NewsletterPreviewSection() {
                 aria-describedby="newsletter-preview-message"
                 className="sm:flex-1"
               />
-              <Button
-                type="submit"
-                className="sm:min-w-[168px]"
-                variant={"outline"}
-              >
-                Join the List
-              </Button>
+              <SubmitButton
+                icon={Newspaper}
+                label="Join the List"
+                pendingLabel="Joining…"
+                isPending={isPending}
+                // variant="outline"
+                className="w-auto sm:min-w-[168px]"
+              />
             </div>
-            {/* <p
+            <p
               id="newsletter-preview-message"
               className={`text-sm ${isError ? "text-destructive" : "text-muted-foreground"}`}
             >
-              {message ??
-                "Designed for smooth success and error feedback before API wiring."}
-            </p> */}
+              {message ?? "Get each issue summary delivered quietly."}
+            </p>
           </div>
         </form>
       </div>
