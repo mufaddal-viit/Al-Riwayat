@@ -3,6 +3,7 @@ export const ENDPOINTS = {
   auth: {
     register:           "/auth/register",
     login:              "/auth/login",
+    google:             "/auth/google",
     logout:             "/auth/logout",
     refresh:            "/auth/refresh",
     me:                 "/auth/me",

@@ -11,6 +11,7 @@ import {
 import {
   registerSchema,
   loginSchema,
+  googleLoginSchema,
   verifyEmailSchema,
   resendVerificationSchema,
   forgotPasswordSchema,
@@ -50,6 +51,13 @@ router.post(
   loginLimiter,
   validate(loginSchema),
   authController.login,
+);
+
+router.post(
+  "/google",
+  loginLimiter,
+  validate(googleLoginSchema),
+  authController.googleLogin,
 );
 
 router.post("/refresh", refreshLimiter, authController.refresh);

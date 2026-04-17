@@ -1,8 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { env } from "../../lib/env";
-import mockRaw from "../../data/mock-magazines.json";
-// console.log(mockRaw);
 import { prisma } from "../../lib/prisma";
+import * as mockRepo from "./magazine.repo.mock";
 import type {
   AdminMagazineListQuery,
   CreateMagazineInput,
@@ -10,6 +9,8 @@ import type {
   ReplaceMagazineInput,
   UpdateMagazineInput,
 } from "./magazine.schema";
+
+const useMockBackend = () => env.DATA_BACKEND !== "prisma";
 
 const publicIssueSummarySelect = {
   title: true,
@@ -184,6 +185,10 @@ async function createDuplicateSlug(baseSlug: string) {
 }
 
 export async function listPublishedIssues() {
+  if (useMockBackend()) {
+    return mockRepo.listPublishedIssues();
+  }
+
   const issues = await prisma.magazine.findMany({
     where: { status: "published" },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
@@ -194,6 +199,10 @@ export async function listPublishedIssues() {
 }
 
 export async function findPublishedIssueById(id: string) {
+  if (useMockBackend()) {
+    return mockRepo.findPublishedIssueById(id);
+  }
+
   const issue = await prisma.magazine.findFirst({
     where: {
       AND: [issueIdentifierWhere(id), { status: "published" }],
@@ -209,26 +218,8 @@ export async function findPublishedIssueById(id: string) {
 }
 
 export async function findPublishedIssues() {
-  if (env.MOCK_DB) {
-    const mockData = mockRaw as any[];
-    const published = mockData
-      .filter((i: any) => i.status === "published")
-      .sort(
-        (a: any, b: any) =>
-          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
-      )
-      .map((latest: any) => ({
-        title: latest.title,
-        issueNumber: latest.issueNumber,
-        slug: latest.slug,
-        publishedAt: new Date(latest.publishedAt),
-        summary: latest.summary,
-        coverImageUrl: latest.coverImageUrl,
-        coverImageAlt: latest.coverImageAlt,
-        author: latest.author,
-      }));
-
-    return published.map((issue: any) => serializePublicIssueSummary(issue));
+  if (useMockBackend()) {
+    return mockRepo.listPublishedIssues();
   }
 
   const issues = await prisma.magazine.findMany({
@@ -241,6 +232,10 @@ export async function findPublishedIssues() {
 }
 
 export async function searchPublishedIssues(query: MagazineSearchQuery) {
+  if (useMockBackend()) {
+    return mockRepo.searchPublishedIssues(query);
+  }
+
   const issues = await prisma.magazine.findMany({
     where: { status: "published" },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],

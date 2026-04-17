@@ -5,6 +5,9 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../lib/AppError";
 import { env } from "../../lib/env";
 import type { CreateCommentInput } from "./comments.schema";
+import * as firestoreRepo from "./comments.repo.firestore";
+
+const useFirestoreBackend = () => env.DATA_BACKEND === "firestore";
 
 // ─── Mock data (MOCK_DB=true) ─────────────────────────────────────────────────
 
@@ -59,16 +62,25 @@ function handlePrismaNotFound(error: unknown, id: string): never {
   throw error;
 }
 
+// ─── Author from auth ────────────────────────────────────────────────────────
+
+export interface CommentAuthor {
+  uid: string;
+  email: string;
+  name: string;
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 /**
  * Fetch all approved top-level comments for a page slug,
  * with their approved replies nested in each comment.
- *
- * When MOCK_DB=true the response is built from mock-comments.json so the
- * feature can be demoed without a live database connection.
  */
 export async function getApprovedComments(slug: string) {
+  if (useFirestoreBackend()) {
+    return firestoreRepo.getApprovedComments(slug);
+  }
+
   if (env.MOCK_DB) {
     const topLevel = mockComments.filter(
       (c) => c.pageSlug === slug && c.parentId === null,
@@ -91,31 +103,15 @@ export async function getApprovedComments(slug: string) {
 }
 
 /**
- * Create a new comment with PENDING status.
- * - Validates parent comment exists (if parentId provided)
- * - Sanitizes body against XSS before persisting
+ * Create a new comment.
+ * - Author info is sourced from the authenticated session, not the request body.
+ * - Firestore backend: auto-APPROVED (no moderation UI in no-DB mode).
+ * - Prisma backend: lands in PENDING as before.
  */
-export async function createComment(data: CreateCommentInput) {
-  if (data.parentId) {
-    const parent = await prisma.comment.findUnique({
-      where: { id: data.parentId },
-      select: { id: true, parentId: true },
-    });
-
-    if (!parent) {
-      throw new AppError("Parent comment not found.", 404, "PARENT_NOT_FOUND");
-    }
-
-    // Prevent nesting beyond one level (reply-to-reply not allowed)
-    if (parent.parentId !== null) {
-      throw new AppError(
-        "Replies to replies are not supported.",
-        422,
-        "NESTED_REPLY_NOT_ALLOWED",
-      );
-    }
-  }
-
+export async function createComment(
+  data: CreateCommentInput,
+  author: CommentAuthor,
+) {
   const sanitizedBody = sanitizeHtml(data.body.trim(), SANITIZE_OPTIONS);
 
   if (!sanitizedBody) {
@@ -126,11 +122,42 @@ export async function createComment(data: CreateCommentInput) {
     );
   }
 
+  if (useFirestoreBackend()) {
+    return firestoreRepo.createComment({
+      body: sanitizedBody,
+      authorName: author.name,
+      authorEmail: author.email,
+      authorUid: author.uid,
+      pageSlug: data.pageSlug,
+      parentId: data.parentId ?? null,
+      status: "APPROVED",
+    });
+  }
+
+  if (data.parentId) {
+    const parent = await prisma.comment.findUnique({
+      where: { id: data.parentId },
+      select: { id: true, parentId: true },
+    });
+
+    if (!parent) {
+      throw new AppError("Parent comment not found.", 404, "PARENT_NOT_FOUND");
+    }
+
+    if (parent.parentId !== null) {
+      throw new AppError(
+        "Replies to replies are not supported.",
+        422,
+        "NESTED_REPLY_NOT_ALLOWED",
+      );
+    }
+  }
+
   return prisma.comment.create({
     data: {
       body: sanitizedBody,
-      authorName: data.authorName.trim(),
-      authorEmail: data.authorEmail.toLowerCase().trim(),
+      authorName: author.name,
+      authorEmail: author.email,
       pageSlug: data.pageSlug,
       parentId: data.parentId ?? null,
       status: Status.PENDING,
@@ -157,8 +184,6 @@ export async function approveComment(id: string) {
 
 /**
  * Mark a comment as SPAM.
- * Keeps the record for audit purposes — use deleteComment to hard-delete.
- * Admin-only operation.
  */
 export async function markAsSpam(id: string) {
   try {
@@ -174,11 +199,6 @@ export async function markAsSpam(id: string) {
 
 /**
  * Hard-delete a comment.
- * Due to the self-referential relation in MongoDB (NoAction), replies are
- * left orphaned with a stale parentId rather than being cascade-deleted at
- * the DB level.  We therefore delete in a transaction: replies first, then
- * the parent.
- * Admin-only operation.
  */
 export async function deleteComment(id: string) {
   const comment = await prisma.comment.findUnique({
@@ -190,7 +210,6 @@ export async function deleteComment(id: string) {
     throw new AppError(`Comment not found: ${id}`, 404, "COMMENT_NOT_FOUND");
   }
 
-  // Delete orphaned replies first (MongoDB has no ON DELETE CASCADE here)
   await prisma.$transaction([
     prisma.comment.deleteMany({ where: { parentId: id } }),
     prisma.comment.delete({ where: { id } }),

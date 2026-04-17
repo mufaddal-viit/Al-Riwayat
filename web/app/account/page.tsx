@@ -395,9 +395,34 @@ export default function AccountPage() {
 
       <Separator className="bg-border/50" />
 
-      <ProfileSection />
-      <ChangePasswordSection />
-      <DangerZoneSection />
+      {/* Profile, password and delete-account sections are temporarily disabled
+          while the database layer is offline. Their components remain defined
+          above and will be re-enabled when the backend DB endpoints return. */}
+      <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="font-heading text-xl">Account details</CardTitle>
+          <CardDescription>Managed by your Google account.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex justify-between border-b border-border/40 pb-2">
+            <span className="text-muted-foreground">Name</span>
+            <span>{user.firstName} {user.lastName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Email</span>
+            <span>{user.email}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Suppress unused-warnings for the preserved DB-dependent sections. */}
+      {false && (
+        <>
+          <ProfileSection />
+          <ChangePasswordSection />
+          <DangerZoneSection />
+        </>
+      )}
     </main>
   );
 }

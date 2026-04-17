@@ -77,9 +77,10 @@ apiClient.interceptors.response.use(
     };
 
     // Only attempt refresh on 401s that haven't been retried yet
-    // and are not the refresh endpoint itself (prevents infinite loop)
-    const isRefreshEndpoint = original.url?.includes("/auth/refresh");
-    if (error.response?.status === 401 && !original._retry && !isRefreshEndpoint) {
+    // and are not the auth endpoints themselves (prevents infinite loop)
+    const isAuthEndpoint =
+      original.url?.includes("/auth/refresh") || original.url?.includes("/auth/google");
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       if (isRefreshing) {
         // Queue the failed request — it will be retried after refresh resolves
         return new Promise((resolve, reject) => {
@@ -115,16 +116,25 @@ apiClient.interceptors.response.use(
 );
 
 // ─── Refresh helper ───────────────────────────────────────────────────────────
+// Asks Firebase for a fresh ID token, then re-exchanges it for a backend JWT.
+// No DB, no refresh-token cookie — Firebase is the source of truth for session.
 
 async function refreshAccessToken(): Promise<string> {
-  // Use a plain axios call (not apiClient) to avoid triggering the interceptor again
+  const { firebaseAuth } = await import("@/lib/firebase");
+  const fbUser = firebaseAuth.currentUser;
+  if (!fbUser) {
+    throw new Error("Not signed in");
+  }
+
+  const idToken = await fbUser.getIdToken(true); // force refresh
+
   const { data } = await axios.post<{
     success: boolean;
     data: { accessToken: string };
   }>(
-    `${BASE_URL}/auth/refresh`,
-    null,
-    { withCredentials: true },
+    `${BASE_URL}/auth/google`,
+    { idToken },
+    { headers: { "Content-Type": "application/json" } },
   );
   return data.data.accessToken;
 }

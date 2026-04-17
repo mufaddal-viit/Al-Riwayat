@@ -3,6 +3,7 @@ import type { CookieOptions } from "express";
 
 import { env } from "../../lib/env";
 import * as authService from "./auth.service";
+import * as googleService from "./google.service";
 import type {
   RegisterInput,
   LoginInput,
@@ -12,6 +13,7 @@ import type {
   ResetPasswordInput,
   UpdateProfileInput,
   ChangePasswordInput,
+  GoogleLoginInput,
 } from "./auth.schema";
 
 // ─── Cookie config ────────────────────────────────────────────────────────────
@@ -106,6 +108,25 @@ export async function login(
   try {
     const result = await authService.login(req.body, extractClientMeta(req));
     setRefreshCookie(res, result.refreshToken);
+    res.status(200).json({
+      success: true,
+      data: {
+        accessToken: result.accessToken,
+        user: result.user,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function googleLogin(
+  req: Request<Record<string, never>, unknown, GoogleLoginInput>,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await googleService.loginWithGoogle(req.body.idToken);
     res.status(200).json({
       success: true,
       data: {

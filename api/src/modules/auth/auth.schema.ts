@@ -27,6 +27,14 @@ const nameSchema = (field: string) =>
     .max(64, `${field} is too long.`)
     .trim();
 
+// ─── Google sign-in ───────────────────────────────────────────────────────────
+
+export const googleLoginSchema = z.object({
+  idToken: z.string().min(10, "Firebase ID token is required."),
+});
+
+export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
+
 // ─── Register ─────────────────────────────────────────────────────────────────
 
 export const registerSchema = z.object({

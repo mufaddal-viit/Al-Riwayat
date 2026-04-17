@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 
 import { SiteBrand } from "@/components/site/site-brand";
 
@@ -13,11 +12,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       />
 
       <div className="w-full max-w-sm space-y-6">
-        {/* Brand mark */}
+        {/* Brand mark — SiteBrand is itself a Link to "/" */}
         <div className="flex justify-center">
-          <Link href="/" aria-label="Back to home">
-            <SiteBrand size="sm" />
-          </Link>
+          <SiteBrand size="sm" />
         </div>
 
         {children}

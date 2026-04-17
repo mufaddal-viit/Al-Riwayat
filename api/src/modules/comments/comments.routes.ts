@@ -28,9 +28,10 @@ commentsPublicRouter.get(
   getComments,
 );
 
-/** POST /api/comments  — submit new comment (lands in PENDING) */
+/** POST /api/comments  — submit new comment (auth required) */
 commentsPublicRouter.post(
   "/",
+  requireAuth,
   commentRateLimiter,
   validate(createCommentSchema),
   createComment,

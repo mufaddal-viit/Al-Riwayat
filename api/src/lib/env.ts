@@ -33,6 +33,14 @@ const envSchema = z.object({
 
   // ─── App ──────────────────────────────────────────────────────────────────
   FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+
+  // ─── Data backend ─────────────────────────────────────────────────────────
+  DATA_BACKEND: z.enum(["firestore", "prisma"]).default("firestore"),
+
+  // ─── Firebase Admin ───────────────────────────────────────────────────────
+  FIREBASE_PROJECT_ID: z.string().min(1).optional(),
+  FIREBASE_CLIENT_EMAIL: z.string().email().optional(),
+  FIREBASE_PRIVATE_KEY: z.string().min(1).optional(),
 });
 
 export const env = envSchema.parse(process.env);

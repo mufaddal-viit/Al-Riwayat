@@ -10,9 +10,11 @@ import { prisma } from "../../lib/prisma";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AccessTokenPayload {
-  sub: string;    // User.id
+  sub: string;    // User.id (Prisma) or Firebase UID (Google sign-in)
   email: string;
   role: Role;
+  name?: string;
+  picture?: string;
 }
 
 interface RefreshTokenMeta {

@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X } from "lucide-react";
+import { X, Reply } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { submitComment } from "@/services/commentService";
 import { AppError } from "@/lib/api/error";
-import { Reply } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -36,9 +35,7 @@ export function CommentReply({ parentId, slug, onClose, onSuccess }: CommentRepl
       try {
         await submitComment({
           body: body.trim(),
-          authorName:  `${user!.firstName} ${user!.lastName}`,
-          authorEmail: user!.email,
-          pageSlug:    slug,
+          pageSlug: slug,
           parentId,
         });
         onSuccess();

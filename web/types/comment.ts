@@ -11,11 +11,9 @@ export interface Comment {
   replies: Comment[];
 }
 
-/** Input for creating comment/reply */
+/** Input for creating comment/reply. Author info is sourced from auth. */
 export interface CreateCommentInput {
   body: string;
-  authorName: string;
-  authorEmail: string;
   pageSlug: string;
   parentId?: string;
   honeypot?: string;

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { AppError } from "../../lib/AppError";
 import type { GetCommentsQuery, CommentParamInput, CreateCommentInput } from "./comments.schema";
 import * as commentService from "./comments.service";
 
@@ -40,7 +41,15 @@ export async function createComment(
       return;
     }
 
-    const comment = await commentService.createComment(req.body);
+    if (!req.user) {
+      throw new AppError("Authentication required.", 401, "UNAUTHENTICATED");
+    }
+
+    const comment = await commentService.createComment(req.body, {
+      uid: req.user.sub,
+      email: req.user.email,
+      name: req.user.name ?? req.user.email.split("@")[0],
+    });
     res.status(201).json({ success: true, data: comment });
   } catch (err) {
     next(err);

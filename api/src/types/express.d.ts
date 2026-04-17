@@ -8,9 +8,11 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        sub: string;    // User.id
+        sub: string;    // User.id (Prisma) or Firebase UID (Google sign-in)
         email: string;
         role: Role;
+        name?: string;
+        picture?: string;
       };
     }
   }

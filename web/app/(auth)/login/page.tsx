@@ -1,18 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-
-import { LogIn } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { AppError } from "@/lib/api/error";
 import { Button } from "@/components/ui/button";
-import { SubmitButton } from "@/components/ui/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -22,35 +15,45 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+function GoogleLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.07 5.07 0 0 1-2.2 3.32v2.77h3.56c2.08-1.92 3.28-4.74 3.28-8.1Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.65l-3.56-2.77c-.99.66-2.25 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A10.99 10.99 0 0 0 12 23Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.07.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z"
+      />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [error, setError]       = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleGoogle() {
     setError(null);
-    setFieldErrors({});
-
     startTransition(async () => {
       try {
-        await login({ email, password });
+        await loginWithGoogle();
         router.replace("/account");
       } catch (err) {
         if (err instanceof AppError) {
-          if (err.errors) {
-            const flat: Record<string, string> = {};
-            for (const [k, v] of Object.entries(err.errors)) flat[k] = v[0];
-            setFieldErrors(flat);
-          } else {
-            setError(err.message);
-          }
+          if (err.code === "auth/popup-closed-by-user") return; // user dismissed — silent
+          setError(err.message);
         } else {
           setError("Something went wrong. Please try again.");
         }
@@ -61,94 +64,37 @@ export default function LoginPage() {
   return (
     <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
       <CardHeader className="space-y-1 pb-4">
-        <CardTitle className="font-heading text-2xl">Welcome back</CardTitle>
+        <CardTitle className="font-heading text-2xl">Welcome</CardTitle>
         <CardDescription>Sign in to your Al-Riwayat account</CardDescription>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4"> 
-          {error && (
-            <p
-              role="alert"
-              className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={!!fieldErrors.email}
-              required
-            />
-            {fieldErrors.email && (
-              <p className="text-xs text-destructive">{fieldErrors.email}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Forgot password?
-              </Link>
-            </div>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPass ? "text" : "password"}
-                autoComplete="current-password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                aria-invalid={!!fieldErrors.password}
-                className="pr-11"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPass((p) => !p)}
-                aria-label={showPass ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {fieldErrors.password && (
-              <p className="text-xs text-destructive">{fieldErrors.password}</p>
-            )}
-          </div>
-        </CardContent>
-
-        <CardFooter className="flex flex-col gap-3 pt-2">
-          <SubmitButton
-            icon={LogIn}
-            label="Sign In"
-            pendingLabel="Signing in…"
-            isPending={isPending}
-          />
-
-          <p className="text-center text-sm text-muted-foreground">
-            No account?{" "}
-            <Link
-              href="/register"
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              Create one
-            </Link>
+      <CardContent className="space-y-4">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {error}
           </p>
-        </CardFooter>
-      </form>
+        )}
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleGoogle}
+          disabled={isPending}
+          className="w-full justify-center gap-3 py-5 text-base"
+        >
+          <GoogleLogo className="h-5 w-5" />
+          {isPending ? "Signing in…" : "Continue with Google"}
+        </Button>
+      </CardContent>
+
+      <CardFooter className="pt-2">
+        <p className="text-center text-xs text-muted-foreground w-full">
+          By continuing, you agree to our Terms of Service and Privacy Policy.
+        </p>
+      </CardFooter>
     </Card>
   );
 }
