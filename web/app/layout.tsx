@@ -6,6 +6,7 @@ import { AnalyticsLoader } from "@/components/site/analytics-loader";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
+import { consentStorageKey, defaultConsent } from "@/lib/consent";
 import { defaultPalette, paletteStorageKey } from "@/lib/palette";
 import { siteConfig } from "@/lib/site";
 
@@ -43,13 +44,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
       lang="en"
       suppressHydrationWarning
       data-palette={defaultPalette}
+      data-consent={defaultConsent}
     >
       <body
         className={`${bodyFont.variable} ${headingFont.variable} min-h-dvh`}
       >
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var palette=localStorage.getItem('${paletteStorageKey}');if(palette==='editorial'||palette==='amber'){document.documentElement.dataset.palette=palette;}}catch(e){document.documentElement.dataset.palette='${defaultPalette}';}`
+            __html: `try{var d=document.documentElement;var palette=localStorage.getItem('${paletteStorageKey}');if(palette==='editorial'||palette==='amber'){d.dataset.palette=palette;}var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`
           }}
         />
         <AppProviders>

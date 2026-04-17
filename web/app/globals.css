@@ -160,3 +160,8 @@
     text-wrap: balance;
   }
 }
+
+html[data-consent="accepted"] [data-cookie-consent],
+html[data-consent="declined"] [data-cookie-consent] {
+  display: none;
+}

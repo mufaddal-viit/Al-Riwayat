@@ -2,12 +2,13 @@ import type { Magazine, ApiResponse, PaginatedResponse } from "@/types/api";
 import { AppError } from "@/lib/api/error";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { buildMetadata } from "@/lib/metadata";
+import { publicEnv } from "@/lib/public-env";
 import { IssuePageClient } from "./IssuePageClient";
 import type { Metadata } from "next";
 
 // ─── Server-side helper ───────────────────────────────────────────────────────
 
-const API_URL = process.env.API_URL ?? "http://localhost:4000";
+const API_URL = publicEnv.apiUrl;
 
 async function serverFetch<T>(endpoint: string): Promise<T> {
   const res = await fetch(`${API_URL}${endpoint}`);

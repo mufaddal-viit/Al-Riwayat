@@ -11,7 +11,7 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 p-4">
+    <div data-cookie-consent className="fixed inset-x-0 bottom-0 z-40 p-4">
       <div className="mx-auto flex max-w-5xl flex-col gap-4 rounded-[1.75rem] border border-border bg-card/95 p-4 shadow-editorial backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <p className="max-w-2xl text-sm text-muted-foreground">
           We use cookies for analytics.

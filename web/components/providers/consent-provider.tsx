@@ -8,7 +8,14 @@ import {
   type ReactNode
 } from "react";
 
-export type ConsentState = "unknown" | "accepted" | "declined";
+import {
+  consentStorageKey,
+  defaultConsent,
+  isConsentState,
+  type ConsentState
+} from "@/lib/consent";
+
+export type { ConsentState };
 
 type ConsentContextValue = {
   consent: ConsentState;
@@ -16,25 +23,29 @@ type ConsentContextValue = {
 };
 
 const ConsentContext = createContext<ConsentContextValue | undefined>(undefined);
-const consentStorageKey = "magazine-cookie-consent";
 
 type ConsentProviderProps = {
   children: ReactNode;
 };
 
 export function ConsentProvider({ children }: ConsentProviderProps) {
-  const [consent, setConsentState] = useState<ConsentState>("unknown");
+  const [consent, setConsentState] = useState<ConsentState>(defaultConsent);
 
   useEffect(() => {
-    const savedValue = window.localStorage.getItem(consentStorageKey);
-
-    if (savedValue === "accepted" || savedValue === "declined") {
-      setConsentState(savedValue);
+    const fromAttr = document.documentElement.dataset.consent;
+    if (isConsentState(fromAttr) && fromAttr !== defaultConsent) {
+      setConsentState(fromAttr);
+      return;
+    }
+    const saved = window.localStorage.getItem(consentStorageKey);
+    if (isConsentState(saved) && saved !== defaultConsent) {
+      setConsentState(saved);
     }
   }, []);
 
   function setConsent(value: Exclude<ConsentState, "unknown">) {
     window.localStorage.setItem(consentStorageKey, value);
+    document.documentElement.dataset.consent = value;
     setConsentState(value);
   }
 
