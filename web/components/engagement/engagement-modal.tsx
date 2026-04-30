@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/dialog";
 
 const STORAGE_KEY = "al_riwayat_engagement_shown";
-const TRIGGER_SCROLL_DEPTH = 0.5;  // 50% of page
-const TRIGGER_TIME_MS = 60_000;    // 60 seconds
+const TRIGGER_SCROLL_DEPTH = 0.5; // 50% of page
+const TRIGGER_TIME_MS = 60_000; // 60 seconds
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
@@ -63,7 +63,8 @@ export function EngagementModal() {
     // Scroll trigger
     function onScroll() {
       const scrolled =
-        window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+        window.scrollY /
+        (document.documentElement.scrollHeight - window.innerHeight);
       if (scrolled >= TRIGGER_SCROLL_DEPTH) trigger();
     }
 
@@ -126,7 +127,7 @@ export function EngagementModal() {
             <span className="text-3xl">✦</span>
             <p className="font-heading text-xl font-semibold">Thank you!</p>
             <p className="text-sm text-muted-foreground">
-              We're glad to have you with us.
+              We&apos;re glad to have you with us.
             </p>
           </div>
         ) : (
@@ -136,7 +137,9 @@ export function EngagementModal() {
 
             <div className="px-7 pb-8 pt-7">
               <DialogHeader className="mb-6">
-                <DialogTitle className="text-2xl">A moment of your time</DialogTitle>
+                <DialogTitle className="text-2xl">
+                  A moment of your time
+                </DialogTitle>
                 <DialogDescription className="mt-1.5 text-sm leading-relaxed">
                   Help us understand our readers — it takes under a minute.
                 </DialogDescription>
@@ -150,7 +153,9 @@ export function EngagementModal() {
                     id="eng-name"
                     placeholder="Your name"
                     value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name: e.target.value }))
+                    }
                     required
                     disabled={formState === "submitting"}
                     className="bg-background/60"
@@ -165,7 +170,9 @@ export function EngagementModal() {
                     type="email"
                     placeholder="you@example.com"
                     value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email: e.target.value }))
+                    }
                     required
                     disabled={formState === "submitting"}
                     className="bg-background/60"
@@ -202,7 +209,9 @@ export function EngagementModal() {
                       id="eng-occupation"
                       placeholder="e.g. Designer"
                       value={form.occupation}
-                      onChange={(e) => setForm((f) => ({ ...f, occupation: e.target.value }))}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, occupation: e.target.value }))
+                      }
                       required
                       disabled={formState === "submitting"}
                       className="bg-background/60"
@@ -222,7 +231,10 @@ export function EngagementModal() {
                     className="mt-0.5"
                   />
                   <div className="space-y-0.5">
-                    <Label htmlFor="eng-subscribe" className="cursor-pointer font-normal">
+                    <Label
+                      htmlFor="eng-subscribe"
+                      className="cursor-pointer font-normal"
+                    >
                       Send me new issues and updates
                     </Label>
                     <p className="text-xs text-muted-foreground">

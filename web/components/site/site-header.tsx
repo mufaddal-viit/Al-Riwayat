@@ -48,32 +48,48 @@ function NavLink({
 
 function ThemeSwitcher() {
   const { setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   return (
-    <div className="flex items-center justify-evenly px-2 py-1.5">
+    <div className="flex items-center gap-0 rounded-full border border-foreground px-2.5 py-1.5 dark:border-foreground">
       <button
         aria-label="Light mode"
         onClick={() => setTheme("light")}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-md transition-colors",
-          resolvedTheme === "light"
-            ? "bg-muted text-foreground"
-            : "text-muted-foreground hover:text-foreground",
+          "group flex flex-col items-center gap-1 rounded-full px-2.5 py-1.5 transition-all duration-200",
+          !isDark
+            ? "text-muted-foreground/50 hover:text-muted-foreground"
+            : "text-foreground",
         )}
       >
-        <Sun className="h-6 w-6" />
+        <Sun className="h-4 w-4 stroke-[1.6]" />
+        <span
+          className={cn(
+            "h-[3px] w-[3px] rounded-full bg-foreground transition-opacity duration-200",
+            !isDark ? "opacity-100" : "opacity-0",
+          )}
+        />
       </button>
-      <div className="h-8 w-1 bg-border rounded-md" />
+
+      <div className="mx-0.5 h-[18px] w-px bg-foreground" />
+
       <button
         aria-label="Dark mode"
         onClick={() => setTheme("dark")}
         className={cn(
-          "flex h-9 w-9 items-center justify-center rounded-md transition-colors",
-          resolvedTheme === "dark"
-            ? "bg-muted text-foreground"
-            : "text-muted-foreground hover:text-foreground",
+          "group flex flex-col items-center gap-1 rounded-full px-2.5 py-1.5 transition-all duration-200",
+          isDark
+            ? "text-foreground"
+            : "text-muted-foreground/50 hover:text-muted-foreground",
         )}
       >
-        <Moon className="h-6 w-6" />
+        <Moon className="h-4 w-4 stroke-[1.6]" />
+        <span
+          className={cn(
+            "h-[3px] w-[3px] rounded-full bg-current transition-opacity duration-200",
+            isDark ? "opacity-100" : "opacity-0",
+          )}
+        />
       </button>
     </div>
   );
@@ -117,7 +133,7 @@ export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="z-50">
       <div className="mx-auto flex min-h-[72px] max-w-[1400px] items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
         <SiteBrand priority />
 
