@@ -1,12 +1,31 @@
+import Image from "next/image";
+
+import { FeaturedIssueCard } from "./featured-issue-card";
 import { HomeHeroContent } from "./home-hero-content";
-import { HomeHeroMedia } from "./home-hero-media";
 
 export function HomeHero() {
   return (
-    <section className="overflow-hidden rounded-[2.5rem] border border-border bg-card/90 px-5 py-6 shadow-none sm:px-8 sm:py-8 lg:px-10 lg:py-10">
-      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-        <HomeHeroContent />
-        <HomeHeroMedia />
+    <section className="relative -mt-[100px] overflow-hidden">
+      <Image
+        src="/blob-scene-haikei.svg"
+        alt=""
+        fill
+        aria-hidden
+        className="pointer-events-none object-cover object-center -z-30 opacity-70"
+        sizes="100vw"
+        priority
+      />
+
+      <div className="relative grid min-h-screen lg:grid-cols-3">
+        <div className="lg:col-span-2 flex items-center">
+          <HomeHeroContent />
+        </div>
+
+        <div className="hidden lg:flex items-center justify-center px-8 pb-16 pt-[calc(100px+3rem)] xl:px-12">
+          <div className="w-full max-w-[340px]">
+            <FeaturedIssueCard aspectClass="aspect-[3/4]" />
+          </div>
+        </div>
       </div>
     </section>
   );

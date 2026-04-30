@@ -10,7 +10,7 @@ export const siteConfig = {
   url: publicEnv.siteUrl,
   assets: {
     logo: "/images/logo.jpg",
-    homeHero: "/images/hero/home-hero.webp"
+    homeHero: "/images/hero/home-hero.webp",
   },
   ogImage: "/images/hero/home-hero.webp",
   navItems: [
@@ -20,12 +20,12 @@ export const siteConfig = {
   ],
   moreItems: [
     { href: "/issue-1", label: "Issue 1" },
-    { href: "/about#team", label: "Team" },
-    { href: "/mission#values", label: "Values" },
+    // { href: "/about#team", label: "Team" },
+    // { href: "/mission#values", label: "Values" },
   ],
   socialLinks: [
     { href: "https://www.instagram.com", label: "Instagram" },
     { href: "https://www.linkedin.com", label: "LinkedIn" },
-    { href: "https://x.com", label: "X" }
-  ]
+    { href: "https://x.com", label: "X" },
+  ],
 } as const;

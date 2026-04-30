@@ -68,14 +68,20 @@ export async function exchangeFirebaseToken(
 }
 
 /** Open the Google sign-in popup, then exchange the Firebase ID token for a backend JWT. */
-export async function loginWithGoogle(): Promise<{ accessToken: string; user: AuthUser }> {
+export async function loginWithGoogle(): Promise<{
+  accessToken: string;
+  user: AuthUser;
+}> {
   try {
     const result = await signInWithPopup(firebaseAuth, googleProvider);
     const idToken = await result.user.getIdToken();
     return await exchangeFirebaseToken(idToken);
   } catch (err: unknown) {
     const code = (err as { code?: string } | null)?.code;
-    if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") {
+    if (
+      code === "auth/popup-closed-by-user" ||
+      code === "auth/cancelled-popup-request"
+    ) {
       throw new AppError({ message: "Sign-in cancelled.", status: 400, code });
     }
     if (code === "auth/network-request-failed") {
@@ -86,7 +92,10 @@ export async function loginWithGoogle(): Promise<{ accessToken: string; user: Au
       });
     }
     if (err instanceof AppError) throw err;
-    throw new AppError({ message: "Google sign-in failed. Please try again.", status: 500 });
+    throw new AppError({
+      message: "Google sign-in failed. Please try again.",
+      status: 500,
+    });
   }
 }
 
@@ -126,7 +135,9 @@ export async function resendVerification(email: string): Promise<void> {
   await apiClient.post(ENDPOINTS.auth.resendVerification, { email });
 }
 
-export async function forgotPassword(input: ForgotPasswordInput): Promise<void> {
+export async function forgotPassword(
+  input: ForgotPasswordInput,
+): Promise<void> {
   await apiClient.post(ENDPOINTS.auth.forgotPassword, input);
 }
 
@@ -141,7 +152,9 @@ export async function getMe(): Promise<AuthUser> {
   return data.data.user;
 }
 
-export async function updateProfile(input: UpdateProfileInput): Promise<AuthUser> {
+export async function updateProfile(
+  input: UpdateProfileInput,
+): Promise<AuthUser> {
   const { data } = await apiClient.patch<MeResponse>(
     ENDPOINTS.auth.updateProfile,
     input,
@@ -149,7 +162,9 @@ export async function updateProfile(input: UpdateProfileInput): Promise<AuthUser
   return data.data.user;
 }
 
-export async function changePassword(input: ChangePasswordInput): Promise<void> {
+export async function changePassword(
+  input: ChangePasswordInput,
+): Promise<void> {
   await apiClient.patch(ENDPOINTS.auth.changePassword, input);
 }
 

@@ -16,10 +16,14 @@ export function generateMetadata(): Metadata {
 
 export default function HomePage() {
   return (
-    <div className="container space-y-8 py-8 pb-16 sm:py-10 lg:space-y-10 lg:py-6">
+    <>
       <HomeHero />
-      <ReaderEngagementSection />
-      <NewsletterPreviewSection />
-    </div>
+      <div className="container space-y-8 py-10 pb-16 lg:space-y-12">
+        <div className="sm:block">
+          <ReaderEngagementSection />
+        </div>
+        <NewsletterPreviewSection />
+      </div>
+    </>
   );
 }

@@ -108,7 +108,7 @@
   body {
     @apply bg-background font-body text-foreground antialiased;
     line-height: 1.7;
-    background-image:
+    /* background-image:
       radial-gradient(
         circle at top,
         color-mix(in oklab, var(--secondary) 42%, transparent),
@@ -118,7 +118,7 @@
         to bottom,
         var(--background),
         color-mix(in oklab, var(--muted) 45%, var(--background))
-      );
+      ); */
     min-height: 100dvh;
   }
 
