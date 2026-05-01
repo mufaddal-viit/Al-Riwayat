@@ -2,20 +2,14 @@
 
 import { useRef, useState } from "react";
 import { ChevronDown, Upload, X } from "lucide-react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import {
-  getDownloadURL,
-  ref as storageRef,
-  uploadBytes,
-} from "firebase/storage";
 
-import { db, storage } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { contributeCTA, contributeIntro } from "@/lib/content/contribute";
+import { submitContribution } from "@/services/submissionService";
 
 type SubmissionType = "POEM" | "STORY" | "ART";
 type AnonymousChoice = "YES" | "NO";
@@ -87,24 +81,17 @@ export function ContributeCTA() {
     if (!validate()) return;
     setFormState("submitting");
     try {
-      const fileUrls: string[] = [];
-      for (const file of form.files) {
-        const ref = storageRef(
-          storage,
-          `submissions/${Date.now()}_${file.name}`,
-        );
-        await uploadBytes(ref, file);
-        fileUrls.push(await getDownloadURL(ref));
-      }
-      await addDoc(collection(db, "submissions"), {
+      await submitContribution({
         name: form.name.trim(),
-        age: form.age ? Number(form.age) : null,
-        email: form.email.trim().toLowerCase(),
-        submissionType: form.submissionType,
+        age: form.age,
+        email: form.email.trim(),
+        submissionType: form.submissionType as Exclude<
+          FormValues["submissionType"],
+          ""
+        >,
         content: form.content.trim(),
         anonymous: form.anonymous === "YES",
-        fileUrls,
-        submittedAt: serverTimestamp(),
+        files: form.files,
       });
       setFormState("success");
     } catch {

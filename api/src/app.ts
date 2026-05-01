@@ -16,6 +16,7 @@ import contactRoutes from "./modules/contact/contact.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
 import newsletterRoutes from "./modules/newsletter/newsletter.routes";
+import submissionsRoutes from "./modules/submissions/submissions.routes";
 import { commentsPublicRouter, commentsAdminRouter } from "./modules/comments/comments.routes";
 import adminUsersRoutes from "./modules/users/users.routes";
 import meRoutes from "./modules/users/me.routes";
@@ -63,6 +64,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/submissions", submissionsRoutes);
 app.use("/api/comments", commentsPublicRouter);
 app.use("/api/magazine", magazineReaderRoutes);
 app.use("/api/me", meRoutes);

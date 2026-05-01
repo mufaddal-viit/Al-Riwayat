@@ -48,8 +48,9 @@ export const ENDPOINTS = {
   },
 
   // ─── Forms ─────────────────────────────────────────────────────────────────
-  contact:    { submit:    "/contact" },
-  newsletter: { subscribe: "/newsletter" },
+  contact:     { submit:    "/contact" },
+  newsletter:  { subscribe: "/newsletter" },
+  submissions: { submit:    "/submissions" },
 
   // ─── Me (authenticated self-service profile) ──────────────────────────────
   me: {
