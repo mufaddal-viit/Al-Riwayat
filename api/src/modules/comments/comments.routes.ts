@@ -28,10 +28,9 @@ commentsPublicRouter.get(
   getComments,
 );
 
-/** POST /api/comments  — submit new comment (auth required) */
+/** POST /api/comments  — submit new comment (open to anyone) */
 commentsPublicRouter.post(
   "/",
-  requireAuth,
   commentRateLimiter,
   validate(createCommentSchema),
   createComment,
@@ -58,7 +57,7 @@ commentsAdminRouter.patch(
   markAsSpam,
 );
 
-/** DELETE /api/admin/comments/:id  — hard-delete comment + its replies */
+/** DELETE /api/admin/comments/:id  — hard-delete comment */
 commentsAdminRouter.delete(
   "/:id",
   validate(commentParamSchema, "params"),

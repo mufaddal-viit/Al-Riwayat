@@ -1,137 +1,157 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import Link from "next/link";
-import { MessageSquare } from "lucide-react";
-import { SubmitButton } from "@/components/ui/submit-button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState, useTransition } from "react";
+import { Send, X } from "lucide-react";
+
+import { getReaderIdentity } from "@/lib/reader-identity";
 import { cn } from "@/lib/utils";
 import type { CreateCommentInput } from "@/types/comment";
 
 interface CommentFormProps {
   slug: string;
   onSubmit: (input: CreateCommentInput) => Promise<void>;
+  onCancel?: () => void;
   isPending: boolean;
 }
 
-export function CommentForm({ slug, onSubmit, isPending }: CommentFormProps) {
-  const { isAuthenticated, user } = useAuth();
+const BODY_MAX = 2000;
 
-  const [form, setForm] = useState({
-    body:     "",
-    honeypot: "",
-  });
-  const [errors, setErrors] = useState<{ body?: string }>({});
+export function CommentForm({
+  slug,
+  onSubmit,
+  onCancel,
+  isPending,
+}: CommentFormProps) {
+  const [authorName, setAuthorName] = useState("");
+  const [body, setBody] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState("");
   const [isTransitionPending, startTransition] = useTransition();
 
   const busy = isPending || isTransitionPending;
+  const canSend = body.trim().length > 0 && !busy;
 
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="rounded-xl border border-border/60 bg-muted/40 px-4 py-6 text-center text-sm text-muted-foreground">
-        <Link
-          href="/login"
-          className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
-        >
-          Sign in
-        </Link>{" "}
-        to leave a comment.
-      </div>
-    );
-  }
+  // Prefill the author name from the engagement modal capture.
+  useEffect(() => {
+    const identity = getReaderIdentity();
+    if (identity && !authorName) setAuthorName(identity.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("");
-    setErrors({});
 
-    if (form.honeypot.length > 0) {
-      setStatus("Please leave the honeypot field empty.");
-      return;
-    }
+    if (honeypot.length > 0) return;
+    if (body.trim().length === 0) return;
 
-    if (form.body.trim().length < 10) {
-      setErrors({ body: "Comment must be at least 10 characters." });
-      return;
-    }
+    const trimmedName = authorName.trim() || "Anonymous";
+    const trimmedBody = body.trim();
 
     startTransition(async () => {
       try {
         await onSubmit({
-          body:     form.body.trim(),
+          authorName: trimmedName,
+          body: trimmedBody,
           pageSlug: slug,
         });
-        setStatus("Comment posted.");
-        setForm({ body: "", honeypot: "" });
+        setBody("");
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Failed to submit comment.";
+        const msg =
+          err instanceof Error ? err.message : "Failed to submit comment.";
         setStatus(msg);
       }
     });
   }
 
+  const inputBase =
+    "w-full bg-transparent border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 placeholder:text-muted-foreground/70 disabled:opacity-60";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Honeypot — hidden from real users, filled by bots */}
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-1 bg-muted/20 px-4 py-4 sm:px-5"
+      noValidate
+    >
+      {/* Honeypot — hidden from real users */}
       <input
         type="text"
         name="honeypot"
-        value={form.honeypot}
-        onChange={(e) => setForm({ ...form, honeypot: e.target.value })}
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
         className="hidden"
       />
 
-      <p className="text-sm text-muted-foreground">
-        Posting as{" "}
-        <span className="font-medium text-foreground">
-          {user.firstName} {user.lastName}
-        </span>
-      </p>
+      {/* Name */}
+      <input
+        id="cf-name"
+        type="text"
+        value={authorName}
+        onChange={(e) => setAuthorName(e.target.value)}
+        placeholder="Your name (or stay anonymous)"
+        autoComplete="name"
+        disabled={busy}
+        aria-label="Your name"
+        className={cn(
+          inputBase,
+          "py-1 text-[13px] font-medium text-foreground/80 placeholder:font-normal",
+        )}
+      />
 
-      <div className="space-y-1.5">
-        <Label htmlFor="cf-body">Comment</Label>
-        <Textarea
+      <div className="flex">
+        <textarea
           id="cf-body"
-          value={form.body}
-          onChange={(e) => setForm({ ...form, body: e.target.value })}
-          rows={4}
-          placeholder="Share your thoughts…"
+          value={body}
+          onChange={(e) => {
+            if (e.target.value.length <= BODY_MAX) setBody(e.target.value);
+          }}
+          placeholder="Say something worth reading…"
           disabled={busy}
+          autoFocus
+          rows={1}
+          aria-label="Your note"
           className={cn(
-            "resize-none",
-            errors.body && "border-destructive focus-visible:ring-destructive",
+            inputBase,
+            "resize-none py-1 text-[15px] leading-relaxed text-foreground",
           )}
         />
-        {errors.body && (
-          <p className="text-xs text-destructive">{errors.body}</p>
-        )}
-      </div>
 
-      {status && (
-        <p
-          className={cn(
-            "rounded-xl border px-4 py-3 text-sm",
-            status === "Comment posted."
-              ? "border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400"
-              : "border-destructive/30 bg-destructive/10 text-destructive",
+        {status && <p className="text-xs text-destructive">{status}</p>}
+
+        <div className="mt-1 flex items-center justify-end gap-1">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={busy}
+              aria-label="Cancel"
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors",
+                "hover:bg-muted hover:text-foreground",
+                "disabled:opacity-50",
+              )}
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
           )}
-        >
-          {status}
-        </p>
-      )}
-
-      <SubmitButton
-        icon={MessageSquare}
-        label="Post comment"
-        pendingLabel="Posting…"
-        isPending={busy}
-      />
+          <button
+            type="submit"
+            disabled={!canSend}
+            aria-label="Send note"
+            className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-full transition-all",
+              canSend
+                ? "bg-primary text-primary-foreground hover:opacity-90"
+                : "bg-muted text-muted-foreground/60",
+            )}
+          >
+            <Send className="h-4 w-4" aria-hidden />
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

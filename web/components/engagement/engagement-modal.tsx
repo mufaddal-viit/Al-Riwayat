@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
+import { setReaderIdentity } from "@/lib/reader-identity";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -98,15 +99,18 @@ export function EngagementModal() {
     if (!validateAge(form.age)) return;
 
     setFormState("submitting");
+    const trimmedName = form.name.trim();
+    const trimmedEmail = form.email.trim().toLowerCase();
     try {
       await addDoc(collection(db, "engagement_submissions"), {
-        name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
+        name: trimmedName,
+        email: trimmedEmail,
         age: Number(form.age),
         occupation: form.occupation.trim(),
         subscribeToEmails: form.subscribe,
         submittedAt: serverTimestamp(),
       });
+      setReaderIdentity({ name: trimmedName, email: trimmedEmail });
       setFormState("success");
       setTimeout(() => handleOpenChange(false), 1800);
     } catch {

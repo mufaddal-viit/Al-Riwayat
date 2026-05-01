@@ -3,18 +3,15 @@ export interface Comment {
   id: string;
   body: string;
   authorName: string;
-  authorEmail: string;
   pageSlug: string;
-  parentId: string | null;
+  status: "PENDING" | "APPROVED" | "SPAM";
   createdAt: string;
-  updatedAt: string;
-  replies: Comment[];
 }
 
-/** Input for creating comment/reply. Author info is sourced from auth. */
+/** Input for creating a comment. No login — author identity is in the body. */
 export interface CreateCommentInput {
+  authorName: string;
   body: string;
   pageSlug: string;
-  parentId?: string;
   honeypot?: string;
 }
