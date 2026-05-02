@@ -41,7 +41,7 @@ export function AboutTeamStack({ members, activeIndex }: AboutTeamStackProps) {
   const total = members.length;
 
   return (
-    <div className="relative aspect-[4/5] w-full max-w-[380px]">
+    <div className="relative aspect-[4/5] w-full max-w-[260px] sm:max-w-[280px] lg:max-w-[300px]">
       {/* Peek-through stack — upcoming members */}
       {PEEK_OFFSETS.map((peek, depth) => {
         const peekIndex = (activeIndex + depth + 1) % total;
@@ -63,7 +63,7 @@ export function AboutTeamStack({ members, activeIndex }: AboutTeamStackProps) {
               alt=""
               fill
               className="object-cover"
-              sizes="(min-width: 1024px) 360px, 30vw"
+              sizes="(min-width: 1024px) 300px, 280px"
             />
           </div>
         );
@@ -78,7 +78,7 @@ export function AboutTeamStack({ members, activeIndex }: AboutTeamStackProps) {
           fill
           priority
           className="object-cover animate-fade-in-up"
-          sizes="(min-width: 1024px) 480px, 80vw"
+          sizes="(min-width: 1024px) 300px, 280px"
         />
       </div>
     </div>
