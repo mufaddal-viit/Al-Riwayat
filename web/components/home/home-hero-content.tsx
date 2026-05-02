@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { homeHeroContent } from "@/lib/content/home-content";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FeaturedIssueCard } from "./featured-issue-card";
 
@@ -11,9 +10,10 @@ export function HomeHeroContent() {
       <div className="space-y-6">
         <div className="space-y-4">
           <h1 className="w-full text-4xl sm:text-5xl lg:text-7xl font-extrabold">
-            {homeHeroContent.title}
+            {homeHeroContent.title}{" "}
+            <span className="text-primary">{homeHeroContent.titleHighlight}</span>
           </h1>
-          <p className="max-w-lg text-base text-muted-foreground sm:text-lg">
+          <p className="max-w-lg text-base text-foreground/80 sm:text-lg">
             {homeHeroContent.description.slice(0, 150) + "..."}
           </p>
         </div>

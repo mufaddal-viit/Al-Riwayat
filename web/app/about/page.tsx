@@ -10,16 +10,18 @@ export function generateMetadata(): Metadata {
     title: "About",
     description:
       "Learn the magazine's story, meet the editorial team, and preview the contact experience.",
-    path: "/about"
+    path: "/about",
   });
 }
 
 export default function AboutPage() {
   return (
-    <div className="container space-y-8 py-8 pb-16 sm:py-10 lg:space-y-10 lg:py-14">
+    <>
       <AboutStorySection />
-      <AboutTeamSection />
-      <ContactUsSection />
-    </div>
+      <div className="container space-y-20 py-16 pb-20 lg:space-y-28 lg:py-24">
+        <AboutTeamSection />
+        <ContactUsSection />
+      </div>
+    </>
   );
 }

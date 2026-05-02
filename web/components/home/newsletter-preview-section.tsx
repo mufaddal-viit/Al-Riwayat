@@ -52,7 +52,7 @@ export function NewsletterPreviewSection() {
 
   const helpText = isJoined
     ? "You're on the list."
-    : message ?? "Unsubscribe any time. No tracking.";
+    : (message ?? "Unsubscribe any time. No tracking.");
 
   return (
     <section
@@ -78,10 +78,10 @@ export function NewsletterPreviewSection() {
             In your inbox
           </p>
 
-          <h2 className="font-heading leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
+          <h2 className="font-heading font-extrabold italic leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
             Stay close
             <br />
-            to each <em className="text-primary">issue.</em>
+            to each <em className="text-primary not-italic">issue.</em>
           </h2>
 
           <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -123,11 +123,7 @@ export function NewsletterPreviewSection() {
                 disabled={isPending || isJoined}
                 className="group h-11 shrink-0 gap-2 rounded-md px-6 text-[11px] font-bold uppercase tracking-[0.14em]"
               >
-                {isJoined
-                  ? "Joined"
-                  : isPending
-                    ? "Joining…"
-                    : "Join the list"}
+                {isJoined ? "Joined" : isPending ? "Joining…" : "Join the list"}
                 {!isJoined && (
                   <ArrowRight
                     aria-hidden

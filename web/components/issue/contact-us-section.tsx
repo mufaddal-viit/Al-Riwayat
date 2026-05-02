@@ -145,12 +145,12 @@ export function ContactUsSection({ className }: { className?: string }) {
             Drop a note
           </p>
 
-          <h2 className="font-heading leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
+          <h2 className="font-heading font-extrabold italic leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
             Every word
             <br />
             lands somewhere
             <br />
-            <em className="text-primary">real.</em>
+            <em className="text-primary not-italic">real.</em>
           </h2>
 
           <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">

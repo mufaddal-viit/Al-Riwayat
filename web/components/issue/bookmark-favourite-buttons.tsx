@@ -92,7 +92,7 @@ export function BookmarkFavouriteButtons({ slug }: ToggleProps) {
           aria-pressed={favourited}
           className={cn(
             "h-10 justify-start bg-transparent px-3 text-xs shadow-none sm:h-11 sm:px-4 sm:text-sm",
-            favourited && "border-rose-500/60 text-rose-600 dark:text-rose-400",
+            favourited && "border-rose-500/60 text-rose-500",
           )}
         >
           <Heart

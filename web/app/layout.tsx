@@ -8,7 +8,6 @@ import { EngagementModal } from "@/components/engagement/engagement-modal";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { consentStorageKey, defaultConsent } from "@/lib/consent";
-import { defaultPalette, paletteStorageKey } from "@/lib/palette";
 import { siteConfig } from "@/lib/site";
 
 import { AppProviders } from "./providers";
@@ -44,7 +43,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      data-palette={defaultPalette}
       data-consent={defaultConsent}
     >
       <body
@@ -52,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement;var palette=localStorage.getItem('${paletteStorageKey}');if(palette==='editorial'||palette==='amber'){d.dataset.palette=palette;}var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`,
+            __html: `try{var d=document.documentElement;var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`,
           }}
         />
         <AppProviders>

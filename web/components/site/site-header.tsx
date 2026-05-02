@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/sheet";
 
 import { SiteBrand } from "./site-brand";
-import { PaletteToggle } from "./palette-toggle";
 
 function NavLink({
   href,
@@ -51,36 +50,47 @@ function ThemeSwitcher() {
   const isDark = resolvedTheme === "dark";
 
   return (
-    <div className="flex items-center gap-0 rounded-full border border-foreground px-2.5 py-1.5 dark:border-foreground">
+    <div
+      className="
+        flex items-center justify-center
+        rounded-full border border-foreground
+        px-5 py-1
+        sm:px-5 sm:py-1.5
+        mx-auto
+        w-fit
+        gap-2
+      "
+    >
       <button
         aria-label="Light mode"
         onClick={() => setTheme("light")}
         className={cn(
-          "group flex flex-col items-center gap-1 rounded-full px-2.5 py-1.5 transition-all duration-200",
+          "flex flex-col items-center justify-center gap-1 rounded-full p-2 transition-all duration-200",
           !isDark
-            ? "text-muted-foreground/50 hover:text-muted-foreground"
-            : "text-foreground",
+            ? "text-foreground"
+            : "text-foreground/70 hover:text-foreground",
         )}
       >
         <Sun className="h-4 w-4 stroke-[1.6]" />
         <span
           className={cn(
-            "h-[3px] w-[3px] rounded-full bg-foreground transition-opacity duration-200",
+            "h-[3px] w-[3px] rounded-full bg-current transition-opacity duration-200",
             !isDark ? "opacity-100" : "opacity-0",
           )}
         />
       </button>
 
-      <div className="mx-0.5 h-[18px] w-px bg-foreground" />
+      {/* Divider */}
+      <div className="mx-1 h-[16px] w-px bg-foreground opacity-60" />
 
       <button
         aria-label="Dark mode"
         onClick={() => setTheme("dark")}
         className={cn(
-          "group flex flex-col items-center gap-1 rounded-full px-2.5 py-1.5 transition-all duration-200",
+          "flex flex-col items-center justify-center gap-1 rounded-full p-2 transition-all duration-200",
           isDark
             ? "text-foreground"
-            : "text-muted-foreground/50 hover:text-muted-foreground",
+            : "text-foreground/70 hover:text-foreground",
         )}
       >
         <Moon className="h-4 w-4 stroke-[1.6]" />
@@ -148,15 +158,13 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* Desktop: palette + theme */}
+        {/* Desktop: theme */}
         <div className="hidden items-center gap-3 md:flex">
-          <PaletteToggle />
           <ThemeSwitcher />
         </div>
 
-        {/* Mobile: palette + hamburger */}
+        {/* Mobile: hamburger */}
         <div className="flex items-center gap-2 md:hidden">
-          <PaletteToggle className="h-9 w-9" />
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
@@ -170,7 +178,13 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="flex flex-col border-border/60 bg-background/90 p-6 backdrop-blur-2xl"
+              className="flex flex-col border-border/60 bg-background/40 p-6 backdrop-blur-2xl h-[70vh] sm:h-[500px] rounded-l-2xl data-[state=open]:animate-in
+                      
+              
+              data-[state=closed]:animate-out
+                      data-[state=open]:slide-in-from-right
+                      data-[state=closed]:slide-out-to-right
+                      duration-300"
             >
               <SheetHeader className="space-y-3">
                 <SheetTitle className="font-bold">{siteConfig.name}</SheetTitle>

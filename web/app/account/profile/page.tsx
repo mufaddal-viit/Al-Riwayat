@@ -171,7 +171,7 @@ export default function ProfilePage() {
               {savedAt && (
                 <p
                   role="status"
-                  className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400"
+                  className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-600"
                 >
                   Profile saved.
                 </p>

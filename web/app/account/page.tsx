@@ -86,7 +86,7 @@ function ProfileSection() {
             </p>
           )}
           {success && (
-            <p role="status" className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+            <p role="status" className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-600">
               Profile updated successfully.
             </p>
           )}
@@ -193,7 +193,7 @@ function ChangePasswordSection() {
             </p>
           )}
           {success && (
-            <p role="status" className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+            <p role="status" className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-600">
               Password changed successfully.
             </p>
           )}
