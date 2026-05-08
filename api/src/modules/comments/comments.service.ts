@@ -19,7 +19,6 @@ const mockComments = require("../../data/mock-comments.json") as Array<{
   pageSlug: string;
   parentId: string | null;
   createdAt: string;
-  replies?: unknown[];
 }>;
 
 // ─── Sanitize config ──────────────────────────────────────────────────────────
@@ -36,18 +35,8 @@ const publicCommentSelect = {
   body: true,
   authorName: true,
   pageSlug: true,
-  parentId: true,
   status: true,
   createdAt: true,
-} satisfies Prisma.CommentSelect;
-
-const publicCommentWithRepliesSelect = {
-  ...publicCommentSelect,
-  replies: {
-    where: { status: Status.APPROVED },
-    select: publicCommentSelect,
-    orderBy: { createdAt: Prisma.SortOrder.asc },
-  },
 } satisfies Prisma.CommentSelect;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,19 +51,10 @@ function handlePrismaNotFound(error: unknown, id: string): never {
   throw error;
 }
 
-// ─── Author from auth ────────────────────────────────────────────────────────
-
-export interface CommentAuthor {
-  uid: string;
-  email: string;
-  name: string;
-}
-
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 /**
- * Fetch all approved top-level comments for a page slug,
- * with their approved replies nested in each comment.
+ * Fetch all approved comments for a page slug.
  */
 export async function getApprovedComments(slug: string) {
   if (useFirestoreBackend()) {
@@ -82,36 +62,28 @@ export async function getApprovedComments(slug: string) {
   }
 
   if (env.MOCK_DB) {
-    const topLevel = mockComments.filter(
-      (c) => c.pageSlug === slug && c.parentId === null,
-    );
-    return topLevel.map((c) => ({
-      ...c,
-      replies: mockComments.filter((r) => r.parentId === c.id),
-    }));
+    return mockComments
+      .filter((c) => c.pageSlug === slug && c.parentId === null)
+      .map(({ parentId: _parentId, ...rest }) => rest);
   }
 
   return prisma.comment.findMany({
     where: {
       pageSlug: slug,
       status: Status.APPROVED,
-      parentId: null, // top-level only — replies come via nested select
+      parentId: null,
     },
-    select: publicCommentWithRepliesSelect,
+    select: publicCommentSelect,
     orderBy: { createdAt: Prisma.SortOrder.desc },
   });
 }
 
 /**
- * Create a new comment.
- * - Author info is sourced from the authenticated session, not the request body.
+ * Create a new comment. Open to anyone — author info is in the request body.
  * - Firestore backend: auto-APPROVED (no moderation UI in no-DB mode).
- * - Prisma backend: lands in PENDING as before.
+ * - Prisma backend: lands in PENDING.
  */
-export async function createComment(
-  data: CreateCommentInput,
-  author: CommentAuthor,
-) {
+export async function createComment(data: CreateCommentInput) {
   const sanitizedBody = sanitizeHtml(data.body.trim(), SANITIZE_OPTIONS);
 
   if (!sanitizedBody) {
@@ -125,41 +97,18 @@ export async function createComment(
   if (useFirestoreBackend()) {
     return firestoreRepo.createComment({
       body: sanitizedBody,
-      authorName: author.name,
-      authorEmail: author.email,
-      authorUid: author.uid,
+      authorName: data.authorName,
       pageSlug: data.pageSlug,
-      parentId: data.parentId ?? null,
       status: "APPROVED",
     });
-  }
-
-  if (data.parentId) {
-    const parent = await prisma.comment.findUnique({
-      where: { id: data.parentId },
-      select: { id: true, parentId: true },
-    });
-
-    if (!parent) {
-      throw new AppError("Parent comment not found.", 404, "PARENT_NOT_FOUND");
-    }
-
-    if (parent.parentId !== null) {
-      throw new AppError(
-        "Replies to replies are not supported.",
-        422,
-        "NESTED_REPLY_NOT_ALLOWED",
-      );
-    }
   }
 
   return prisma.comment.create({
     data: {
       body: sanitizedBody,
-      authorName: author.name,
-      authorEmail: author.email,
+      authorName: data.authorName,
+      authorEmail: "",
       pageSlug: data.pageSlug,
-      parentId: data.parentId ?? null,
       status: Status.PENDING,
     },
     select: publicCommentSelect,
@@ -210,10 +159,6 @@ export async function deleteComment(id: string) {
     throw new AppError(`Comment not found: ${id}`, 404, "COMMENT_NOT_FOUND");
   }
 
-  await prisma.$transaction([
-    prisma.comment.deleteMany({ where: { parentId: id } }),
-    prisma.comment.delete({ where: { id } }),
-  ]);
-
+  await prisma.comment.delete({ where: { id } });
   return { id };
 }

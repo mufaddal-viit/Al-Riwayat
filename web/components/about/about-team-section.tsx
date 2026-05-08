@@ -1,44 +1,53 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 import { editorialTeam } from "@/lib/content/about-content";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { AboutTeamControls } from "./about-team-controls";
+import { AboutTeamCounter } from "./about-team-counter";
+import { AboutTeamHeading } from "./about-team-heading";
+import { AboutTeamInfo } from "./about-team-info";
+import { AboutTeamStack } from "./about-team-stack";
 
 export function AboutTeamSection() {
+  const total = editorialTeam.length;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const member = editorialTeam[activeIndex];
+
+  function next() {
+    setActiveIndex((i) => (i + 1) % total);
+  }
+
+  function prev() {
+    setActiveIndex((i) => (i - 1 + total) % total);
+  }
+
   return (
-    <section id="team" className="space-y-6">
-      <div className="space-y-3">
-        <p className="text-lg uppercase tracking-[0.2em] font-extrabold text-muted-foreground">
-          Team
+    <section
+      id="team"
+      aria-label="Editorial team"
+      className="grid gap-12 overflow-hidden lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-16 xl:gap-24"
+    >
+      <AboutTeamHeading />
+
+      <div className="flex flex-col items-center gap-8">
+        <div className="flex w-full justify-center">
+          <AboutTeamStack members={editorialTeam} activeIndex={activeIndex} />
+        </div>
+
+        <AboutTeamInfo name={member.name} role={member.role} />
+
+        <AboutTeamControls onPrev={prev} onNext={next} />
+
+        <p className="max-w-sm text-center text-sm leading-relaxed text-muted-foreground">
+          {member.bio}
         </p>
-        <h2 className="text-3xl sm:text-4xl">
-          The editorial team behind the scenes.
-        </h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {editorialTeam.map((member) => (
-          <Card key={member.name} className="bg-card/90">
-            <div className="px-6 pt-6">
-              <div className="relative mx-auto h-28 w-28 overflow-hidden rounded-full border border-border/60 bg-background/70 shadow-lifted sm:h-32 sm:w-32">
-                <Image
-                  src={member.imageUrl}
-                  alt={`${member.name}, ${member.role}`}
-                  fill
-                  className="object-cover"
-                  sizes="128px"
-                />
-              </div>
-            </div>
-            <CardHeader className="items-center space-y-2 text-center">
-              <CardTitle className="text-2xl">{member.name}</CardTitle>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {member.role}
-              </p>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-sm text-muted-foreground">{member.bio}</p>
-            </CardContent>
-          </Card>
-        ))}
+
+        <div className="flex w-full items-center justify-end pt-2">
+          <AboutTeamCounter current={activeIndex + 1} total={total} />
+        </div>
       </div>
     </section>
   );

@@ -43,3 +43,10 @@ export const commentRateLimiter = createLimiter(
   10,
   "comment submission",
 );
+
+/** Contribute submissions — 3 per IP per hour (uploads are expensive) */
+export const submissionRateLimiter = createLimiter(
+  60 * 60 * 1000,
+  3,
+  "contribute submission",
+);

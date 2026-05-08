@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 
 import { AnalyticsLoader } from "@/components/site/analytics-loader";
 import { CookieConsent } from "@/components/site/cookie-consent";
+import { EngagementModal } from "@/components/engagement/engagement-modal";
 import { SiteFooter } from "@/components/site/site-footer";
 import { SiteHeader } from "@/components/site/site-header";
 import { consentStorageKey, defaultConsent } from "@/lib/consent";
-import { defaultPalette, paletteStorageKey } from "@/lib/palette";
 import { siteConfig } from "@/lib/site";
 
 import { AppProviders } from "./providers";
@@ -16,22 +16,22 @@ import "./globals.css";
 const bodyFont = Inter({
   subsets: ["latin"],
   variable: "--font-body",
-  display: "swap"
+  display: "swap",
 });
 
 const headingFont = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-heading",
-  display: "swap"
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`
+    template: `%s | ${siteConfig.name}`,
   },
-  description: siteConfig.description
+  description: siteConfig.description,
 };
 
 type RootLayoutProps = {
@@ -43,7 +43,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="en"
       suppressHydrationWarning
-      data-palette={defaultPalette}
       data-consent={defaultConsent}
     >
       <body
@@ -51,7 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement;var palette=localStorage.getItem('${paletteStorageKey}');if(palette==='editorial'||palette==='amber'){d.dataset.palette=palette;}var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`
+            __html: `try{var d=document.documentElement;var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`,
           }}
         />
         <AppProviders>
@@ -61,6 +60,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <SiteFooter />
             <CookieConsent />
             <AnalyticsLoader />
+            <EngagementModal />
           </div>
         </AppProviders>
       </body>

@@ -6,6 +6,7 @@ import type { Magazine, ApiResponse } from "@/types/api";
 import { apiClient } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { AppError } from "@/lib/api/error";
+import { CommentsSection } from "@/components/comments/CommentsSection";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { ArticleStructuredData } from "@/components/issue/article-structured-data";
 import { BookmarkFavouriteButtons } from "@/components/issue/bookmark-favourite-buttons";
@@ -85,6 +86,7 @@ export function IssuePageClient({ slug }: { slug: string }) {
       </section>
       <IssueShareActions />
       <IssueRichContent magazine={magazine} />
+      <CommentsSection slug={magazine.slug} />
       <NewsletterPreviewSection />
     </div>
   );

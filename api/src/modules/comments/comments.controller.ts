@@ -1,14 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { AppError } from "../../lib/AppError";
-import type { GetCommentsQuery, CommentParamInput, CreateCommentInput } from "./comments.schema";
+import type {
+  GetCommentsQuery,
+  CommentParamInput,
+  CreateCommentInput,
+} from "./comments.schema";
 import * as commentService from "./comments.service";
 
 // ─── Public ───────────────────────────────────────────────────────────────────
 
 /**
  * GET /api/comments?slug=:slug
- * Returns approved top-level comments with nested approved replies.
+ * Returns approved comments for a page (issue) slug.
  */
 export async function getComments(
   req: Request<Record<string, never>, unknown, unknown, GetCommentsQuery>,
@@ -26,8 +29,8 @@ export async function getComments(
 
 /**
  * POST /api/comments
- * Submit a new comment (lands in PENDING, awaiting moderation).
- * Honeypot field silently drops bots.
+ * Submit a new comment. Open to anyone — author identity (name + email)
+ * comes from the request body. Honeypot field silently drops bots.
  */
 export async function createComment(
   req: Request<Record<string, never>, unknown, CreateCommentInput>,
@@ -35,21 +38,12 @@ export async function createComment(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // Honeypot: if filled, silently succeed without writing to DB
     if (req.body.honeypot) {
       res.status(201).json({ success: true, data: null });
       return;
     }
 
-    if (!req.user) {
-      throw new AppError("Authentication required.", 401, "UNAUTHENTICATED");
-    }
-
-    const comment = await commentService.createComment(req.body, {
-      uid: req.user.sub,
-      email: req.user.email,
-      name: req.user.name ?? req.user.email.split("@")[0],
-    });
+    const comment = await commentService.createComment(req.body);
     res.status(201).json({ success: true, data: comment });
   } catch (err) {
     next(err);
@@ -94,7 +88,7 @@ export async function markAsSpam(
 
 /**
  * DELETE /api/admin/comments/:id
- * Hard-delete a comment and its replies. Irreversible.
+ * Hard-delete a comment. Irreversible.
  */
 export async function deleteComment(
   req: Request<CommentParamInput>,

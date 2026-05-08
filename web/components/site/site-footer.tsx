@@ -6,10 +6,6 @@ import type { LucideIcon } from "lucide-react";
 
 import { SiteBrand } from "@/components/site/site-brand";
 import { siteConfig } from "@/lib/site";
-import { Separator } from "@/components/ui/separator";
-import { SubmitButton } from "@/components/ui/submit-button";
-
-// ─── Social icon map ──────────────────────────────────────────────────────────
 
 const socialIconMap: Record<string, LucideIcon> = {
   Instagram,
@@ -17,79 +13,71 @@ const socialIconMap: Record<string, LucideIcon> = {
   X: Twitter,
 };
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-
 export function SiteFooter() {
   return (
-    <footer className="mt-16 px-4 pb-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1280px]">
-        <div className="overflow-hidden rounded-[2.5rem] border border-border/60 bg-background/72 shadow-editorial backdrop-blur-2xl">
-          <div className="px-6 py-8 sm:px-8 sm:py-10">
-            {/* Top row — brand + social */}
-            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-              {/* Brand */}
-              <div className="space-y-4">
-                <SiteBrand size="footer" />
-                <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {siteConfig.footerNote}
-                </p>
-              </div>
+    <footer className="mt-24 w-full">
+      <div className="container space-y-12 pb-12 lg:space-y-16 lg:pb-16">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-16 xl:gap-24">
+          {/* LEFT — brand */}
+          <div className="flex flex-col gap-6 lg:sticky lg:top-24">
+            <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+              <span aria-hidden className="h-px w-10 bg-primary" />
+              Stay close
+            </p>
 
-              {/* Links + Social */}
-              <div className="space-y-6 lg:text-right">
-                <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Follow
-                  </p>
-                  <div className="flex flex-wrap gap-2.5 lg:justify-end">
-                    {siteConfig.socialLinks.map((link) => {
-                      const Icon = socialIconMap[link.label] ?? Twitter;
-                      return (
-                        <SubmitButton
-                          key={link.label}
-                          type="button"
-                          icon={Icon}
-                          label={link.label}
-                          variant="outline"
-                          size="sm"
-                          className="w-auto border-border/60 bg-card/55 shadow-lifted backdrop-blur-xl hover:-translate-y-0.5 hover:bg-card/80"
-                          onClick={() => window.open(link.href, "_blank", "noopener,noreferrer")}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+            <SiteBrand size="footer" />
 
-                <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    Explore
-                  </p>
-                  <div className="flex flex-wrap gap-2 lg:justify-end">
-                    {[...siteConfig.navItems, ...siteConfig.moreItems].map((item) => (
-                      <Link
-                        key={`${item.href}-${item.label}`}
-                        href={item.href}
-                        className="rounded-full border border-border/60 bg-card/55 px-4 py-2 text-sm text-muted-foreground shadow-lifted transition-all duration-200 hover:-translate-y-0.5 hover:bg-card/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p className="max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
+              {siteConfig.footerNote}
+            </p>
 
-            <Separator className="my-6 bg-border/80" />
-
-            {/* Bottom bar */}
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-              <p>
-                &copy; {new Date().getFullYear()} {siteConfig.name}. All rights
-                reserved.
-              </p>
-              <p>Built for deliberate reading.</p>
+            <div className="flex flex-wrap gap-5 pt-2">
+              {siteConfig.socialLinks.map((link) => {
+                const Icon = socialIconMap[link.label] ?? Twitter;
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary"
+                  >
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </a>
+                );
+              })}
             </div>
           </div>
+
+          {/* RIGHT — explore */}
+          <div className="flex flex-col gap-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              Explore
+            </p>
+
+            <nav className="grid gap-x-10 gap-y-4 sm:grid-cols-2">
+              {[...siteConfig.navItems, ...siteConfig.moreItems].map((item) => (
+                <Link
+                  key={`${item.href}-${item.label}`}
+                  href={item.href}
+                  className="font-heading text-2xl text-foreground/80 transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary sm:text-3xl"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-5 pt-6 text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground/80">
+          <span aria-hidden className="h-px flex-1 bg-border/60" />
+          <span>
+            &copy; {new Date().getFullYear()} {siteConfig.name}
+          </span>
+          <span aria-hidden className="hidden h-1 w-1 rounded-full bg-muted-foreground/40 sm:block" />
+          <span className="hidden sm:inline">Built for deliberate reading</span>
+          <span aria-hidden className="h-px flex-1 bg-border/60" />
         </div>
       </div>
     </footer>
