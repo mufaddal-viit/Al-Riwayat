@@ -139,7 +139,7 @@ export function EngagementModal() {
             {/* Decorative top strip */}
             <div className="h-1.5 w-full bg-gradient-to-r from-foreground/20 via-foreground/60 to-foreground/20" />
 
-            <div className="px-7 pb-8 pt-7">
+            <div className="px-5 pb-6 pt-6 sm:px-7 sm:pb-8 sm:pt-7">
               <DialogHeader className="mb-6">
                 <DialogTitle className="text-2xl">
                   A moment of your time

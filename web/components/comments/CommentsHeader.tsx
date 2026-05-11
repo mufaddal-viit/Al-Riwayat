@@ -16,7 +16,7 @@ export function CommentsHeader({ count }: CommentsHeaderProps) {
         Reader Notes
       </p>
 
-      <h2 className="font-heading italic leading-[0.95] text-6xl sm:text-7xl lg:text-8xl xl:text-[5rem] font-extrabold">
+      <h2 className="font-heading italic leading-[0.95] text-4xl sm:text-5xl lg:text-7xl xl:text-[5rem] font-extrabold">
         What you&apos;re
         <br />
         <span className="not-italic text-primary">thinking.</span>

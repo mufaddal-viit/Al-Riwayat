@@ -13,8 +13,8 @@ export function HomeHeroContent() {
             {homeHeroContent.title}{" "}
             <span className="text-primary">{homeHeroContent.titleHighlight}</span>
           </h1>
-          <p className="max-w-lg text-base text-foreground/80 sm:text-lg">
-            {homeHeroContent.description.slice(0, 150) + "..."}
+          <p className="max-w-lg text-base text-foreground/80 sm:text-lg line-clamp-3">
+            {homeHeroContent.description}
           </p>
         </div>
         <div className="flex flex-wrap gap-3">

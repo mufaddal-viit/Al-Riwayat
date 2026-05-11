@@ -393,23 +393,23 @@ export default function AccountPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-8 px-4 py-12">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/60 bg-card/80">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/60 bg-card/80">
             <User className="h-5 w-5 text-muted-foreground" />
           </span>
-          <div>
+          <div className="min-w-0">
             <h1 className="font-heading text-2xl leading-none">
               {user.firstName} {user.lastName}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
+            <p className="mt-1 truncate text-sm text-muted-foreground">{user.email}</p>
           </div>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => logout()}
-          className="gap-2"
+          className="shrink-0 gap-2"
         >
           <LogOut className="h-4 w-4" />
           Sign out

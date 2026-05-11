@@ -143,7 +143,7 @@ export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="z-50">
+    <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex min-h-[72px] max-w-[1400px] items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
         <SiteBrand priority />
 

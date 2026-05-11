@@ -3,15 +3,21 @@
 import { Copy, Linkedin, MessageCircle, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { issueOneArticle } from "@/lib/content/issue-content";
 import { siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
+import type { Magazine } from "@/types/api";
 
-const fallbackArticleUrl = `${siteConfig.url}/${issueOneArticle.slug}`;
-const articleText = "Read Issue 1 of Al Riwayaat";
+interface IssueShareActionsProps {
+  magazine?: Magazine;
+}
 
-export function IssueShareActions() {
-  const [articleUrl, setArticleUrl] = useState(fallbackArticleUrl);
+export function IssueShareActions({ magazine }: IssueShareActionsProps = {}) {
+  const fallbackUrl = siteConfig.url;
+  const articleText = magazine
+    ? `Read "${magazine.title}" on Al-Riwayat`
+    : "Read the latest issue of Al-Riwayat";
+
+  const [articleUrl, setArticleUrl] = useState(fallbackUrl);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {

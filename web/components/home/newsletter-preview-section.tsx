@@ -78,7 +78,7 @@ export function NewsletterPreviewSection() {
             In your inbox
           </p>
 
-          <h2 className="font-heading font-extrabold italic leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
+          <h2 className="font-heading font-extrabold italic leading-[0.95] text-4xl sm:text-5xl lg:text-7xl xl:text-[5rem]">
             Stay close
             <br />
             to each <em className="text-primary not-italic">issue.</em>

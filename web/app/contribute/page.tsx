@@ -26,7 +26,7 @@ export default function ContributePage() {
     <div className="container space-y-12 py-8 pb-20 sm:py-10 lg:space-y-16 lg:py-14">
       {/* Hero */}
       <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <div className="relative min-h-[560px] overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] border border-border bg-secondary/50">
+        <div className="relative min-h-[280px] overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] border border-border bg-secondary/50 sm:min-h-[400px] lg:min-h-[560px]">
           <Image
             src={heroImageUrl}
             alt="An open journal resting on a desk — an invitation to write."

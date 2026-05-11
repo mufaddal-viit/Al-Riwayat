@@ -28,11 +28,11 @@ export function AboutTeamSection() {
     <section
       id="team"
       aria-label="Editorial team"
-      className="grid gap-12 overflow-hidden lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-16 xl:gap-24"
+      className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-start lg:gap-16 xl:gap-24"
     >
       <AboutTeamHeading />
 
-      <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-col items-center gap-8 overflow-hidden">
         <div className="flex w-full justify-center">
           <AboutTeamStack members={editorialTeam} activeIndex={activeIndex} />
         </div>
