@@ -1,12 +1,12 @@
 export const aboutStory = {
   eyebrow: "About Us",
-  title: "A magazine built for readers who still want depth.",
+  title: "For readers balancing duniya, deen, and dreams.",
   introduction:
-    "Al Riwayaat is a digital magazine created for Bohra Gen-Z: a space for stories, creativity, and moments that feel real and relatable.",
+    "Al Riwayat is a digital magazine created for Bohra Gen-Z: a space for stories, creativity, and moments that feel real and relatable.",
   paragraphs: [
     "We started this magazine to create a platform where young voices could exist freely, without labels or expectations. It is about documenting this phase of growing up: the questions we ask, the memories we hold, and the experiences that quietly shape us.",
     "Here, you will find personal stories, reflections, creative writing, culture, and nostalgia, all told through honest perspectives.",
-    "Al Riwayaat is community-driven. Whether you are here to read, reflect, or someday share your own story, you are always welcome.",
+    "Al Riwayat is community-driven. Whether you are here to read, reflect, or someday share your own story, you are always welcome.",
     "This is a space to slow down, connect, and feel seen.",
   ],
   sideNote: "",
@@ -30,13 +30,13 @@ export const editorialTeam = [
   {
     name: "Sarrah Lakdawala",
     role: "Creative Designer",
-    bio: "Creates the visual identity of Al Riwayaat through layouts, graphics, and aesthetics.",
+    bio: "Creates the visual identity of Al Riwayat through layouts, graphics, and aesthetics.",
     imageUrl: "/images/team/girl3.jpg",
   },
   {
     name: "Rabab Jinwala",
     role: "Social Media Lead",
-    bio: "Connects Al Riwayaat with readers online and helps build the magazine's digital community.",
+    bio: "Connects Al Riwayat with readers online and helps build the magazine's digital community.",
     imageUrl: "/images/team/girl2.jpg",
   },
   {

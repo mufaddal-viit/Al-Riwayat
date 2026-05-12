@@ -1,7 +1,7 @@
 import { publicEnv } from "./public-env";
 
 export const siteConfig = {
-  name: "Al Riwayaat",
+  name: "Al Riwayat",
   tagline: "A digital magazine for Bohra Gen-Z.",
   description:
     "It is created to share stories, thoughts, memories, and everything in between.",
@@ -15,12 +15,12 @@ export const siteConfig = {
   ogImage: "/images/hero/home-hero.webp",
   navItems: [
     { href: "/", label: "Home" },
+    { href: "/issue-1", label: "Issue 1" },
     { href: "/about", label: "Our World" },
     { href: "/mission", label: "Mission" },
     { href: "/contribute", label: "Contribute" },
   ],
   moreItems: [
-    { href: "/issue-1", label: "Issue 1" },
     // { href: "/about#team", label: "Team" },
     // { href: "/mission#values", label: "Values" },
   ],
