@@ -6,7 +6,7 @@ export const aboutStory = {
   paragraphs: [
     "We started this magazine to create a platform where young voices could exist freely, without labels or expectations. It is about documenting this phase of growing up: the questions we ask, the memories we hold, and the experiences that quietly shape us.",
     "Here, you will find personal stories, reflections, creative writing, culture, and nostalgia, all told through honest perspectives.",
-    "Al Riwayat is community-driven. Whether you are here to read, reflect, or someday share your own story, you are always welcome.",
+    "Whether you are here to read, reflect, or someday share your own story, you are always welcome.",
     "This is a space to slow down, connect, and feel seen.",
   ],
   sideNote: "",

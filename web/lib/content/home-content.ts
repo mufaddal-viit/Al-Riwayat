@@ -8,7 +8,7 @@ export const homeHeroContent = {
     "It is created to share stories, thoughts, memories, and everything in between. This magazine is about the moments that shape us, the things we relate to, and the voices that deserve to be heard. Whether you’re here to read, reflect, or someday share your own story, we hope you feel a sense of belonging the moment you arrive. Take your time, explore freely, and make yourself at home.",
   primaryCta: {
     href: "/issue-1",
-    label: "Read Issue 1",
+    label: "Read Issue",
   },
   secondaryCta: {
     href: "/about",
