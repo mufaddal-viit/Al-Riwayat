@@ -1,0 +1,1341 @@
+================================================================================
+  SEO & SOCIAL PREVIEW METADATA — A FULL GUIDE FOR THIS PROJECT
+================================================================================
+
+Audience: someone who has never touched SEO or Open Graph before, who wants
+to actually UNDERSTAND each piece (not just copy-paste it). Every concept is
+explained from scratch, then tied back to the exact files in this repo
+(web/app/layout.tsx, web/lib/metadata.ts, etc.).
+
+You don't need to read this all at once. Each section is self-contained.
+The TABLE OF CONTENTS below shows the path from "what even is meta?" to
+"why this exact field exists in this exact file".
+
+================================================================================
+  TABLE OF CONTENTS
+================================================================================
+
+  PART 1  — THE BIG PICTURE
+    1.1  What problem are we solving?
+    1.2  Who reads this metadata?
+    1.3  Where does metadata live in HTML?
+
+  PART 2  — THE BUILDING BLOCKS (concept-by-concept)
+    2.1  <title> and <meta name="description">
+    2.2  Open Graph (og:*) — the universal preview standard
+    2.3  Twitter Cards (twitter:*)
+    2.4  Canonical URLs (rel="canonical")
+    2.5  Theme color (<meta name="theme-color">)
+    2.6  Favicons & app icons
+    2.7  Web App Manifest (PWA)
+    2.8  Structured data (JSON-LD / schema.org)
+    2.9  robots (index/noindex) & the robots.txt file
+    2.10 sitemap.xml
+
+  PART 3  — HOW EACH PLATFORM USES IT
+    3.1  Facebook / WhatsApp / Messenger
+    3.2  LinkedIn
+    3.3  X (Twitter)
+    3.4  Discord
+    3.5  Slack
+    3.6  iMessage
+    3.7  Google Search
+    3.8  Mobile browsers (Chrome address-bar tint, etc.)
+
+  PART 4  — NEXT.JS APP ROUTER: HOW METADATA IS EMITTED
+    4.1  The three exports: metadata, generateMetadata, viewport
+    4.2  metadataBase and absolute URLs
+    4.3  Inheritance & merging across layouts
+    4.4  Dynamic metadata for [slug] pages
+    4.5  File-system conventions (icon.png, opengraph-image.png, manifest.ts)
+    4.6  Why themeColor moved out of metadata in Next 14
+
+  PART 5  — WALKTHROUGH OF THIS PROJECT'S FILES (LINE BY LINE)
+    5.1  web/lib/site.ts
+    5.2  web/lib/metadata.ts
+    5.3  web/app/layout.tsx
+    5.4  web/app/manifest.ts
+    5.5  web/app/issue-1/page.tsx & web/app/issue/[slug]/page.tsx
+    5.6  web/app/(auth)/layout.tsx & web/app/account/layout.tsx
+    5.7  web/app/robots.ts & web/app/sitemap.ts
+
+  PART 6  — REQUIRED IMAGE FILES & SIZES
+
+  PART 7  — TESTING & VALIDATION
+    7.1  Facebook Sharing Debugger (covers WhatsApp + Messenger)
+    7.2  LinkedIn Post Inspector
+    7.3  X / Twitter preview testing (post-deprecation)
+    7.4  Discord & Slack — paste-test method
+    7.5  Google Rich Results Test (JSON-LD)
+    7.6  PWA / manifest validation in DevTools
+    7.7  Quick command-line check with curl
+
+  PART 8  — CACHING & THE "STALE PREVIEW" PROBLEM
+  PART 9  — COMMON MISTAKES (and how to detect them)
+  PART 10 — GLOSSARY
+
+
+================================================================================
+  PART 1 — THE BIG PICTURE
+================================================================================
+
+------------------------------
+1.1  What problem are we solving?
+------------------------------
+
+When someone pastes your site's URL into WhatsApp, LinkedIn, Slack, a tweet,
+or an iMessage, the chat client doesn't just show a blue underlined link.
+It tries to show a rich preview: a thumbnail, a title, and a short snippet.
+
+That preview is built by the chat client's crawler. The crawler:
+  1. Makes an HTTP GET request to your URL.
+  2. Reads the raw HTML response.
+  3. Looks for specific <meta> tags inside <head>.
+  4. Builds a card from what it finds.
+
+If your page has no such tags, the preview is empty, ugly, or worse — wrong.
+Adding the right tags is what we call "social preview metadata" or
+"Open Graph metadata". The same tags also help Google rank and display
+your pages in search results — that's the "SEO" overlap.
+
+So this isn't decoration. It's the entire reason a link on social media
+looks professional vs. broken.
+
+------------------------------
+1.2  Who reads this metadata?
+------------------------------
+
+Three audiences, all using HTML parsing:
+
+  (A) SOCIAL PLATFORM CRAWLERS
+      Examples: facebookexternalhit, LinkedInBot, Twitterbot, Slackbot,
+      Discordbot, WhatsApp's URL preview fetcher, iMessage's preview fetcher.
+      They read <meta property="og:*"> and a few related tags.
+
+  (B) SEARCH ENGINE CRAWLERS
+      Google (Googlebot), Bing (Bingbot), DuckDuckGo, etc.
+      They read <title>, <meta name="description">, <link rel="canonical">,
+      structured data, and the entire page content for ranking.
+
+  (C) BROWSERS
+      Read <meta name="theme-color">, favicons, <link rel="manifest">,
+      <meta name="viewport">. These are about visual integration, not search.
+
+Every tag we set targets at least one of these audiences. Knowing which
+audience each tag is for is the key mental model.
+
+------------------------------
+1.3  Where does metadata live in HTML?
+------------------------------
+
+All of it goes inside the <head> element of your HTML response:
+
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Page title</title>
+        <meta name="description" content="..." />
+        <meta property="og:title" content="..." />
+        <meta property="og:image" content="..." />
+        ... etc ...
+      </head>
+      <body> ... </body>
+    </html>
+
+In a Next.js App Router project, you don't write these tags by hand. You
+declare them via the `metadata` export (a typed JS/TS object) and Next.js
+emits the HTML for you. Part 4 explains exactly how.
+
+
+================================================================================
+  PART 2 — THE BUILDING BLOCKS
+================================================================================
+
+------------------------------
+2.1  <title> and <meta name="description">
+------------------------------
+
+The two oldest tags. Both are read by Google AND by every social platform
+as a fallback when og:title / og:description are missing.
+
+    <title>The Quiet Return Of Intentional Reading | Al Riwayat</title>
+    <meta name="description" content="A long-form editorial on why ..." />
+
+Practical limits (soft limits — engines truncate beyond these):
+  - title:       50–60 characters (Google cuts ~580 pixels wide)
+  - description: 150–160 characters
+
+In Next.js metadata:
+  title:       "The Quiet Return Of Intentional Reading"   <-- string
+  description: "A long-form editorial on why ..."          <-- string
+
+For the site-wide TITLE TEMPLATE pattern (every child page shown as
+"Page Title | Al Riwayat"), Next.js supports:
+  title: { default: "Al Riwayat", template: "%s | Al Riwayat" }
+  --> default is used by the root, template wraps every child's title.
+
+------------------------------
+2.2  Open Graph (og:*)
+------------------------------
+
+The Open Graph protocol was invented by Facebook in 2010 to give external
+crawlers a UNIFORM way to read page metadata. It is now used by basically
+every link-preview consumer on the internet — WhatsApp, LinkedIn, Discord,
+Slack, iMessage, Reddit, Telegram, Mastodon. If you only learn ONE
+metadata standard, learn this one.
+
+Core fields:
+
+  <meta property="og:title"       content="The Quiet Return ..." />
+  <meta property="og:description" content="A long-form ..."       />
+  <meta property="og:url"         content="https://alriwayat.com/issue-1" />
+  <meta property="og:site_name"   content="Al Riwayat" />
+  <meta property="og:type"        content="article" />
+  <meta property="og:locale"      content="en_US" />
+  <meta property="og:image"            content="https://alriwayat.com/images/og/og-default.png" />
+  <meta property="og:image:width"      content="1200" />
+  <meta property="og:image:height"     content="630"  />
+  <meta property="og:image:alt"        content="Al Riwayat — a digital magazine..." />
+  <meta property="og:image:type"       content="image/png" />
+
+Notes on each:
+
+  og:type
+    "website" for marketing/landing pages, "article" for editorial/blog content.
+    "article" unlocks extra sub-fields: og:article:published_time,
+    og:article:modified_time, og:article:author. These are visible on
+    LinkedIn and Facebook as a small byline + date under the title.
+
+  og:url
+    The CANONICAL URL of the page (see 2.4). Crawlers de-duplicate by this.
+
+  og:image
+    Must be an ABSOLUTE URL (https://...), not a relative path (/images/...).
+    Crawlers don't resolve relative paths. Recommended size: 1200x630
+    pixels (a 1.91:1 aspect ratio that all platforms downscale cleanly).
+    Below 600x315, most platforms refuse to render large card.
+    Keep file size under ~5 MB — LinkedIn rejects larger.
+
+  og:image:alt
+    Accessibility text. Some screen readers and crawlers expose it.
+
+  og:locale
+    Format is language_REGION, e.g. "en_US", "ar_AE". Affects how some
+    platforms format the byline ("By X · 12 hours ago" gets localized).
+
+WHY 1200x630 specifically?
+  - Facebook recommends min 1200x630.
+  - LinkedIn renders at 1200x627.
+  - X large-card renders at 1200x675 (almost the same).
+  - WhatsApp renders square crop ~300x300 from the center.
+  Using 1200x630 means every platform gets a clean downscale and the
+  important content stays in the safe center zone.
+
+------------------------------
+2.3  Twitter Cards (twitter:*)
+------------------------------
+
+X (Twitter) extended Open Graph with its own card system before fully
+adopting OG. Today X reads BOTH og:* and twitter:* tags. If a twitter:*
+tag is present, it wins over the og:* equivalent. So you set twitter:*
+only when you want a DIFFERENT value for X (rare).
+
+Required fields for a "summary_large_image" card (the big preview):
+
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="..." />
+  <meta name="twitter:description" content="..." />
+  <meta name="twitter:image"       content="https://.../og-default.png" />
+  <meta name="twitter:site"        content="@alriwayat" />
+  <meta name="twitter:creator"     content="@alriwayat" />
+
+Card types:
+  "summary"             — small square thumbnail next to text. Rarely used.
+  "summary_large_image" — the big horizontal card. THIS IS THE DEFAULT WE WANT.
+  "app"                 — for app install previews (App Store / Play Store).
+  "player"              — for embeddable video/audio.
+
+site vs creator:
+  twitter:site    = the publication's account (Al Riwayat itself).
+  twitter:creator = the individual author's account (the journalist).
+  Useful when the article author is a different person from the publisher;
+  X surfaces creator as the byline.
+
+------------------------------
+2.4  Canonical URLs (rel="canonical")
+------------------------------
+
+THE PROBLEM:
+The same content on your site can be reachable via many different URLs:
+
+    https://alriwayat.com/issue-1
+    https://www.alriwayat.com/issue-1
+    https://alriwayat.com/issue-1/
+    https://alriwayat.com/issue-1?utm_source=twitter
+    https://ALRIWAYAT.com/Issue-1
+    http://alriwayat.com/issue-1  (insecure, but still resolves)
+
+To Google these are five+ different URLs. If a million people share five
+different variants, your ranking signals get SPLIT across them — none
+of them ranks as well as a single consolidated URL would. Worse, Google
+might pick the "wrong" canonical to display in search results.
+
+THE SOLUTION:
+The <link rel="canonical"> tag tells every crawler "ignore the URL you
+arrived at — THIS is the real one":
+
+    <link rel="canonical" href="https://alriwayat.com/issue-1" />
+
+After this tag is present, ranking signals for all variants get
+consolidated onto the canonical URL.
+
+LinkedIn ALSO uses canonical to deduplicate its share cache. If you tweak
+content and re-share, LinkedIn often shows the stale preview from the
+first share until it re-scrapes the canonical URL.
+
+In Next.js: alternates.canonical takes the absolute URL.
+
+WHEN TO OVERRIDE THE CANONICAL:
+  - For paginated pages, point page 2/3/4 canonical at page 1 only if the
+    list isn't meaningfully different. Otherwise each page is its own canonical.
+  - For UTM-tagged campaign URLs, canonical points at the clean URL.
+  - For A/B test variants, the loser's canonical points at the winner.
+
+------------------------------
+2.5  Theme color (<meta name="theme-color">)
+------------------------------
+
+This tag tints the BROWSER CHROME — the UI around the page, not the page
+itself. It is NOT used by social previews. Its purpose is purely
+visual brand integration.
+
+What it tints, by platform:
+
+  - Chrome on Android      : the address bar background.
+  - Safari on iOS 15+      : the status bar tint (top of screen).
+  - Samsung Internet       : address bar.
+  - Edge on Android        : address bar.
+  - PWA splash screen      : the background color while the app loads.
+  - Android task switcher  : the colored stripe at the top of the card.
+  - macOS Safari 15+       : the toolbar tint when the tab is active.
+
+You can declare multiple values based on prefers-color-scheme:
+
+    <meta name="theme-color"
+          content="#fffaf3"
+          media="(prefers-color-scheme: light)" />
+    <meta name="theme-color"
+          content="#0d0d0d"
+          media="(prefers-color-scheme: dark)" />
+
+Pick the color you want the brand to "extend into" — usually the same as
+your page background. Dark/light variants make the transition seamless.
+
+In Next.js 14+, theme-color MUST be declared in the `viewport` export,
+not in `metadata`. (See 4.6 for why.)
+
+------------------------------
+2.6  Favicons & app icons
+------------------------------
+
+The favicon is the tiny icon you see in browser tabs, bookmarks, and
+history. Modern websites need many sizes because each device/context
+picks its own size:
+
+  - Browser tab on desktop      : 16x16 or 32x32 PNG/ICO
+  - Browser tab on retina       : 32x32
+  - Browser bookmark bar        : 16x16
+  - iOS home-screen shortcut    : 180x180 (apple-touch-icon)
+  - Android home-screen shortcut: 192x192 + 512x512 (from manifest)
+  - Maskable (Android adaptive) : 512x512 with safe-zone padding
+  - PWA splash + install prompt : 192x192 + 512x512
+
+HTML representation:
+
+    <link rel="icon"         href="/images/favicon.ico"               sizes="any" />
+    <link rel="icon"         href="/images/icons/icon-192.png"        sizes="192x192" type="image/png" />
+    <link rel="icon"         href="/images/icons/icon-512.png"        sizes="512x512" type="image/png" />
+    <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png" sizes="180x180" />
+    <link rel="shortcut icon"    href="/images/favicon.ico" />
+
+MASKABLE ICON — what's special?
+Android adaptive icons mask your icon with arbitrary shapes (circle,
+squircle, teardrop). Your visual mark must fit inside a SAFE ZONE
+(80% of the canvas, centered). The leftover 20% may be cropped away.
+A maskable icon is a 512x512 PNG with the mark sized smaller and
+the brand background filling the corners.
+
+In Next.js metadata:
+
+    icons: {
+      icon:     [{ url, sizes, type }, ...],
+      apple:    [{ url, sizes, type }, ...],
+      shortcut: [...],
+    }
+
+------------------------------
+2.7  Web App Manifest (PWA)
+------------------------------
+
+A JSON file (or in Next.js, generated from a TS function) that browsers
+read when deciding whether your site can be "installed" as a Progressive
+Web App. The browser sees the manifest via:
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+Inside, the JSON looks like:
+
+    {
+      "name": "Al Riwayat",
+      "short_name": "Al Riwayat",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#fffaf3",
+      "theme_color":      "#fffaf3",
+      "icons": [
+        { "src": "/images/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+        { "src": "/images/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+        { "src": "/images/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+      ]
+    }
+
+Fields:
+  name            : Full app name (used in install prompts, app drawer).
+  short_name      : Short label under the home-screen icon.
+  start_url       : URL the app opens to when launched from home screen.
+  display         : "standalone" hides browser chrome (looks like a native app).
+                    Other values: "fullscreen", "minimal-ui", "browser".
+  background_color: Splash screen background while the JS loads.
+  theme_color     : System UI tint when the PWA is open.
+  icons[]         : All icon sizes Android/iOS need.
+
+In Next.js: create app/manifest.ts that exports a function returning
+the same shape. Next.js serves it at /manifest.webmanifest automatically.
+
+------------------------------
+2.8  Structured data (JSON-LD / schema.org)
+------------------------------
+
+Structured data is metadata for SEARCH ENGINES (mainly Google) that
+describes the *meaning* of your page in a vocabulary called schema.org.
+
+Why bother? Because Google sometimes rewards structured data with
+"rich results" — special UI in search results (star ratings, FAQ
+accordions, article carousels, recipe cards, breadcrumbs).
+
+The format we use is JSON-LD: a JSON block embedded in a <script> tag
+inside <head> (or just before </body>):
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "The Quiet Return Of Intentional Reading",
+      "datePublished": "2026-01-15T09:00:00.000Z",
+      "author": { "@type": "Person", "name": "Editorial Desk" },
+      "image": ["https://alriwayat.com/images/og/og-default.png"],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Al Riwayat",
+        "logo": { "@type": "ImageObject", "url": "https://alriwayat.com/images/logo.jpg" }
+      },
+      "mainEntityOfPage": "https://alriwayat.com/issue-1"
+    }
+    </script>
+
+Common @types you'll meet:
+  WebSite       — describes the site as a whole. Goes on every page.
+  Organization  — describes the publisher. Goes on every page (or just home).
+  Article       — for editorial / blog posts.
+  NewsArticle   — for news (stricter rules; eligible for Top Stories carousel).
+  BreadcrumbList— for navigation breadcrumbs.
+  FAQPage       — Q&A blocks (gets accordion rich result).
+  Person        — for author profiles.
+  ImageObject   — for image references.
+
+In this project:
+  - WebSite + Organization are emitted globally from app/layout.tsx.
+  - Article is emitted on issue pages via the existing ArticleStructuredData
+    component (see web/components/issue/article-structured-data.tsx).
+
+------------------------------
+2.9  robots (index/noindex)
+------------------------------
+
+Two ways to tell crawlers to skip a page:
+
+(A) robots meta tag — page-level:
+
+    <meta name="robots" content="noindex, nofollow" />
+
+(B) X-Robots-Tag HTTP header — same idea but at HTTP level. Useful for
+    non-HTML resources (PDFs, sitemaps).
+
+In Next.js metadata:
+
+    robots: { index: false, follow: false, nocache: true }
+    // emits: <meta name="robots" content="noindex, nofollow, nocache" />
+
+When to noindex:
+  - Login, signup, password reset pages (no SEO value, exposes auth flow).
+  - User-specific account pages (/account, /profile).
+  - Search results pages (Google considers them low-value duplicates).
+  - Thank-you / confirmation pages.
+  - Staging / preview environments (set globally via env-checked metadata).
+
+Why "follow" stays true even when index=false:
+  follow=true lets crawlers traverse links FROM this page to other pages,
+  so they can still discover indexable content reachable only via this page.
+  Use "nofollow" only if you actively don't want signals to leak.
+
+Separately, robots.txt (at /robots.txt) is a DIFFERENT mechanism — it
+tells crawlers which URLS to skip CRAWLING at all. The meta robots tag
+only affects pages they've already fetched. Use both for defense in depth.
+
+------------------------------
+2.10 sitemap.xml
+------------------------------
+
+A machine-readable list of every URL on your site that you WANT crawlers
+to consider. Format:
+
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      <url>
+        <loc>https://alriwayat.com/</loc>
+        <lastmod>2026-05-13</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+      </url>
+      ...
+    </urlset>
+
+Why:
+  - Helps Googlebot discover deep pages it might otherwise miss.
+  - The <lastmod> hint speeds up re-crawls of changed pages.
+  - Required for sites with poor internal linking or many dynamic URLs.
+
+In Next.js: export a default async function from app/sitemap.ts
+returning a typed array. Next.js serves /sitemap.xml automatically.
+You also reference the sitemap from robots.txt so crawlers find it.
+
+This project already has both: web/app/sitemap.ts and web/app/robots.ts.
+
+
+================================================================================
+  PART 3 — HOW EACH PLATFORM USES IT
+================================================================================
+
+------------------------------
+3.1  Facebook / WhatsApp / Messenger
+------------------------------
+
+All three are owned by Meta and use the SAME crawler:
+"facebookexternalhit". They consume:
+
+    Required : og:title, og:description, og:image, og:url
+    Optional : og:type, og:site_name, og:locale, og:image:width/height/alt,
+               article:published_time, article:author
+
+Behaviour quirks:
+  - Caches scrape result for ~30 days. Use the Sharing Debugger
+    (developers.facebook.com/tools/debug/) and click "Scrape Again"
+    to bust the cache.
+  - Falls back to <title> + <meta name="description"> when og:* missing.
+  - Falls back to the largest <img> on the page when og:image missing.
+  - WhatsApp specifically crops a SQUARE thumbnail from the center —
+    keep the focal point of your og:image dead center.
+
+------------------------------
+3.2  LinkedIn
+------------------------------
+
+Crawler: "LinkedInBot". Reads og:* primarily, falls back to standard tags.
+
+Behaviour quirks:
+  - VERY aggressive caching — caches by canonical URL for ~7 DAYS.
+  - Has its own debugger: linkedin.com/post-inspector/. Use it BEFORE
+    you share publicly, because once a stale preview is cached, you
+    cannot share with a fresh preview for days.
+  - Requires images at least 200x200, recommends 1200x627.
+  - Renders article:published_time as a visible byline if present.
+
+------------------------------
+3.3  X (Twitter)
+------------------------------
+
+Crawler: "Twitterbot". Reads BOTH twitter:* AND og:* (twitter:* wins on collision).
+
+Behaviour quirks:
+  - The official Card Validator (cards-dev.twitter.com/validator) was
+    DEPRECATED in 2023. To preview today, paste the URL into a draft
+    tweet — the card renders inline before you post.
+  - Caches less aggressively than Facebook; usually re-scrapes within
+    24h of the first share.
+  - Requires twitter:card=summary_large_image to render the big preview.
+  - Image min 300x157, recommended 1200x675. The 1200x630 OG default is
+    close enough — X just crops a tiny strip.
+
+------------------------------
+3.4  Discord
+------------------------------
+
+Crawler: "Discordbot". Reads og:* + a few extras Discord defined itself.
+
+Behaviour quirks:
+  - Live re-fetch on every paste (no caching from the user's POV).
+  - Honors og:image and renders cards inline in the channel.
+  - Reads <meta name="theme-color"> and uses it to TINT the LEFT BORDER
+    of the embed. This is one of the few cases theme-color affects a
+    social preview.
+
+------------------------------
+3.5  Slack
+------------------------------
+
+Crawler: "Slackbot-LinkExpanding". Reads og:* + falls back to oEmbed
+if og missing.
+
+Behaviour quirks:
+  - Caches per-workspace for several hours.
+  - Renders a slimmer card than Discord — small thumbnail on the right.
+  - Reads og:image but only displays at ~100x100 (so the center of your
+    1200x630 image is what users actually see).
+
+------------------------------
+3.6  iMessage (Apple)
+------------------------------
+
+Apple's crawler reads og:* AND additional Apple-specific tags
+(apple-mobile-web-app-*). For most magazines og:* is sufficient.
+iMessage renders a rich card with image, title, domain.
+
+------------------------------
+3.7  Google Search
+------------------------------
+
+Googlebot reads <title>, <meta name="description">, structured data,
+<link rel="canonical">, robots meta, hreflang, plus the page content
+itself. Open Graph tags are NOT directly used for ranking but are
+consumed when Google shows a "rich" result with article preview.
+
+------------------------------
+3.8  Mobile browsers (theme color, etc.)
+------------------------------
+
+Already covered in 2.5 — theme color tints address bar / status bar.
+Not a "social preview" feature; it's about feeling integrated when
+someone opens your site in a phone browser.
+
+
+================================================================================
+  PART 4 — NEXT.JS APP ROUTER: HOW METADATA IS EMITTED
+================================================================================
+
+------------------------------
+4.1  The three exports
+------------------------------
+
+In any file at app/.../layout.tsx or app/.../page.tsx you can export:
+
+  export const metadata: Metadata = { ... }
+    --> static metadata, evaluated at build time.
+
+  export async function generateMetadata(props): Promise<Metadata> { ... }
+    --> dynamic metadata, evaluated per-request (or per build for
+        statically-generated routes). Use when you need to fetch data
+        (e.g. fetching a magazine by slug, then setting its title).
+    --> CANNOT coexist with a static `metadata` export in the same file.
+
+  export const viewport: Viewport = { ... }
+    --> for theme-color, viewport-width, color-scheme, etc.
+        Separate from metadata because Next 14 split them.
+
+Next.js takes whatever you export, merges it across the route hierarchy
+(see 4.3), and renders the <head> tags for you. You never write
+<meta> tags directly.
+
+------------------------------
+4.2  metadataBase and absolute URLs
+------------------------------
+
+Crawlers don't resolve relative URLs. If your og:image is
+"/images/og/og-default.png", Facebook will not request
+"https://alriwayat.com/images/og/og-default.png" — it will request
+"/images/og/og-default.png" against an unknown base and fail.
+
+To fix this you'd have to spell out absolute URLs everywhere. Tedious.
+
+Next.js solves this with `metadataBase`:
+
+    metadata: {
+      metadataBase: new URL("https://alriwayat.com"),
+      openGraph: { images: ["/og.png"] }  // <-- relative
+    }
+
+At render time, Next.js resolves the relative URL against metadataBase
+and emits an absolute URL in the HTML. You only ever write paths.
+
+Set metadataBase ONCE in app/layout.tsx and forget about it.
+
+In this project, it's wired via siteConfig.url:
+  metadataBase: new URL(siteConfig.url)
+And siteConfig.url comes from process.env.NEXT_PUBLIC_SITE_URL — so
+local dev uses http://localhost:3000 and production uses the real URL.
+
+------------------------------
+4.3  Inheritance & merging
+------------------------------
+
+Next.js merges metadata in this order, with CHILD overriding PARENT:
+
+    app/layout.tsx           (root — applies to every route)
+      └── app/(auth)/layout.tsx   (group layout — applies to auth routes)
+            └── app/(auth)/login/page.tsx   (most specific)
+
+Merging rules:
+  - Top-level fields (title, description, etc.) are REPLACED by children
+    if they redefine them.
+  - title with { default, template } is special: children just set
+    title: "Login" and the template wraps it as "Login | Al Riwayat".
+  - openGraph and twitter are SHALLOW MERGED — children override the
+    fields they set, parent's other fields stick.
+  - robots, alternates, icons, manifest follow shallow merge too.
+
+PRACTICAL IMPLICATION: set the strongest defaults in the root
+layout's metadata. Child pages only override what's truly unique
+(title, description, image). This is why our buildMetadata helper is
+minimal but root layout.tsx is rich.
+
+------------------------------
+4.4  Dynamic metadata for [slug] pages
+------------------------------
+
+For app/issue/[slug]/page.tsx we don't know the title until we fetch
+the magazine. So we use generateMetadata as an async function:
+
+    export async function generateMetadata({ params }) {
+      const { data: magazine } = await serverFetch(...);
+      return buildMetadata({
+        title: magazine.title,
+        description: magazine.summary,
+        path: `/issue/${params.slug}`,
+        image: magazine.coverImageUrl,
+        type: "article",
+        publishedTime: magazine.publishedAt,
+        authors: [magazine.author],
+      });
+    }
+
+Key points:
+  - Returns Metadata (or Promise<Metadata>).
+  - Runs at REQUEST TIME for dynamic routes, at BUILD TIME for routes
+    listed in generateStaticParams (this project uses output: "export"
+    style with generateStaticParams).
+  - If the fetch fails, return a sensible fallback Metadata so the
+    page still has SOMETHING (we do this in the existing catch block).
+
+------------------------------
+4.5  File-system conventions
+------------------------------
+
+Next.js auto-picks up these specially-named files anywhere in app/:
+
+  favicon.ico                — automatic <link rel="icon">
+  icon.png / icon.svg        — additional icons (any size)
+  apple-icon.png             — automatic <link rel="apple-touch-icon">
+  opengraph-image.png        — automatic og:image (must be 1200x630)
+  twitter-image.png          — automatic twitter:image
+  manifest.ts                — generates /manifest.webmanifest
+  robots.ts                  — generates /robots.txt
+  sitemap.ts                 — generates /sitemap.xml
+
+In THIS project we chose to use EXPLICIT icon paths in /public/images/
+rather than the file conventions, because the user wanted favicons
+located in /public/images/. Both approaches work — the explicit path
+approach is just more visible in code.
+
+------------------------------
+4.6  Why themeColor moved out of metadata
+------------------------------
+
+Before Next 14, you wrote:
+    metadata.themeColor = "#fffaf3"
+
+In Next 14+, this triggers a deprecation warning at build time:
+    "Unsupported metadata themeColor is configured in metadata export.
+     Please move it to viewport export instead."
+
+The reason: theme-color is part of the VIEWPORT family of tags (along
+with viewport-width, color-scheme), which control browser-level display
+behavior. Open Graph and Twitter live in the metadata family. Splitting
+them keeps the type definitions clean and lets Next.js optimize each
+group separately. So today you do:
+
+    export const viewport: Viewport = {
+      themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#fffaf3" },
+        { media: "(prefers-color-scheme: dark)",  color: "#0d0d0d" },
+      ],
+    };
+
+Same applies to `colorScheme`, `viewport`, `initialScale`, `width`.
+
+
+================================================================================
+  PART 5 — WALKTHROUGH OF THIS PROJECT'S FILES
+================================================================================
+
+We changed/added 8 files. Here's what each one does and why every field
+is there.
+
+------------------------------
+5.1  web/lib/site.ts
+------------------------------
+
+The single source of truth for site-level info. Everything else
+(metadata helper, layout, manifest, sitemap, robots) imports from here.
+
+Why:
+  - One place to update brand name, theme color, OG image path.
+  - Prevents drift between robots/sitemap/manifest/metadata.
+
+Key fields and reasons:
+
+  url               --> Required for metadataBase and every absolute URL.
+  locale            --> og:locale value.
+  keywords          --> Default keyword list for <meta name="keywords">
+                       (Google ignores this, but Bing and some sharers
+                       still parse it).
+  authors           --> Default author for the publication.
+  creator/publisher --> <meta name="creator"> and <meta name="publisher">.
+                       Used by some readers and structured data builders.
+  themeColor        --> Hex values for light/dark viewport tint.
+  assets.favicon    --> Path used by metadata.icons.icon.
+  assets.icon192    --> Used by manifest + metadata icons.
+  assets.icon512    --> Used by manifest + metadata icons.
+  assets.iconMaskable --> 512x512 maskable variant for Android adaptive icons.
+  assets.appleTouchIcon --> 180x180 used by metadata.icons.apple.
+  ogImage           --> Default Open Graph + Twitter image path.
+  ogImageWidth/Height --> 1200/630, required so platforms know dimensions
+                          without fetching the file.
+  ogImageAlt        --> Accessibility alt text.
+  twitterSite/Creator --> X handles for @site and @creator attribution.
+
+------------------------------
+5.2  web/lib/metadata.ts
+------------------------------
+
+A small builder function that takes per-page inputs and returns a
+fully-formed Metadata object. Pages call buildMetadata(...) instead of
+duplicating the openGraph/twitter blocks.
+
+Inputs (BuildMetadataInput):
+
+  title          --> Page title. The root layout's title.template wraps it.
+  description    --> Page-level description.
+  path           --> Path relative to siteConfig.url. We resolve to abs URL
+                     inside the function via toAbsolute(path).
+  image?         --> Page-specific image (e.g. magazine cover). Falls back
+                     to siteConfig.ogImage.
+  imageAlt?      --> Per-page alt text. Falls back to siteConfig.ogImageAlt.
+  type?          --> "website" | "article". Drives og:type and unlocks
+                     publishedTime/modifiedTime/authors when "article".
+  publishedTime? --> ISO date string. Renders as article:published_time.
+  modifiedTime?  --> Same idea, for last update.
+  authors?       --> Per-article author list. Falls back to siteConfig.authors.
+  keywords?      --> Per-page keyword override.
+  noIndex?       --> When true, emits noindex/nofollow. Useful for thank-you
+                     pages or temp lookalikes.
+
+The robots field is built dynamically: when noIndex=true it noindex/nofollows;
+otherwise it allows full indexing with max-image-preview=large (Google's
+optimal rich-snippet setting).
+
+formatDetection blocks iOS Safari from auto-linkifying phone numbers,
+emails, and addresses in your text. Without this, "Section 12.5" can
+get turned into a phone-call link.
+
+------------------------------
+5.3  web/app/layout.tsx
+------------------------------
+
+The root layout. Two exports of interest:
+
+  export const metadata: Metadata = { ... }
+  export const viewport: Viewport = { ... }
+
+Inside metadata we emit DEFAULT values that EVERY page inherits unless
+the page overrides via buildMetadata. Fields explained:
+
+  metadataBase    --> See 4.2. Anchors all relative URLs to siteConfig.url.
+
+  title: {
+    default,      --> Used when a page sets no title at all.
+    template      --> "%s | Al Riwayat" — wraps every child page's title.
+  }
+
+  description     --> Default description.
+  applicationName --> Window/app title for some browsers/PWA installs.
+  keywords        --> Default keyword list.
+  authors         --> Default author meta tag.
+  creator         --> <meta name="creator">
+  publisher       --> <meta name="publisher">
+  category        --> <meta name="category"> — Google reads this for some
+                      vertical-specific result types.
+
+  alternates.canonical --> Default to siteConfig.url (the homepage).
+                           Child pages override per-route.
+
+  robots          --> Allow indexing by default with Google's "max-image-preview=large"
+                      hint, which lets Google show your og:image larger in
+                      result pages.
+
+  formatDetection --> Block iOS auto-linkification (see 5.2).
+
+  icons.icon[]    --> Three sizes (favicon, 192, 512). Browsers pick best.
+  icons.apple[]   --> 180x180 PNG for iOS home-screen.
+  icons.shortcut  --> Legacy IE-era tag, still respected by some clients.
+
+  manifest        --> "/manifest.webmanifest" — points to app/manifest.ts.
+
+  openGraph       --> Default OG block for the homepage. Child pages
+                      override title/description/url/image; locale and
+                      siteName persist via shallow merge.
+
+  twitter         --> Default Twitter card. Same merge behavior.
+
+viewport export:
+
+  width/initialScale  --> The classic <meta name="viewport"> tag, controls
+                          how mobile browsers scale the layout. Without
+                          this, mobile renders at desktop width then shrinks.
+  maximumScale: 5     --> Allow user pinch-zoom up to 5x. Accessibility
+                          requirement; don't set 1.0 because it blocks zoom.
+  colorScheme         --> "light dark" tells the browser the site supports
+                          both modes so it can theme native form controls
+                          (scrollbars, date pickers) accordingly.
+  themeColor[]        --> See 2.5. Two entries for light/dark prefers-color-scheme.
+
+JSON-LD blocks:
+
+We inject TWO schema.org documents inline in the layout:
+
+  websiteJsonLd      --> @type WebSite. Identifies the site as a whole.
+                          Includes potentialAction.SearchAction so Google
+                          knows you have search (currently a stub, can
+                          be wired to a real search endpoint).
+  organizationJsonLd --> @type Organization. Describes the publisher,
+                          including logo URL and sameAs links (social profiles).
+                          This is what enables the Knowledge Graph panel
+                          on the right of Google search results.
+
+------------------------------
+5.4  web/app/manifest.ts
+------------------------------
+
+Default-exports a function returning the manifest object. Next.js
+serves it at /manifest.webmanifest. See 2.7 for field meanings.
+
+Why orientation: "portrait"?
+  PWA install on phone defaults to portrait. If your magazine has any
+  full-screen reading mode, you may want "any" instead.
+
+Why categories?
+  Used by Chrome Web Store and some PWA directories to classify your
+  app. Match your real vertical — "news", "magazines", "lifestyle".
+
+------------------------------
+5.5  web/app/issue-1/page.tsx & web/app/issue/[slug]/page.tsx
+------------------------------
+
+Both now call buildMetadata with type: "article" to unlock the
+article-specific OG fields. Difference:
+
+  issue-1/page.tsx     --> Static. Uses generateMetadata returning a
+                            sync Metadata object. Pulls from the
+                            hard-coded issueOneArticle.
+
+  issue/[slug]/page.tsx --> Dynamic. Async generateMetadata fetches
+                            the magazine by slug, falls back gracefully
+                            if the API is down.
+
+Both emit:
+  og:type = article
+  article:published_time = ISO date
+  article:modified_time = ISO date (slug variant only)
+  article:author = author name
+
+------------------------------
+5.6  web/app/(auth)/layout.tsx & web/app/account/layout.tsx
+------------------------------
+
+Both export a metadata object with robots: noindex/nofollow/nocache.
+
+Why noindex on auth pages?
+  - Zero SEO value (these are functional, not editorial).
+  - Exposes flow surface to attackers via search.
+  - Some SaaS legal teams require auth pages stay out of search to
+    avoid implying user-data exposure.
+
+Why noindex on account pages?
+  - User-specific content (their bookmarks, profile).
+  - Indexable account pages can leak PII to anyone via the search index.
+  - Even though we already block crawlers via robots.txt, the meta tag
+    is defense-in-depth in case robots.txt is misconfigured.
+
+------------------------------
+5.7  web/app/robots.ts & web/app/sitemap.ts
+------------------------------
+
+Pre-existing files. Two roles:
+
+  robots.ts  --> Generates /robots.txt. Lists which paths crawlers
+                 may not crawl AT ALL. (Distinct from meta robots,
+                 which only affects pages that ARE crawled.)
+                 Also references the sitemap URL so crawlers discover it.
+
+  sitemap.ts --> Generates /sitemap.xml with all known URLs:
+                   - Static routes (/, /about, /mission, /issue-1)
+                   - Dynamic issue routes from the API
+                 Each entry has changeFrequency and priority hints.
+                 Revalidates every hour (revalidate=3600).
+
+
+================================================================================
+  PART 6 — REQUIRED IMAGE FILES & SIZES
+================================================================================
+
+These files must exist at the listed paths under web/public/.
+Until they exist, those URLs 404 and previews break silently.
+
+  --------- Favicons / app icons ---------
+
+  web/public/images/favicon.ico
+    Multi-resolution .ico containing 16x16, 32x32, 48x48.
+    Generate from a square PNG with realfavicongenerator.net.
+
+  web/public/images/icons/apple-touch-icon.png
+    180x180 PNG. iOS home-screen icon. Will be rounded by iOS
+    automatically — don't pre-round it.
+
+  web/public/images/icons/icon-192.png
+    192x192 PNG. Android home-screen icon (small).
+
+  web/public/images/icons/icon-512.png
+    512x512 PNG. PWA splash + Android home-screen (large).
+
+  web/public/images/icons/icon-512-maskable.png
+    512x512 PNG with the mark inside the centered 80% safe zone.
+    Android applies arbitrary shape masks (circle, squircle).
+    Background should fill the corners with your brand color.
+
+  --------- Open Graph default image ---------
+
+  web/public/images/og/og-default.png
+    1200x630 PNG. The fallback social preview image when a page
+    doesn't override it. Used on /, /about, /mission, /contribute,
+    and any page that doesn't pass `image` to buildMetadata.
+
+    Design tips:
+      - Keep critical content inside the centered 600x315 region
+        (WhatsApp crops there).
+      - Text should be readable at 600x315 downscale.
+      - Avoid pure-white backgrounds (Slack's white-card chrome
+        blends in).
+      - File size under 1 MB ideally, max 5 MB.
+
+  --------- Existing brand asset (already in repo) ---------
+
+  web/public/images/logo.jpg
+    Used by Organization JSON-LD and PWA splash fallback.
+
+
+================================================================================
+  PART 7 — TESTING & VALIDATION
+================================================================================
+
+You can't trust "it renders fine in my browser" — every platform's crawler
+behaves differently. Use the official tools.
+
+------------------------------
+7.1  Facebook Sharing Debugger
+------------------------------
+
+URL: https://developers.facebook.com/tools/debug/
+
+Workflow:
+  1. Paste your production URL.
+  2. Click "Debug".
+  3. Read the "Object Properties" section — it shows exactly what
+     Facebook will display.
+  4. If you've updated tags since the last scrape, click "Scrape Again".
+     Facebook caches for ~30 days.
+  5. Errors section will flag any missing required field.
+
+This tool covers WhatsApp and Facebook Messenger too — they share the
+same crawler.
+
+------------------------------
+7.2  LinkedIn Post Inspector
+------------------------------
+
+URL: https://www.linkedin.com/post-inspector/
+
+Workflow:
+  1. Paste production URL.
+  2. Click "Inspect".
+  3. Read what LinkedIn would show.
+  4. If wrong, fix the tags THEN re-inspect — but note LinkedIn caches
+     by canonical URL for up to 7 days, so do this BEFORE the first
+     public share.
+
+------------------------------
+7.3  X / Twitter preview testing
+------------------------------
+
+The classic Card Validator (cards-dev.twitter.com/validator) was
+deprecated in 2023. Today:
+
+  1. Compose a new tweet.
+  2. Paste your URL.
+  3. The card renders inline below the composer — exactly what users
+     will see.
+  4. Cancel the tweet (don't send) if you're just testing.
+
+For programmatic checks, fetch the URL with User-Agent: Twitterbot/1.0
+and inspect the returned HTML.
+
+------------------------------
+7.4  Discord & Slack — paste-test
+------------------------------
+
+Discord:
+  1. Open a private DM with yourself (or a test server).
+  2. Paste the URL.
+  3. The embed renders immediately. No caching from your end.
+
+Slack:
+  1. Paste in your #test channel.
+  2. Wait 1-2 seconds; the unfurl appears.
+  3. To bust Slack's per-workspace cache, append ?cache=2 (or similar)
+     to force re-fetch.
+
+------------------------------
+7.5  Google Rich Results Test
+------------------------------
+
+URL: https://search.google.com/test/rich-results
+
+What it tests: your JSON-LD structured data, not OG. Reports:
+  - What schema types Google detected.
+  - Whether your page is eligible for rich results (article carousel,
+    breadcrumbs, etc.).
+  - Any errors / warnings in the JSON-LD.
+
+Run this on:
+  - The homepage    (checks WebSite + Organization)
+  - An issue page   (checks Article)
+
+------------------------------
+7.6  PWA / manifest validation
+------------------------------
+
+In Chrome (desktop):
+  1. Open DevTools (F12).
+  2. Go to Application tab.
+  3. Click "Manifest" in the left sidebar.
+  4. Confirms manifest is valid, icons load, theme color set.
+  5. Also shows the "Add to Home Screen" eligibility checklist.
+
+On a phone:
+  - Visit your site.
+  - On Chrome Android: tap menu, "Install app".
+  - On Safari iOS:     tap Share, "Add to Home Screen".
+  - Both should show your icon + name.
+
+------------------------------
+7.7  Quick command-line check
+------------------------------
+
+To see exactly what crawlers see:
+
+    curl -A "facebookexternalhit/1.1" https://alriwayat.com/issue-1 \
+         -o page.html
+
+Then grep page.html for og:title, og:image, etc. This confirms the
+server is emitting the tags at all (vs. them being added by client-side
+JS, which crawlers don't execute).
+
+
+================================================================================
+  PART 8 — CACHING & THE "STALE PREVIEW" PROBLEM
+================================================================================
+
+The #1 surprise for engineers shipping social previews: you fix the tags,
+re-share the link, and the preview is STILL WRONG. This is because every
+social platform caches scraped metadata.
+
+Cache durations (approximate, official-or-observed):
+  Facebook / WhatsApp / Messenger : ~30 days
+  LinkedIn                        : ~7 days, by canonical URL
+  X (Twitter)                     : ~24h, re-fetched on subsequent shares
+  Slack                           : ~hours, per-workspace
+  Discord                         : effectively no caching
+  iMessage                        : ~7 days per device
+
+Strategies for cache busting:
+
+  1. ALWAYS run debuggers BEFORE the first public share. Once a wrong
+     preview is cached, you cannot un-stick it on user devices for days.
+
+  2. Use the platform debugger's "Scrape Again" / "Re-fetch" / "Inspect"
+     button. This forces a fresh fetch and updates the cache.
+
+  3. As a last resort, append a query string (?v=2) to the shared URL.
+     Crawlers treat it as a new resource. Awkward in production.
+
+  4. NEVER change canonical URLs casually — LinkedIn re-keys cache on
+     canonical change, so changing it forces a re-scrape but also
+     invalidates all existing share signal.
+
+
+================================================================================
+  PART 9 — COMMON MISTAKES (and how to detect them)
+================================================================================
+
+(1) Relative URLs in og:image
+    Symptom: Facebook debugger says "og:image URL is invalid".
+    Fix: set metadataBase in root layout so Next.js auto-absolutizes.
+
+(2) og:image not 1200x630
+    Symptom: Blurry preview on LinkedIn, awkward crop on WhatsApp.
+    Fix: regenerate the image at exactly 1200x630.
+
+(3) Theme color set in metadata (Next 14+)
+    Symptom: build-time warning "Unsupported metadata themeColor...".
+    Fix: move it to the `viewport` export.
+
+(4) Multiple <title> tags emitted
+    Symptom: Page has two <title> elements after build.
+    Cause: setting `title` in both root layout AND a page without using
+           the { default, template } structure.
+    Fix: root layout uses { default, template }; children just pass a string.
+
+(5) noindex pages still appearing in Google
+    Cause: Google had already indexed them before noindex was added.
+    Fix: Submit a removal request in Search Console + wait for re-crawl.
+
+(6) Twitter card shows summary (small) instead of summary_large_image
+    Cause: twitter:card not set, or set to "summary".
+    Fix: ensure twitter.card = "summary_large_image" in buildMetadata.
+
+(7) Manifest.webmanifest 404s
+    Cause: forgot to create app/manifest.ts, or wrong filename
+           ("manifest.json" instead of "manifest.webmanifest").
+    Fix: Next.js convention requires app/manifest.ts; URL is auto.
+
+(8) JSON-LD validation errors
+    Cause: missing required fields (Article requires headline,
+           datePublished, author, image).
+    Fix: run Rich Results Test, read the errors, add missing fields.
+
+(9) Mixed http/https in absolute URLs
+    Symptom: Facebook flags "URL returned a bad HTTP response code".
+    Fix: Always use https in production. metadataBase must be https.
+
+(10) Wrong locale string
+     Symptom: og:locale="en" doesn't validate.
+     Fix: Use BCP-47 with underscore: "en_US", "ar_AE", not "en" alone.
+
+
+================================================================================
+  PART 10 — GLOSSARY
+================================================================================
+
+App Router
+    The Next.js 13+ routing system based on the `app/` directory and
+    React Server Components. Replaces the older `pages/` directory.
+
+BCP-47 (locale codes)
+    The IETF standard for language tags. Format: language[-REGION].
+    Open Graph uses underscore: "en_US", "ar_AE".
+
+Canonical URL
+    The single authoritative URL for a piece of content. Set via
+    <link rel="canonical">.
+
+Crawler
+    Any bot that fetches your pages — search engines, social platforms,
+    archivers. Each identifies itself via the User-Agent header.
+
+Favicon
+    The small icon shown in browser tabs / bookmarks. Originally a 16x16
+    .ico file; now a family of sizes for many contexts.
+
+JSON-LD
+    JSON-based syntax for embedding linked-data (structured data).
+    Lives inside a <script type="application/ld+json"> tag.
+
+Maskable icon
+    A PWA icon authored with safe-zone padding so Android can mask it
+    into circles, squircles, teardrops, etc., without cropping the mark.
+
+metadataBase
+    A Next.js metadata field holding the absolute origin (e.g.
+    https://alriwayat.com). Used to resolve relative URLs.
+
+Open Graph
+    Facebook-defined meta-tag protocol used by virtually every social
+    platform for link previews. All tags use property="og:*".
+
+PWA (Progressive Web App)
+    A website that can be installed like a native app, with offline
+    support and home-screen icon. Enabled by a web app manifest +
+    service worker.
+
+Robots meta tag
+    A per-page <meta name="robots"> tag controlling whether crawlers
+    index the page (vs robots.txt which controls whether they crawl
+    it at all).
+
+Schema.org
+    A shared vocabulary for structured data, jointly maintained by
+    Google/Bing/Yahoo/Yandex. Used inside JSON-LD as @type values.
+
+Sitemap
+    XML file listing your site's URLs with crawl hints. Lives at
+    /sitemap.xml and is referenced from robots.txt.
+
+Theme color
+    A <meta name="theme-color"> value tinting browser chrome (address
+    bar, status bar, task switcher card). Not a social preview field.
+
+Twitter Card
+    X (Twitter)'s preview format. Set via twitter:* meta tags; falls
+    back to og:* when twitter:* is absent.
+
+Viewport
+    The <meta name="viewport"> tag controlling how mobile browsers
+    scale the page. In Next 14+, declared via the viewport export.
+
+
+================================================================================
+  END
+================================================================================
+
+If something here is wrong or unclear, the project's actual files are
+the source of truth:
+
+  Concepts -> Code map:
+    Open Graph         : web/lib/metadata.ts, web/app/layout.tsx
+    Twitter Cards      : same files
+    Canonical URLs     : web/lib/metadata.ts (alternates.canonical)
+    Theme color        : web/app/layout.tsx (viewport export)
+    Favicons           : web/app/layout.tsx (metadata.icons)
+    Manifest           : web/app/manifest.ts
+    Structured data    : web/app/layout.tsx (JSON-LD scripts) and
+                         web/components/issue/article-structured-data.tsx
+    Site config        : web/lib/site.ts (single source of truth)
+    Robots             : web/app/robots.ts + per-route metadata.robots
+    Sitemap            : web/app/sitemap.ts
+    Asset requirements : web/public/images/README.md

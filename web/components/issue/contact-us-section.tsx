@@ -13,7 +13,32 @@ import { contactContent as t } from "@/lib/content/contact-content";
 const MESSAGE_MAX = 1000;
 
 const TAGS = ["Feedback", "Story idea", "Question", "Other"] as const;
+const TEXTMESSAGE = [
+  "I have a suggestion regarding your website/content ",
+
+  "I would like to share a story idea about ",
+
+  "I have a question regarding ",
+
+  "I would like to get in touch about ",
+] as const;
 type Tag = (typeof TAGS)[number];
+
+const INITIAL_TOPIC: Tag = "Feedback";
+
+function messageForTag(tag: Tag): string {
+  const idx = TAGS.indexOf(tag);
+  return idx >= 0 ? TEXTMESSAGE[idx] : "";
+}
+
+// True when the current message is either empty or still matches one of the
+// prefilled templates — i.e. safe to swap without clobbering user-typed text.
+function isPrefillMessage(message: string): boolean {
+  return (
+    message.length === 0 ||
+    (TEXTMESSAGE as readonly string[]).includes(message)
+  );
+}
 
 type Fields = { name: string; email: string; message: string };
 type FieldErrors = Partial<Fields>;
@@ -25,12 +50,22 @@ const fieldLabel =
   "block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground";
 
 export function ContactUsSection({ className }: { className?: string }) {
-  const [topic, setTopic] = useState<Tag>("Feedback");
+  const [topic, setTopic] = useState<Tag>(INITIAL_TOPIC);
   const [form, setForm] = useState<Fields>({
     name: "",
     email: "",
-    message: "",
+    message: messageForTag(INITIAL_TOPIC),
   });
+
+  function handleTopicChange(nextTopic: Tag) {
+    setTopic(nextTopic);
+    setForm((f) =>
+      isPrefillMessage(f.message)
+        ? { ...f, message: messageForTag(nextTopic) }
+        : f,
+    );
+    setFieldErrors((fe) => ({ ...fe, message: undefined }));
+  }
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -82,7 +117,11 @@ export function ContactUsSection({ className }: { className?: string }) {
         });
         setReaderIdentity({ name: trimmedName, email: trimmedEmail });
         setStatus("success");
-        setForm({ name: trimmedName, email: trimmedEmail, message: "" });
+        setForm({
+          name: trimmedName,
+          email: trimmedEmail,
+          message: messageForTag(topic),
+        });
         setFieldErrors({});
       } catch (err) {
         setStatus("error");
@@ -165,7 +204,7 @@ export function ContactUsSection({ className }: { className?: string }) {
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => setTopic(tag)}
+                  onClick={() => handleTopicChange(tag)}
                   aria-pressed={active}
                   className={cn(
                     "rounded-full border px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors",

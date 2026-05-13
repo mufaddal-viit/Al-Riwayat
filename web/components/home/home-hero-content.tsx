@@ -11,9 +11,11 @@ export function HomeHeroContent() {
         <div className="space-y-4">
           <h1 className="w-full text-4xl sm:text-5xl lg:text-7xl font-extrabold">
             {homeHeroContent.title}{" "}
-            <span className="text-primary">{homeHeroContent.titleHighlight}</span>
+            <span className="text-primary"> 
+              {homeHeroContent.titleHighlight}
+            </span>
           </h1>
-          <p className="max-w-lg text-base text-foreground/80 sm:text-lg line-clamp-3">
+          <p className="max-w-2xl text-base text-foreground/80 sm:text-lg">
             {homeHeroContent.description}
           </p>
         </div>

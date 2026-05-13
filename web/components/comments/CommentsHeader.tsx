@@ -3,7 +3,7 @@ interface CommentsHeaderProps {
 }
 
 function formatCount(n: number) {
-  if (n === 0) return "No notes yet";
+  if (n === 0) return "No comments yet";
   if (n === 1) return "1 note this issue";
   return `${n} notes this issue`;
 }

@@ -48,6 +48,11 @@ export async function generateMetadata({
       description: magazine.summary,
       path: `/issue/${params.slug}`,
       image: magazine.coverImageUrl,
+      imageAlt: magazine.coverImageAlt ?? magazine.title,
+      type: "article",
+      publishedTime: magazine.publishedAt,
+      modifiedTime: magazine.updatedAt ?? magazine.publishedAt,
+      authors: magazine.author ? [magazine.author] : undefined,
     });
   } catch {
     return buildMetadata({

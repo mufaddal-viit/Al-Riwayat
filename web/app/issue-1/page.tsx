@@ -10,20 +10,24 @@ import { issueOneArticle } from "@/lib/content/issue-content";
 
 export function generateMetadata(): Metadata {
   return buildMetadata({
-    title: "Issue 1",
+    title: issueOneArticle.title,
     description: issueOneArticle.summary,
     path: `/${issueOneArticle.slug}`,
     image: issueOneArticle.coverImageUrl,
+    imageAlt: issueOneArticle.coverImageAlt,
+    type: "article",
+    publishedTime: issueOneArticle.publishedAt,
+    authors: [issueOneArticle.author],
   });
 }
 
 export default function IssueOnePage() {
   return (
-    <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
+    <div className="container space-y-8 pb-20 pt-2 sm:pb-10 sm:pt-3 lg:space-y-10 lg:pb-14 lg:pt-4">
       <ArticleStructuredData />
       {/* <IssueCoverHero /> */}
-      <IssueShareActions />
       <IssueRichContent />
+      <IssueShareActions />
       <NewsletterPreviewSection />
     </div>
   );
