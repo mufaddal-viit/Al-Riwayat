@@ -5,7 +5,10 @@
       "Read(//c/Users/DELL/.claude/skills/**)",
       "Read(//c/Users/DELL/.claude/**)",
       "Bash(cat web/.gitignore)",
-      "Bash(cat .gitignore)"
+      "Bash(cat .gitignore)",
+      "Bash(git -C \"c:\\\\Users\\\\Universal\\\\Documents\\\\mufaddal\\\\Z_OTHER\\\\Al-Riwayat\" checkout -b feat/page-reactions)",
+      "Bash(git -C \"c:/Users/Universal/Documents/mufaddal/Z_OTHER/Al-Riwayat\" status --short)",
+      "Bash(git -C \"c:/Users/Universal/Documents/mufaddal/Z_OTHER/Al-Riwayat\" branch --show-current)"
     ]
   }
 }

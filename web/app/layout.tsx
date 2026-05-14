@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AnalyticsLoader } from "@/components/site/analytics-loader";
+import { BookmarkReturnToast } from "@/components/site/bookmark-return-toast";
 import { CookieConsent } from "@/components/site/cookie-consent";
 import { EngagementModal } from "@/components/engagement/engagement-modal";
 import { SiteFooter } from "@/components/site/site-footer";
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <CookieConsent />
             <AnalyticsLoader />
             <EngagementModal />
+            <BookmarkReturnToast />
           </div>
         </AppProviders>
       </body>
