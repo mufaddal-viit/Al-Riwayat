@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { HomeHero } from "@/components/home/home-hero";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
+import { SocialBentoSection } from "@/components/home/social-bento-section";
 import { ReaderEngagementSection } from "@/components/issue/reader-engagement-section";
 import { buildMetadata } from "@/lib/metadata";
 
@@ -19,6 +20,7 @@ export default function HomePage() {
     <>
       <HomeHero />
       <div className="container space-y-8 py-10 pb-16 lg:space-y-12">
+        <SocialBentoSection />
         <div className="sm:block">
           <ReaderEngagementSection />
         </div>
