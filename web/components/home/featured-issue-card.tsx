@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { usePublishedMagazines } from "@/hooks/useMagazines";
 import type { Magazine } from "@/types/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { issueOneArticle } from "@/lib/content/issue-content";
 
 type FeaturedIssueCardProps = {
   aspectClass?: string;
@@ -34,9 +35,15 @@ export function FeaturedIssueCard({ aspectClass }: FeaturedIssueCardProps = {}) 
     );
   }
 
+  // Issue 1 has its own dedicated /issue-1 route; everything else uses /issue/[slug].
+  const issueHref =
+    featured.slug === issueOneArticle.slug
+      ? `/${featured.slug}`
+      : `/issue/${featured.slug}`;
+
   return (
     <Link
-      href={`/issue/${featured.slug}`}
+      href={issueHref}
       className={`group relative block w-full overflow-hidden rounded-2xl shadow-editorial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${aspect}`}
       aria-label={`Read featured issue: ${featured.title}`}
     >
