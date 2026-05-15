@@ -145,7 +145,7 @@ export function ContactUsSection({ className }: { className?: string }) {
             Drop a note
           </p>
 
-          <h2 className="font-heading font-extrabold italic leading-[0.95] text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem]">
+          <h2 className="font-heading font-extrabold italic leading-[0.95] text-4xl sm:text-5xl lg:text-7xl xl:text-[5rem]">
             Every word
             <br />
             lands somewhere

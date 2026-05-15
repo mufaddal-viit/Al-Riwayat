@@ -36,7 +36,7 @@ export function FeaturedIssueCard({ aspectClass }: FeaturedIssueCardProps = {}) 
 
   return (
     <Link
-      href={`/${featured.slug}`}
+      href={`/issue/${featured.slug}`}
       className={`group relative block w-full overflow-hidden rounded-2xl shadow-editorial focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${aspect}`}
       aria-label={`Read featured issue: ${featured.title}`}
     >

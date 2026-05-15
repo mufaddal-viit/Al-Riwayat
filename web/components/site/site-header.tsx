@@ -143,11 +143,11 @@ export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="z-50">
+    <header className="sticky top-0 z-50 border-b border-border/30 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 dark:border-border/20 dark:bg-background/30 dark:supports-[backdrop-filter]:bg-background/20">
       <div className="mx-auto flex min-h-[72px] max-w-[1400px] items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
         <SiteBrand priority />
 
-        <nav className="hidden items-center gap-12 md:flex">
+        <nav className="hidden items-center gap-6 md:flex lg:gap-10 xl:gap-12">
           {siteConfig.navItems.map((item) => (
             <NavLink
               key={item.href}

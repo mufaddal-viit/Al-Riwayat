@@ -101,56 +101,56 @@ export function CommentForm({
         )}
       />
 
-      <div className="flex">
-        <textarea
-          id="cf-body"
-          value={body}
-          onChange={(e) => {
-            if (e.target.value.length <= BODY_MAX) setBody(e.target.value);
-          }}
-          placeholder="Say something worth reading…"
-          disabled={busy}
-          autoFocus
-          rows={1}
-          aria-label="Your note"
-          className={cn(
-            inputBase,
-            "resize-none py-1 text-[15px] leading-relaxed text-foreground",
-          )}
-        />
+      <textarea
+        id="cf-body"
+        value={body}
+        onChange={(e) => {
+          if (e.target.value.length <= BODY_MAX) setBody(e.target.value);
+        }}
+        placeholder="Say something worth reading…"
+        disabled={busy}
+        autoFocus
+        rows={3}
+        aria-label="Your note"
+        className={cn(
+          inputBase,
+          "resize-none py-1 text-[15px] leading-relaxed text-foreground",
+        )}
+      />
 
-        {status && <p className="text-xs text-destructive">{status}</p>}
+      {status && (
+        <p className="text-xs text-destructive">{status}</p>
+      )}
 
-        <div className="mt-1 flex items-center justify-end gap-1">
-          {onCancel && (
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={busy}
-              aria-label="Cancel"
-              className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors",
-                "hover:bg-muted hover:text-foreground",
-                "disabled:opacity-50",
-              )}
-            >
-              <X className="h-4 w-4" aria-hidden />
-            </button>
-          )}
+      <div className="flex items-center justify-end gap-1">
+        {onCancel && (
           <button
-            type="submit"
-            disabled={!canSend}
-            aria-label="Send note"
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            aria-label="Cancel"
             className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-full transition-all",
-              canSend
-                ? "bg-primary text-primary-foreground hover:opacity-90"
-                : "bg-muted text-muted-foreground/60",
+              "flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors",
+              "hover:bg-muted hover:text-foreground",
+              "disabled:opacity-50",
             )}
           >
-            <Send className="h-4 w-4" aria-hidden />
+            <X className="h-4 w-4" aria-hidden />
           </button>
-        </div>
+        )}
+        <button
+          type="submit"
+          disabled={!canSend}
+          aria-label="Send note"
+          className={cn(
+            "flex h-9 w-9 items-center justify-center rounded-full transition-all",
+            canSend
+              ? "bg-primary text-primary-foreground hover:opacity-90"
+              : "bg-muted text-muted-foreground/60",
+          )}
+        >
+          <Send className="h-4 w-4" aria-hidden />
+        </button>
       </div>
     </form>
   );

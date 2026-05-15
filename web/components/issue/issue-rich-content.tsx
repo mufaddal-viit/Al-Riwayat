@@ -31,6 +31,7 @@ export function IssueRichContent({ magazine }: { magazine?: Magazine }) {
               className="h-full w-full border-0"
               loading="lazy"
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
             />
           </div>
         </div>

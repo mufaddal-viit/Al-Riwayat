@@ -105,11 +105,11 @@ export function SavedIssuesGrid({
       {issues.map((issue) => (
         <Link
           key={issue.slug}
-          href={`/${issue.slug}`}
+          href={`/issue/${issue.slug}`}
           className="group block focus-visible:outline-none"
         >
           <Card className="overflow-hidden border-border/60 bg-card/80 shadow-editorial transition-shadow group-hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-primary/60">
-            <CardContent className="grid gap-4 p-4 sm:grid-cols-[80px_1fr]">
+            <CardContent className="grid grid-cols-[80px_1fr] gap-4 p-4">
               <div className="relative aspect-[3/4] overflow-hidden rounded-xl border border-border/60 bg-muted">
                 <Image
                   src={issue.coverImageUrl}

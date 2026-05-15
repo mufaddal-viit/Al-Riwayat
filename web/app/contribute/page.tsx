@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 import { ContributeCTA } from "@/components/contribute/contribute-cta";
-import { Card, CardContent } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/metadata";
 import {
   contributeIntro,
@@ -19,68 +18,72 @@ export function generateMetadata(): Metadata {
 }
 
 const heroImageUrl = "/images/contribute/contribute-hero.webp";
-//   "https://images.unsplash.com/photo-1773332598414-44a45e364d85?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0";
 
 export default function ContributePage() {
   return (
-    <div className="container space-y-12 py-8 pb-20 sm:py-10 lg:space-y-16 lg:py-14">
+    <div className="container space-y-16 py-10 pb-20 sm:py-12 lg:space-y-24 lg:py-16">
       {/* Hero */}
-      <section className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <div className="relative min-h-[560px] overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] border border-border bg-secondary/50">
+      <section className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div className="order-2 space-y-5 lg:order-1 lg:space-y-7">
+          <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+            <span aria-hidden className="h-px w-7 bg-primary" />
+            {contributeIntro.eyebrow}
+          </p>
+
+          <h1 className="balanced-wrap font-heading font-extrabold italic leading-[0.95] text-4xl sm:text-5xl lg:text-6xl xl:text-7xl">
+            {contributeIntro.title1}
+          </h1>
+
+          <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            {contributeIntro.description}
+          </p>
+        </div>
+
+        <div className="relative order-1 aspect-[5/4] w-full overflow-hidden rounded-tr-[2rem] rounded-bl-[2rem] sm:aspect-[16/10] lg:order-2 lg:aspect-[4/5]">
           <Image
             src={heroImageUrl}
             alt="An open journal resting on a desk — an invitation to write."
             fill
             className="object-contain"
             sizes="(min-width: 1024px) 50vw, 100vw"
+            priority
           />
         </div>
-
-        <Card className="overflow-hidden bg-card/90">
-          <CardContent className="flex flex-col justify-center space-y-6 p-6 sm:p-10 lg:py-16">
-            <div className="space-y-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                {contributeIntro.eyebrow}
-              </p>
-              <h1 className="balanced-wrap text-4xl sm:text-5xl">
-                {contributeIntro.title1}
-              </h1>
-              <p className="text-base text-muted-foreground sm:text-lg">
-                {contributeIntro.description}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </section>
 
       {/* Guidelines */}
-      <section className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Submission guidelines
-          </p>
-          <h2 className="text-2xl sm:text-3xl">{contributeIntro.heroText}</h2>
+      <section className="space-y-10 lg:space-y-12">
+        <div
+          role="separator"
+          aria-label="Submission guidelines"
+          className="flex items-center gap-5 text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground"
+        >
+          <span aria-hidden className="h-px flex-1 bg-border" />
+          Submission guidelines
+          <span aria-hidden className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <h2 className="balanced-wrap mx-auto max-w-3xl text-center font-heading text-3xl sm:text-4xl lg:text-5xl">
+          {contributeIntro.heroText}
+        </h2>
+
+        <ul className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-10">
           {submissionGuidelines.map((item, index) => (
-            <Card key={item.id} className="bg-card/90">
-              <CardContent className="space-y-3 p-6">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-xs font-semibold text-muted-foreground">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="text-base font-semibold leading-snug">
-                    {item.title}
-                  </h3>
-                </div>
-                <p className="pl-10 text-sm leading-relaxed text-muted-foreground">
-                  {item.description}
-                </p>
-              </CardContent>
-            </Card>
+            <li key={item.id} className="space-y-2.5">
+              <div className="flex items-baseline gap-3">
+                <span className="font-heading text-2xl font-extrabold italic text-primary tabular-nums">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className="text-base font-semibold leading-snug">
+                  {item.title}
+                </h3>
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {item.description}
+              </p>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <ContributeCTA />

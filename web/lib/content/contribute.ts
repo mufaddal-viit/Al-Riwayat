@@ -7,10 +7,10 @@ export type GuidelineItem = {
 export const contributeIntro = {
   eyebrow: "Contribute",
   title1: "Turn your Thoughts into Stories",
-  title2: "Share Your Story with Al Riwayaat",
+  title2: "Share Your Story with Al Riwayat",
   heroText: "Let you inner voice penned down, but follow the guideline below",
   description:
-    "Al Riwayaat is built on community and shared stories. We welcome submissions from Bohra youth who want to express their thoughts, experiences, creativity, or reflections in their own voice. Whether it's a personal story, a short reflection, poetry, or something in between, your perspective matters. If you've been meaning to tell a story, this is your space to share it.",
+    "Al Riwayat is built on community and shared stories. We welcome submissions from Bohra youth who want to express their thoughts, experiences, creativity, or reflections in their own voice. Whether it's a personal story, a short reflection, poetry, or something in between, your perspective matters. If you've been meaning to tell a story, this is your space to share it.",
 } as const;
 
 export const submissionGuidelines: readonly GuidelineItem[] = [
@@ -41,7 +41,7 @@ export const submissionGuidelines: readonly GuidelineItem[] = [
     id: "guideline-5",
     title: "Permissions",
     description:
-      "By submitting, you give Al Riwayaat permission to publish your work digitally.",
+      "By submitting, you give Al Riwayat permission to publish your work digitally.",
   },
   {
     id: "guideline-6",

@@ -10,6 +10,7 @@ import { CommentsSection } from "@/components/comments/CommentsSection";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { ArticleStructuredData } from "@/components/issue/article-structured-data";
 import { BookmarkFavouriteButtons } from "@/components/issue/bookmark-favourite-buttons";
+import { IssueCoverHero } from "@/components/issue/issue-cover-hero";
 import { IssueRichContent } from "@/components/issue/issue-rich-content";
 import { IssueShareActions } from "@/components/issue/issue-share-actions";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,13 +20,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 function IssueSkeleton() {
   return (
     <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
-      <Skeleton className="h-10 w-2/3 rounded-2xl" />
-      <Skeleton className="h-5 w-1/3 rounded-xl" />
-      <Skeleton className="aspect-[4/3] w-full rounded-3xl" />
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-full rounded-xl" />
-        <Skeleton className="h-4 w-5/6 rounded-xl" />
-        <Skeleton className="h-4 w-4/5 rounded-xl" />
+      {/* Cover hero skeleton */}
+      <Skeleton className="min-h-[240px] w-full rounded-[1.5rem] sm:min-h-[360px] sm:rounded-[2.5rem] lg:min-h-[480px]" />
+      <div className="mx-auto max-w-[72ch] space-y-4">
+        <Skeleton className="h-5 w-20 rounded-full" />
+        <Skeleton className="h-10 w-2/3 rounded-xl" />
+        <Skeleton className="h-5 w-full rounded-xl" />
+        <Skeleton className="h-4 w-1/3 rounded-xl" />
+      </div>
+      {/* Action buttons */}
+      <div className="mx-auto max-w-[72ch] flex gap-2">
+        <Skeleton className="h-10 w-28 rounded-md" />
+        <Skeleton className="h-10 w-28 rounded-md" />
       </div>
     </div>
   );
@@ -81,10 +87,11 @@ export function IssuePageClient({ slug }: { slug: string }) {
   return (
     <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
       <ArticleStructuredData magazine={magazine} />
+      <IssueCoverHero magazine={magazine} />
       <section className="mx-auto max-w-[72ch]">
         <BookmarkFavouriteButtons slug={magazine.slug} />
       </section>
-      <IssueShareActions />
+      <IssueShareActions magazine={magazine} />
       <IssueRichContent magazine={magazine} />
       <CommentsSection slug={magazine.slug} />
       <NewsletterPreviewSection />
