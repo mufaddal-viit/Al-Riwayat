@@ -1,22 +1,14 @@
 /**
- * Reaction icons — single source of truth for the page-reaction bar.
+ * Reaction emojis — single source of truth for the page-reaction bar.
  *
- * Edit this file to add, remove, reorder, restyle, or relabel reactions.
- * Icons are lucide-react SVGs: stroke-based, transparent background, and
- * inherit `currentColor` so they sit seamlessly on any surface.
+ * Edit this file to add, remove, reorder, or relabel reactions. Each entry is
+ * a real emoji so the bar reads as "tap an emoji to react". Emojis render with
+ * no background and inherit the surrounding layout.
  *
  * NOTE: the `key` values must stay in sync with `ReactionKey` in
  * `services/pageReactionService.ts` and `REACTION_KEYS` in the API
  * (`api/src/modules/page-reactions/page-reactions.schema.ts`).
  */
-
-import {
-  Heart,
-  Sparkles,
-  Lightbulb,
-  Star,
-  type LucideIcon,
-} from "lucide-react";
 
 import type { ReactionKey } from "@/services/pageReactionService";
 
@@ -25,35 +17,13 @@ export interface ReactionIcon {
   key: ReactionKey;
   /** Accessible label, also used as the tooltip. */
   label: string;
-  /** lucide-react icon component. */
-  Icon: LucideIcon;
-  /** Tailwind text color applied when the reaction is active. */
-  activeColor: string;
+  /** The emoji shown for this reaction. */
+  emoji: string;
 }
 
 export const REACTION_ICONS: ReactionIcon[] = [
-  {
-    key: "love",
-    label: "Love",
-    Icon: Heart,
-    activeColor: "text-rose-500",
-  },
-  {
-    key: "wow",
-    label: "Wow",
-    Icon: Sparkles,
-    activeColor: "text-amber-500",
-  },
-  {
-    key: "think",
-    label: "Makes me think",
-    Icon: Lightbulb,
-    activeColor: "text-sky-500",
-  },
-  {
-    key: "inspire",
-    label: "Inspiring",
-    Icon: Star,
-    activeColor: "text-violet-500",
-  },
+  { key: "love", emoji: "❤️", label: "Love" },
+  { key: "wow", emoji: "😂", label: "Made me laugh" },
+  { key: "think", emoji: "💡", label: "Makes me think" },
+  { key: "inspire", emoji: "🌟", label: "Inspiring" },
 ];

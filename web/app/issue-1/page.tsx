@@ -22,8 +22,9 @@ export default function IssueOnePage() {
     <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
       <ArticleStructuredData />
       {/* <IssueCoverHero /> */}
-      <IssueShareActions />
+      
       <IssueRichContent />
+      <IssueShareActions />
       <NewsletterPreviewSection />
     </div>
   );

@@ -10,8 +10,7 @@ export const aboutStory = {
     "This is a space to slow down, connect, and feel seen.",
   ],
   sideNote: "",
-  imageUrl:
-    "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1200/samples/coffee.jpg",
+  imageUrl: "/images/about/about-story.jpeg",
 } as const;
 
 export const editorialTeam = [

@@ -161,9 +161,12 @@ export function PageReactionBar({
         </span>
       </button>
 
-      {/* Reactions — seamless, background-free icons */}
-      <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
-        {REACTION_ICONS.map(({ key, label, Icon, activeColor }) => {
+      {/* Reactions — tap an emoji to react */}
+      <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          React with
+        </span>
+        {REACTION_ICONS.map(({ key, label, emoji }) => {
           const active = ownReaction === key;
           const count = counts[key];
           const isPending = pending === key;
@@ -177,22 +180,28 @@ export function PageReactionBar({
               aria-label={`${label}${count ? ` (${count})` : ""}`}
               title={label}
               className={cn(
-                "group inline-flex items-center gap-1 rounded-full px-2 py-1",
-                "text-muted-foreground transition-colors duration-200",
-                "hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-                active && activeColor,
+                "group inline-flex items-center gap-1 rounded-full px-1.5 py-1",
+                "transition-colors duration-200",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+                active
+                  ? "bg-foreground/10"
+                  : "hover:bg-foreground/5",
               )}
             >
-              <Icon
+              <span
                 className={cn(
-                  "h-[18px] w-[18px] transition-transform duration-200",
+                  "text-lg leading-none transition-transform duration-200",
                   "group-active:scale-90",
-                  active ? "scale-110 fill-current" : "group-hover:scale-110",
+                  active
+                    ? "scale-110"
+                    : "opacity-70 group-hover:scale-110 group-hover:opacity-100",
                 )}
                 aria-hidden="true"
-              />
+              >
+                {emoji}
+              </span>
               {count > 0 ? (
-                <span className="text-[11px] font-semibold tabular-nums">
+                <span className="text-[11px] font-semibold tabular-nums text-muted-foreground">
                   {count}
                 </span>
               ) : null}
