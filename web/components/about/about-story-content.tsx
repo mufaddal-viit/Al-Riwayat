@@ -13,11 +13,11 @@ export function AboutStoryContent() {
         <span className="text-primary italic">depth.</span>
       </h1>
 
-      <p className="max-w-xl text-base leading-relaxed text-foreground/80 sm:text-lg">
+      <p className="max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
         {aboutStory.introduction}
       </p>
 
-      <div className="max-w-xl space-y-5 text-base leading-relaxed text-muted-foreground sm:text-[17px]">
+      <div className="max-w-3xl space-y-5 text-base leading-relaxed text-muted-foreground sm:text-[17px]">
         {aboutStory.paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
