@@ -68,6 +68,14 @@ export const ENDPOINTS = {
     create: "/comments",
   },
 
+  // ─── Page reactions (public, anonymous) ───────────────────────────────────
+  pageReactions: {
+    counts: "/page-reactions",
+    own:    "/page-reactions/own",
+    set:    "/page-reactions",
+    clear:  "/page-reactions",
+  },
+
   // ─── Comments (admin) ─────────────────────────────────────────────────────
   "admin.comments": {
     approve: (id: string) => `/admin/comments/${id}/approve`,

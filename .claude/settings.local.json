@@ -9,7 +9,11 @@
       "Bash(git -C \"c:\\\\Users\\\\Universal\\\\Documents\\\\mufaddal\\\\Z_OTHER\\\\Al-Riwayat\" checkout -b feat/page-reactions)",
       "Bash(git -C \"c:/Users/Universal/Documents/mufaddal/Z_OTHER/Al-Riwayat\" status --short)",
       "Bash(git -C \"c:/Users/Universal/Documents/mufaddal/Z_OTHER/Al-Riwayat\" branch --show-current)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(echo \"=== WEB DONE \\(exit $?\\) ===\")",
+      "Bash(echo \"=== API DONE \\(exit $?\\) ===\")",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)"
     ]
   }
 }

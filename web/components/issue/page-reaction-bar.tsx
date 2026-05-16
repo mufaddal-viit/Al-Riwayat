@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Bookmark, BookmarkCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getAnonymousReaderId } from "@/lib/anonymous-reader";
+import { REACTION_ICONS } from "@/config/reaction-icons";
 import {
   clearPageBookmark,
   getPageBookmark,
@@ -14,6 +16,7 @@ import {
   getOwnReaction,
   setPageReaction,
   subscribePageReactionCounts,
+  EMPTY_REACTION_COUNTS,
   type PageReactionCounts,
   type ReactionKey,
 } from "@/services/pageReactionService";
@@ -22,45 +25,26 @@ interface PageReactionBarProps {
   issueSlug: string;
   issueTitle: string;
   issuePath: string;
-  flipbookIframeId: string;
-  flipbookBaseUrl: string;
-  totalPages?: number;
+  /** The issue page these reactions apply to. */
+  page: number;
 }
 
-interface ReactionDef {
-  key: ReactionKey;
-  emoji: string;
-  label: string;
-}
-
-const REACTIONS: ReactionDef[] = [
-  { key: "love", emoji: "❤️", label: "Love" },
-  { key: "wow", emoji: "😮", label: "Wow" },
-  { key: "think", emoji: "🤔", label: "Think" },
-  { key: "bookmark", emoji: "🔖", label: "Bookmark" },
-  { key: "inspire", emoji: "✨", label: "Inspire" },
-];
-
-const EMPTY_COUNTS: PageReactionCounts = {
-  love: 0,
-  wow: 0,
-  think: 0,
-  bookmark: 0,
-  inspire: 0,
-};
-
+/**
+ * Seamless reaction strip — sits inline beneath the flipbook, never overlaps
+ * the magazine. Icons are background-free SVGs; counts sit beside them.
+ * "Save my page" is a single aligned pill on the left.
+ */
 export function PageReactionBar({
   issueSlug,
   issueTitle,
   issuePath,
-  flipbookIframeId,
-  flipbookBaseUrl,
-  totalPages,
+  page,
 }: PageReactionBarProps) {
-  const [page, setPage] = useState(1);
-  const [readerId, setReaderId] = useState<string>("");
+  const [readerId, setReaderId] = useState("");
   const [ownReaction, setOwnReaction] = useState<ReactionKey | null>(null);
-  const [counts, setCounts] = useState<PageReactionCounts>(EMPTY_COUNTS);
+  const [counts, setCounts] = useState<PageReactionCounts>(
+    EMPTY_REACTION_COUNTS,
+  );
   const [pending, setPending] = useState<ReactionKey | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [bookmarkedPage, setBookmarkedPage] = useState<number | null>(null);
@@ -71,34 +55,15 @@ export function PageReactionBar({
     setReaderId(getAnonymousReaderId());
     const existing = getPageBookmark(issueSlug);
     if (existing) setBookmarkedPage(existing.page);
+  }, [issueSlug]);
 
-    // Honor ?page=N from the URL (used by the return-visit toast CTA)
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get("page");
-      const parsed = raw ? Number(raw) : NaN;
-      if (Number.isFinite(parsed) && parsed >= 1) {
-        const safe = totalPages ? Math.min(parsed, totalPages) : parsed;
-        setPage(safe);
-        // Defer iframe nudge to the next tick so the iframe is mounted
-        requestAnimationFrame(() => {
-          const iframe = document.getElementById(
-            flipbookIframeId,
-          ) as HTMLIFrameElement | null;
-          if (iframe) iframe.src = `${flipbookBaseUrl}#page/${safe}`;
-        });
-      }
-    }
-  }, [issueSlug, flipbookIframeId, flipbookBaseUrl, totalPages]);
-
-  // Live counts for the currently selected page
+  // Live counts for the current page (lightweight polling).
   useEffect(() => {
-    setCounts(EMPTY_COUNTS);
-    const unsub = subscribePageReactionCounts({ issueSlug, page }, setCounts);
-    return unsub;
+    setCounts(EMPTY_REACTION_COUNTS);
+    return subscribePageReactionCounts({ issueSlug, page }, setCounts);
   }, [issueSlug, page]);
 
-  // Reader's own reaction on this page
+  // The reader's own reaction on this page.
   useEffect(() => {
     if (!readerId) return;
     const token = ++ownReactionToken.current;
@@ -108,46 +73,19 @@ export function PageReactionBar({
         if (token === ownReactionToken.current) setOwnReaction(r);
       })
       .catch(() => {
-        // non-fatal — UI still lets them react
+        // non-fatal — the UI still lets them react
       });
   }, [readerId, issueSlug, page]);
 
-  const navigateFlipbook = useCallback(
-    (nextPage: number) => {
-      const iframe = document.getElementById(
-        flipbookIframeId,
-      ) as HTMLIFrameElement | null;
-      if (!iframe) return;
-      // Heyzine supports the #page/N hash; rewriting src is the most
-      // reliable cross-origin way to nudge it.
-      iframe.src = `${flipbookBaseUrl}#page/${nextPage}`;
-    },
-    [flipbookIframeId, flipbookBaseUrl],
-  );
-
-  const goToPage = useCallback(
-    (nextPage: number) => {
-      if (nextPage < 1) return;
-      if (totalPages && nextPage > totalPages) return;
-      setPage(nextPage);
-      navigateFlipbook(nextPage);
-    },
-    [navigateFlipbook, totalPages],
-  );
+  const isSaved = bookmarkedPage === page;
 
   function handleSavePage() {
-    const alreadyOnThisPage = bookmarkedPage === page;
-    if (alreadyOnThisPage) {
+    if (isSaved) {
       clearPageBookmark(issueSlug);
       setBookmarkedPage(null);
       return;
     }
-    savePageBookmark({
-      issueSlug,
-      issueTitle,
-      issuePath,
-      page,
-    });
+    savePageBookmark({ issueSlug, issueTitle, issuePath, page });
     setBookmarkedPage(page);
     setJustSaved(true);
     window.setTimeout(() => setJustSaved(false), 1600);
@@ -158,8 +96,9 @@ export function PageReactionBar({
     setError(null);
     setPending(reaction);
     const isToggleOff = ownReaction === reaction;
-    // Optimistic update
     const previous = ownReaction;
+
+    // Optimistic update
     setOwnReaction(isToggleOff ? null : reaction);
     setCounts((prev) => {
       const next = { ...prev };
@@ -167,14 +106,14 @@ export function PageReactionBar({
       if (!isToggleOff) next[reaction] = next[reaction] + 1;
       return next;
     });
+
     try {
-      if (isToggleOff) {
-        await clearPageReaction({ readerId, issueSlug, page });
-      } else {
-        await setPageReaction({ readerId, issueSlug, page, reaction });
-      }
+      const fresh = isToggleOff
+        ? await clearPageReaction({ readerId, issueSlug, page })
+        : await setPageReaction({ readerId, issueSlug, page, reaction });
+      setCounts(fresh);
     } catch {
-      // Roll back optimistic update
+      // Roll back
       setOwnReaction(previous);
       setCounts((prev) => {
         const next = { ...prev };
@@ -189,146 +128,81 @@ export function PageReactionBar({
   }
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center px-3 sm:bottom-5">
-      <div
+    <div
+      role="region"
+      aria-label="Page reactions"
+      className="flex flex-wrap items-center gap-x-4 gap-y-2"
+    >
+      {/* Save my page — single aligned pill */}
+      <button
+        type="button"
+        onClick={handleSavePage}
+        aria-pressed={isSaved}
+        title={
+          isSaved
+            ? "Remove saved page"
+            : "Save this page so you can come back later"
+        }
         className={cn(
-          "pointer-events-auto flex w-full max-w-3xl flex-col gap-2 rounded-2xl border border-border/60",
-          "bg-card/95 px-3 py-2.5 shadow-editorial backdrop-blur-xl sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-3",
+          "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium",
+          "transition-colors",
+          isSaved
+            ? "bg-foreground/10 text-foreground"
+            : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground",
         )}
-        role="region"
-        aria-label="Page reactions"
       >
-        {/* Page stepper */}
-        <div className="flex items-center justify-between gap-2 sm:justify-start">
-          <button
-            type="button"
-            onClick={() => goToPage(page - 1)}
-            disabled={page <= 1}
-            className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background/80 text-sm",
-              "transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-40",
-            )}
-            aria-label="Previous page"
-          >
-            ‹
-          </button>
-          <div className="flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-            <span>Page</span>
-            <input
-              type="number"
-              min={1}
-              max={totalPages}
-              value={page}
-              onChange={(e) => {
-                const v = Number(e.target.value);
-                if (Number.isFinite(v) && v >= 1) {
-                  goToPage(v);
-                }
-              }}
+        {isSaved ? (
+          <BookmarkCheck className="h-4 w-4" aria-hidden="true" />
+        ) : (
+          <Bookmark className="h-4 w-4" aria-hidden="true" />
+        )}
+        <span>
+          {justSaved ? "Saved!" : isSaved ? "Page saved" : "Save my page"}
+        </span>
+      </button>
+
+      {/* Reactions — seamless, background-free icons */}
+      <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
+        {REACTION_ICONS.map(({ key, label, Icon, activeColor }) => {
+          const active = ownReaction === key;
+          const count = counts[key];
+          const isPending = pending === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleReact(key)}
+              disabled={!readerId || isPending}
+              aria-pressed={active}
+              aria-label={`${label}${count ? ` (${count})` : ""}`}
+              title={label}
               className={cn(
-                "h-7 w-12 rounded-md border border-border/70 bg-background/80 px-1.5 text-center text-sm font-semibold tracking-normal text-foreground",
-                "focus:outline-none focus:ring-2 focus:ring-foreground/20",
+                "group inline-flex items-center gap-1 rounded-full px-2 py-1",
+                "text-muted-foreground transition-colors duration-200",
+                "hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+                active && activeColor,
               )}
-              aria-label="Current page number"
-            />
-            {totalPages ? (
-              <span className="text-muted-foreground/80">/ {totalPages}</span>
-            ) : null}
-          </div>
-          <button
-            type="button"
-            onClick={() => goToPage(page + 1)}
-            disabled={totalPages ? page >= totalPages : false}
-            className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background/80 text-sm",
-              "transition-colors hover:bg-background disabled:cursor-not-allowed disabled:opacity-40",
-            )}
-            aria-label="Next page"
-          >
-            ›
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="hidden h-6 w-px bg-border/70 sm:block" />
-
-        {/* Save page */}
-        <button
-          type="button"
-          onClick={handleSavePage}
-          aria-pressed={bookmarkedPage === page}
-          className={cn(
-            "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-            bookmarkedPage === page
-              ? "border-foreground/60 bg-foreground/10 text-foreground"
-              : "border-border/70 bg-background/70 text-muted-foreground hover:bg-background hover:text-foreground",
-          )}
-          title={
-            bookmarkedPage === page
-              ? "Remove saved page"
-              : "Save this page so you can come back later"
-          }
-        >
-          <span aria-hidden="true">
-            {bookmarkedPage === page ? "★" : "☆"}
-          </span>
-          <span>
-            {justSaved
-              ? "Saved!"
-              : bookmarkedPage === page
-                ? `Saved p.${bookmarkedPage}`
-                : "Save my page"}
-          </span>
-        </button>
-
-        {/* Divider */}
-        <div className="hidden h-6 w-px bg-border/70 sm:block" />
-
-        {/* Reactions */}
-        <div className="flex flex-1 items-center justify-between gap-1 sm:justify-end sm:gap-2">
-          {REACTIONS.map((r) => {
-            const active = ownReaction === r.key;
-            const count = counts[r.key];
-            const isPending = pending === r.key;
-            return (
-              <button
-                key={r.key}
-                type="button"
-                onClick={() => handleReact(r.key)}
-                disabled={!readerId || isPending}
-                aria-pressed={active}
-                aria-label={`${r.label}${count ? ` (${count})` : ""}`}
-                title={r.label}
+            >
+              <Icon
                 className={cn(
-                  "group inline-flex min-w-[44px] items-center gap-1 rounded-full border px-2 py-1 text-sm transition-all",
-                  active
-                    ? "border-foreground/60 bg-foreground/10 text-foreground"
-                    : "border-border/70 bg-background/70 text-muted-foreground hover:border-border hover:bg-background hover:text-foreground",
-                  isPending && "opacity-60",
+                  "h-[18px] w-[18px] transition-transform duration-200",
+                  "group-active:scale-90",
+                  active ? "scale-110 fill-current" : "group-hover:scale-110",
                 )}
-              >
-                <span
-                  className={cn(
-                    "text-base leading-none transition-transform",
-                    active && "scale-110",
-                  )}
-                >
-                  {r.emoji}
-                </span>
+                aria-hidden="true"
+              />
+              {count > 0 ? (
                 <span className="text-[11px] font-semibold tabular-nums">
                   {count}
                 </span>
-              </button>
-            );
-          })}
-        </div>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
 
       {error ? (
-        <p
-          role="alert"
-          className="pointer-events-auto absolute -top-7 left-1/2 -translate-x-1/2 rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-xs text-destructive"
-        >
+        <p role="alert" className="w-full text-right text-xs text-destructive">
           {error}
         </p>
       ) : null}

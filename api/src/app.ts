@@ -18,6 +18,7 @@ import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
 import newsletterRoutes from "./modules/newsletter/newsletter.routes";
 import submissionsRoutes from "./modules/submissions/submissions.routes";
 import { commentsPublicRouter, commentsAdminRouter } from "./modules/comments/comments.routes";
+import { pageReactionsRouter } from "./modules/page-reactions/page-reactions.routes";
 import adminUsersRoutes from "./modules/users/users.routes";
 import meRoutes from "./modules/users/me.routes";
 
@@ -66,6 +67,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/submissions", submissionsRoutes);
 app.use("/api/comments", commentsPublicRouter);
+app.use("/api/page-reactions", pageReactionsRouter);
 app.use("/api/magazine", magazineReaderRoutes);
 app.use("/api/me", meRoutes);
 

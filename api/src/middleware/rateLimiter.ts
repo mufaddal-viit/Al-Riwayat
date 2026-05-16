@@ -50,3 +50,14 @@ export const submissionRateLimiter = createLimiter(
   3,
   "contribute submission",
 );
+
+/**
+ * Page reactions — 120 writes per IP per 15 minutes.
+ * Generous: a reader flipping reactions across many pages is normal;
+ * this only exists to blunt scripted abuse.
+ */
+export const pageReactionRateLimiter = createLimiter(
+  15 * 60 * 1000,
+  120,
+  "page reaction",
+);

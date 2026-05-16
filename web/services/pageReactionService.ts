@@ -1,111 +1,99 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  setDoc,
-  deleteDoc,
-  where,
-  type Unsubscribe,
-} from "firebase/firestore";
-
-import { db } from "@/lib/firebase";
+import { apiClient } from "@/lib/api/client";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export type ReactionKey = "love" | "wow" | "think" | "bookmark" | "inspire";
 
-export interface PageReactionDoc {
-  issueSlug: string;
-  page: number;
-  reaction: ReactionKey;
-  readerId: string;
-  createdAt: unknown;
-}
-
 export type PageReactionCounts = Record<ReactionKey, number>;
 
-const COLLECTION = "page_reactions";
+export const EMPTY_REACTION_COUNTS: PageReactionCounts = {
+  love: 0,
+  wow: 0,
+  think: 0,
+  bookmark: 0,
+  inspire: 0,
+};
 
-// One doc per (reader, issue, page) — flipping the reaction overwrites it,
-// removing clears it. This keeps the "one per page per device" rule.
-function docId(readerId: string, issueSlug: string, page: number): string {
-  return `${readerId}__${issueSlug}__p${page}`;
-}
+/**
+ * Page reactions are anonymous, per-device engagement signals. They are
+ * written through the `/api` backend (firebase-admin), NOT the browser
+ * Firestore SDK — so no client-side security rules are required and writes
+ * actually persist. One reaction per (reader, issue, page); changing it
+ * overwrites, clearing it removes.
+ */
 
-/** Set or change the reader's reaction for a given page. */
+/** Set or change the reader's reaction for a page. Returns fresh counts. */
 export async function setPageReaction(input: {
   readerId: string;
   issueSlug: string;
   page: number;
   reaction: ReactionKey;
-}): Promise<void> {
-  const { readerId, issueSlug, page, reaction } = input;
-  const ref = doc(db, COLLECTION, docId(readerId, issueSlug, page));
-  await setDoc(ref, {
-    issueSlug,
-    page,
-    reaction,
-    readerId,
-    createdAt: serverTimestamp(),
-  });
+}): Promise<PageReactionCounts> {
+  const { data } = await apiClient.put(ENDPOINTS.pageReactions.set, input);
+  return data.data.counts as PageReactionCounts;
 }
 
-/** Remove the reader's reaction for a given page. */
+/** Remove the reader's reaction for a page. Returns fresh counts. */
 export async function clearPageReaction(input: {
   readerId: string;
   issueSlug: string;
   page: number;
-}): Promise<void> {
-  const { readerId, issueSlug, page } = input;
-  const ref = doc(db, COLLECTION, docId(readerId, issueSlug, page));
-  await deleteDoc(ref);
+}): Promise<PageReactionCounts> {
+  const { data } = await apiClient.delete(ENDPOINTS.pageReactions.clear, {
+    data: input,
+  });
+  return data.data.counts as PageReactionCounts;
 }
 
-/** Fetch the reader's own reaction on this page (or null). */
+/** Fetch the reader's own reaction on a page (or null). */
 export async function getOwnReaction(input: {
   readerId: string;
   issueSlug: string;
   page: number;
 }): Promise<ReactionKey | null> {
-  const { readerId, issueSlug, page } = input;
-  const ref = doc(db, COLLECTION, docId(readerId, issueSlug, page));
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return null;
-  const data = snap.data() as PageReactionDoc;
-  return data.reaction;
+  const { data } = await apiClient.get(ENDPOINTS.pageReactions.own, {
+    params: input,
+  });
+  return (data.data.reaction as ReactionKey | null) ?? null;
+}
+
+/** Fetch aggregate reaction counts for a page. */
+export async function getPageReactionCounts(input: {
+  issueSlug: string;
+  page: number;
+}): Promise<PageReactionCounts> {
+  const { data } = await apiClient.get(ENDPOINTS.pageReactions.counts, {
+    params: input,
+  });
+  return data.data.counts as PageReactionCounts;
 }
 
 /**
- * Subscribe to live counts for a page. Returns an unsubscribe.
- * Computes counts client-side from the page's reaction docs — fine for the
- * scale we're at; if this grows hot, swap to a Cloud Function-maintained
- * aggregate doc.
+ * Subscribe to page reaction counts via lightweight polling.
+ * Returns an unsubscribe function. Replaces the old Firestore realtime
+ * listener — REST is enough at this scale, and writes already return fresh
+ * counts so the UI updates instantly on the acting device anyway.
  */
 export function subscribePageReactionCounts(
   input: { issueSlug: string; page: number },
   onChange: (counts: PageReactionCounts) => void,
-): Unsubscribe {
-  const { issueSlug, page } = input;
-  const q = query(
-    collection(db, COLLECTION),
-    where("issueSlug", "==", issueSlug),
-    where("page", "==", page),
-  );
-  return onSnapshot(q, (snap) => {
-    const counts: PageReactionCounts = {
-      love: 0,
-      wow: 0,
-      think: 0,
-      bookmark: 0,
-      inspire: 0,
-    };
-    snap.forEach((d) => {
-      const data = d.data() as PageReactionDoc;
-      if (data.reaction in counts) {
-        counts[data.reaction] += 1;
-      }
-    });
-    onChange(counts);
-  });
+  intervalMs = 20_000,
+): () => void {
+  let cancelled = false;
+
+  async function tick() {
+    try {
+      const counts = await getPageReactionCounts(input);
+      if (!cancelled) onChange(counts);
+    } catch {
+      // Non-fatal — keep the last known counts and retry next tick.
+    }
+  }
+
+  void tick();
+  const timer = window.setInterval(tick, intervalMs);
+
+  return () => {
+    cancelled = true;
+    window.clearInterval(timer);
+  };
 }
