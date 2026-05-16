@@ -55,7 +55,7 @@ npm run dev
 - theme toggle and mobile sheet navigation
 - consent-gated Google Analytics loader
 - metadata helper utilities
-- route-safe page skeletons for `/`, `/about`, `/mission`, and `/issue-1`
+- route-safe page skeletons for `/`, `/about`, and `/issue-1`
 
 ## Notes
 

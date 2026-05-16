@@ -13,7 +13,8 @@
       "Bash(echo \"=== WEB DONE \\(exit $?\\) ===\")",
       "Bash(echo \"=== API DONE \\(exit $?\\) ===\")",
       "Bash(npm install *)",
-      "Bash(npx prisma *)"
+      "Bash(npx prisma *)",
+      "Bash(curl -s -m 3 http://localhost:4000/api/health)"
     ]
   }
 }

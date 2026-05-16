@@ -17,12 +17,10 @@ export const siteConfig = {
     { href: "/", label: "Home" },
     { href: "/issue-1", label: "Issue 1" },
     { href: "/about", label: "Our World" },
-    { href: "/mission", label: "Mission" },
     { href: "/contribute", label: "Contribute" },
   ],
   moreItems: [
     // { href: "/about#team", label: "Team" },
-    // { href: "/mission#values", label: "Values" },
   ],
   socialLinks: [
     { href: "https://www.instagram.com", label: "Instagram" },
