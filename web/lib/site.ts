@@ -7,6 +7,7 @@ export const siteConfig = {
     "It is created to share stories, thoughts, memories, and everything in between.",
   footerNote:
     "Built for deliberate reading, quieter browsing, and stories worth staying with.",
+  contactEmail: "alriwayat53@gmail.com",
   url: publicEnv.siteUrl,
   assets: {
     logo: "/images/logo.jpg",
@@ -23,8 +24,9 @@ export const siteConfig = {
     // { href: "/about#team", label: "Team" },
   ],
   socialLinks: [
-    { href: "https://www.instagram.com", label: "Instagram" },
-    { href: "https://www.linkedin.com", label: "LinkedIn" },
-    { href: "https://x.com", label: "X" },
+    {
+      href: "https://www.instagram.com/_al_riwayat?igsh=c3l2bjB5YWsyeWh2&utm_source=qr",
+      label: "Instagram",
+    },
   ],
 } as const;

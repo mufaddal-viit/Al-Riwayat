@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Instagram, Linkedin, Twitter } from "lucide-react";
+import { Instagram, Linkedin, Mail, Twitter } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { SiteBrand } from "@/components/site/site-brand";
@@ -31,6 +31,14 @@ export function SiteFooter() {
               {siteConfig.footerNote}
             </p>
 
+            <a
+              href={`mailto:${siteConfig.contactEmail}`}
+              className="inline-flex w-fit items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary"
+            >
+              <Mail className="h-4 w-4" aria-hidden />
+              {siteConfig.contactEmail}
+            </a>
+
             <div className="flex flex-wrap gap-5 pt-2">
               {siteConfig.socialLinks.map((link) => {
                 const Icon = socialIconMap[link.label] ?? Twitter;
@@ -43,7 +51,10 @@ export function SiteFooter() {
                     aria-label={link.label}
                     className="text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary"
                   >
-                    <Icon className="h-5 w-5" aria-hidden />
+                    <div className="flex gap-2">
+                      <Icon className="h-5 w-5" aria-hidden />
+                      {link.label}
+                    </div>
                   </a>
                 );
               })}
@@ -75,7 +86,10 @@ export function SiteFooter() {
           <span>
             &copy; {new Date().getFullYear()} {siteConfig.name}
           </span>
-          <span aria-hidden className="hidden h-1 w-1 rounded-full bg-muted-foreground/40 sm:block" />
+          <span
+            aria-hidden
+            className="hidden h-1 w-1 rounded-full bg-muted-foreground/40 sm:block"
+          />
           <span className="hidden sm:inline">Built for deliberate reading</span>
           <span aria-hidden className="h-px flex-1 bg-border/60" />
         </div>

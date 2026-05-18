@@ -54,7 +54,7 @@ export const editorialTeam = [
     name: "Khadija Lakdawala",
     role: "Founder & Editor in Chief",
     bio: "Guides the heart of the magazine, making sure every page has purpose.",
-    imageUrl: "/images/team/Sakina.jpeg",
+    imageUrl: "/images/team/khadija.jpeg",
   },
   {
     name: "Sakina Patel",
