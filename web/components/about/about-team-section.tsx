@@ -27,31 +27,48 @@ export function AboutTeamSection() {
 
   return (
     <section id="team" aria-label="Editorial team">
-      {/* DESKTOP — 3-column: heading · photo · list */}
-      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.95fr)] lg:items-start lg:gap-24 xl:gap-32">
+      {/* DESKTOP - 3-column: heading, photo, list */}
+      <div className="hidden lg:grid lg:min-h-[640px] lg:grid-cols-[minmax(15rem,0.78fr)_minmax(22rem,0.95fr)_minmax(17rem,0.72fr)] lg:items-start lg:gap-14 xl:grid-cols-[minmax(16rem,0.76fr)_minmax(25rem,0.95fr)_minmax(18rem,0.72fr)] xl:gap-20 2xl:gap-24">
         <AboutTeamHeading />
 
-        <div className="relative mx-auto w-full max-w-[420px] pb-6">
-          <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[8px]">
+        <div className="relative mx-auto w-full max-w-[500px] lg:sticky lg:top-20">
+          <div
+            aria-hidden
+            className="absolute -left-4 top-4 h-[101%] w-full border rounded-[8px] border-primary/70 xl:-left-5"
+          />
+          {/* <div
+            aria-hidden
+            className="absolute -right-4 top-16 h-28 w-16 border-y border-primary/50 xl:-right-6 xl:h-36"
+          /> */}
+
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px] bg-muted shadow-editorial ring-1 ring-border/60">
             <Image
               key={member.imageUrl}
               src={member.imageUrl}
               alt={`${member.name}, ${member.role}`}
               fill
               priority
-              className="object-cover animate-fade-in-up"
-              sizes="(min-width: 1280px) 420px, 360px"
+              className="animate-fade-in-up object-cover object-center"
+              sizes="(min-width: 1536px) 500px, (min-width: 1280px) 400px, 352px"
             />
+            <div
+              aria-hidden
+              className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/85 via-background/20 to-transparent"
+            />
+            <div className="absolute right-4 top-4 z-10 bg-background/90 px-3 py-2 shadow-lifted backdrop-blur-sm xl:right-5 xl:top-5">
+              <AboutTeamCounter current={activeIndex + 1} total={total} />
+            </div>
           </div>
+
           <div
             key={`desktop-label-${member.name}`}
-            className="absolute -bottom-1 left-6 right-6 z-10 border-l-2 border-primary bg-background px-5 py-3 shadow-lifted animate-fade-in-up"
+            className="absolute bottom-5 left-5 right-5 z-10 border-l-4 rounded-md border-primary bg-background/95 px-5 py-4 shadow-lifted backdrop-blur-sm animate-fade-in-up xl:left-7 xl:right-7"
           >
-            <p className="font-heading text-xl italic leading-tight sm:text-2xl">
-              {member.name}
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              In focus
             </p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              {member.role}
+            <p className="mt-2 text-sm leading-relaxed text-foreground sm:text-base">
+              {member.bio}
             </p>
           </div>
         </div>
@@ -62,13 +79,10 @@ export function AboutTeamSection() {
             activeIndex={activeIndex}
             onSelect={setActiveIndex}
           />
-          <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            {member.bio}
-          </p>
         </div>
       </div>
 
-      {/* MOBILE / TABLET — carousel */}
+      {/* MOBILE / TABLET - carousel */}
       <div className="grid gap-10 lg:hidden">
         <AboutTeamHeading />
 

@@ -36,7 +36,7 @@ export function AboutTeamList({
                 aria-pressed={active}
                 aria-label={`Show ${member.name}, ${member.role}`}
                 className={cn(
-                  "group flex w-full items-center gap-5 border-b border-border/60 py-4 text-left transition-colors",
+                  "group grid min-h-[84px] w-full grid-cols-[auto_minmax(0,1fr)] items-start gap-x-5 border-b border-border/60 py-5 text-left transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   active
                     ? "text-foreground"
@@ -52,24 +52,18 @@ export function AboutTeamList({
                   {String(i + 1).padStart(2, "0")}
                 </span>
 
-                <span
-                  className={cn(
-                    "flex-1 truncate font-heading text-lg leading-tight transition-all",
-                    active && "italic",
-                  )}
-                >
-                  {member.name}
-                </span>
-
-                <span
-                  className={cn(
-                    "hidden shrink-0 text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 transition-opacity xl:inline",
-                    active
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-70",
-                  )}
-                >
-                  {member.role}
+                <span className="min-w-0">
+                  <span
+                    className={cn(
+                      "block font-heading text-lg leading-snug transition-all",
+                      active && "italic text-primary",
+                    )}
+                  >
+                    {member.name}
+                  </span>
+                  <span className="mt-1 block min-h-4 translate-y-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80 opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+                    {member.role}
+                  </span>
                 </span>
               </button>
             </li>

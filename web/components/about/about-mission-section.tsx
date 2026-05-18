@@ -4,6 +4,8 @@ import {
   missionStance,
 } from "@/lib/content/about-content";
 
+import { AboutEyebrow } from "./about-eyebrow";
+
 /**
  * Mission, editorial values, and stance — folded into the About page using
  * the same borderless editorial language as the story and team sections
@@ -15,10 +17,7 @@ export function AboutMissionSection() {
     <section aria-label="Mission" className="space-y-16 lg:space-y-24">
       {/* ── Statement ──────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
-        <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-          <span aria-hidden className="h-px w-10 bg-primary" />
-          {missionStatement.eyebrow}
-        </p>
+        <AboutEyebrow>{missionStatement.eyebrow}</AboutEyebrow>
 
         <h2 className="balanced-wrap max-w-4xl font-heading text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
           {missionStatement.title}
@@ -31,10 +30,7 @@ export function AboutMissionSection() {
 
       {/* ── Editorial values ───────────────────────────────────────────── */}
       <div className="space-y-10">
-        <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-          <span aria-hidden className="h-px w-10 bg-primary" />
-          Editorial Values
-        </p>
+        <AboutEyebrow>Editorial Values</AboutEyebrow>
 
         <div className="grid gap-x-12 gap-y-10 md:grid-cols-3">
           {missionValues.map((value, index) => (
@@ -56,10 +52,7 @@ export function AboutMissionSection() {
       {/* ── Stance ─────────────────────────────────────────────────────── */}
       <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
         <div className="flex flex-col gap-6 lg:sticky lg:top-24">
-          <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            <span aria-hidden className="h-px w-10 bg-primary" />
-            What We Stand For
-          </p>
+          <AboutEyebrow>What We Stand For</AboutEyebrow>
           <h2 className="balanced-wrap font-heading text-3xl leading-[1.1] sm:text-4xl">
             {missionStance.title}
           </h2>

@@ -22,7 +22,11 @@ type BentoCardProps = {
   priority?: boolean;
 };
 
-export function BentoCard({ item, className, priority = false }: BentoCardProps) {
+export function BentoCard({
+  item,
+  className,
+  priority = false,
+}: BentoCardProps) {
   const isFeature = item.span === "feature";
 
   const wrapperClassName = cn(
@@ -60,7 +64,7 @@ export function BentoCard({ item, className, priority = false }: BentoCardProps)
       />
 
       {/* Top row — media tag + outbound affordance. */}
-      <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3.5 sm:p-4">
+      {/* <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3.5 sm:p-4">
         {item.tag ? (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-sm">
             {item.kind === "video" && (
@@ -76,7 +80,7 @@ export function BentoCard({ item, className, priority = false }: BentoCardProps)
             <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
           </span>
         )}
-      </div>
+      </div> */}
 
       {/* Caption — only when provided (typically the reels). */}
       {item.caption && (

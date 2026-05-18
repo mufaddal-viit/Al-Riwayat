@@ -5,7 +5,7 @@ export function AboutStorySection() {
   return (
     <section className="relative -mt-[100px] overflow-hidden">
       <AboutStoryMedia />
-      <div className="relative grid min-h-[85vh] lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="container relative grid min-h-[85vh] lg:grid-cols-[1.1fr_0.9fr]">
         <div className="flex items-center">
           <AboutStoryContent />
         </div>

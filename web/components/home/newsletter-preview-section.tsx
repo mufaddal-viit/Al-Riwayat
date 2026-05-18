@@ -91,60 +91,66 @@ export function NewsletterPreviewSection() {
         </div>
 
         {/* RIGHT — form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div className="space-y-2">
-            <label htmlFor="newsletter-email" className={fieldLabel}>
-              Email address
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-              <input
-                id="newsletter-email"
-                type="email"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  if (isError) {
-                    setIsError(false);
-                    setMessage(null);
-                  }
-                }}
-                placeholder="reader@example.com"
-                aria-invalid={isError}
-                aria-describedby="newsletter-message"
-                disabled={isPending || isJoined}
-                className={cn(
-                  underlineInput,
-                  "sm:flex-1",
-                  isError && "border-destructive focus:border-destructive",
-                )}
-              />
-              <Button
-                type="submit"
-                disabled={isPending || isJoined}
-                className="group h-11 shrink-0 gap-2 rounded-md px-6 text-[11px] font-bold uppercase tracking-[0.14em]"
-              >
-                {isJoined ? "Joined" : isPending ? "Joining…" : "Join the list"}
-                {!isJoined && (
-                  <ArrowRight
-                    aria-hidden
-                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                  />
-                )}
-              </Button>
+        <div className="flex h-full w-full items-center justify-center">
+          <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5">
+            <div className="space-y-2">
+              <label htmlFor="newsletter-email" className={fieldLabel}>
+                Email address
+              </label>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
+                <input
+                  id="newsletter-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    if (isError) {
+                      setIsError(false);
+                      setMessage(null);
+                    }
+                  }}
+                  placeholder="reader@example.com"
+                  aria-invalid={isError}
+                  aria-describedby="newsletter-message"
+                  disabled={isPending || isJoined}
+                  className={cn(
+                    underlineInput,
+                    "sm:flex-1",
+                    isError && "border-destructive focus:border-destructive",
+                  )}
+                />
+                <Button
+                  type="submit"
+                  disabled={isPending || isJoined}
+                  className="group h-11 shrink-0 gap-2 rounded-md px-6 text-[11px] font-bold uppercase tracking-[0.14em]"
+                >
+                  {isJoined
+                    ? "Joined"
+                    : isPending
+                      ? "Joining…"
+                      : "Join the list"}
+                  {!isJoined && (
+                    <ArrowRight
+                      aria-hidden
+                      className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                    />
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <p
-            id="newsletter-message"
-            className={cn(
-              "flex items-center gap-1.5 text-xs",
-              isError ? "text-destructive" : "text-muted-foreground",
-            )}
-          >
-            <Lock className="h-3 w-3 shrink-0" aria-hidden />
-            {helpText}
-          </p>
-        </form>
+            <p
+              id="newsletter-message"
+              className={cn(
+                "flex items-center gap-1.5 text-xs",
+                isError ? "text-destructive" : "text-muted-foreground",
+              )}
+            >
+              <Lock className="h-3 w-3 shrink-0" aria-hidden />
+              {helpText}
+            </p>
+          </form>
+        </div>
       </div>
     </section>
   );

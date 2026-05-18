@@ -182,144 +182,150 @@ export function ContactUsSection({ className }: { className?: string }) {
         </div>
 
         {/* RIGHT — form */}
-        <form
-          onSubmit={handleSubmit}
-          noValidate
-          className="flex flex-col gap-7"
-        >
-          {/* Honeypot — hidden from real users */}
-          <input
-            type="text"
-            name="honeypot"
-            value={honeypot}
-            onChange={(e) => setHoneypot(e.target.value)}
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            className="hidden"
-          />
-
-          <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
-            <div className="space-y-2">
-              <label htmlFor="contact-name" className={fieldLabel}>
-                Name
-              </label>
-              <input
-                id="contact-name"
-                name="name"
-                type="text"
-                autoComplete="name"
-                placeholder={t.form.namePlaceholder}
-                value={form.name}
-                onChange={(e) => {
-                  setForm((f) => ({ ...f, name: e.target.value }));
-                  if (fieldErrors.name)
-                    setFieldErrors((fe) => ({ ...fe, name: undefined }));
-                }}
-                aria-invalid={!!fieldErrors.name}
-                className={cn(
-                  underlineInput,
-                  fieldErrors.name &&
-                    "border-destructive focus:border-destructive",
-                )}
-              />
-              {fieldErrors.name && (
-                <p className="text-xs text-destructive">{fieldErrors.name}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="contact-email" className={fieldLabel}>
-                Email
-              </label>
-              <input
-                id="contact-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                placeholder={t.form.emailPlaceholder}
-                value={form.email}
-                onChange={(e) => {
-                  setForm((f) => ({ ...f, email: e.target.value }));
-                  if (fieldErrors.email)
-                    setFieldErrors((fe) => ({ ...fe, email: undefined }));
-                }}
-                aria-invalid={!!fieldErrors.email}
-                className={cn(
-                  underlineInput,
-                  fieldErrors.email &&
-                    "border-destructive focus:border-destructive",
-                )}
-              />
-              {fieldErrors.email && (
-                <p className="text-xs text-destructive">{fieldErrors.email}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="relative space-y-2 pb-6">
-            <label htmlFor="contact-message" className={fieldLabel}>
-              Message
-            </label>
-            <textarea
-              id="contact-message"
-              name="message"
-              placeholder={t.form.messagePlaceholder}
-              value={form.message}
-              onChange={(e) => {
-                if (e.target.value.length <= MESSAGE_MAX)
-                  setForm((f) => ({ ...f, message: e.target.value }));
-                if (fieldErrors.message)
-                  setFieldErrors((fe) => ({ ...fe, message: undefined }));
-              }}
-              aria-invalid={!!fieldErrors.message}
-              rows={2}
-              className={cn(
-                underlineInput,
-                "resize-none leading-relaxed",
-                fieldErrors.message &&
-                  "border-destructive focus:border-destructive",
-              )}
+        <div className="flex h-full w-full items-center justify-center">
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            className="flex flex-col gap-7"
+          >
+            {/* Honeypot — hidden from real users */}
+            <input
+              type="text"
+              name="honeypot"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="hidden"
             />
-            <span
-              className={cn(
-                "absolute bottom-0 right-0 text-[10px] tabular-nums tracking-wide",
-                form.message.length > MESSAGE_MAX * 0.9
-                  ? "text-primary"
-                  : "text-muted-foreground/70",
+
+            <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
+              <div className="space-y-2">
+                <label htmlFor="contact-name" className={fieldLabel}>
+                  Name
+                </label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder={t.form.namePlaceholder}
+                  value={form.name}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, name: e.target.value }));
+                    if (fieldErrors.name)
+                      setFieldErrors((fe) => ({ ...fe, name: undefined }));
+                  }}
+                  aria-invalid={!!fieldErrors.name}
+                  className={cn(
+                    underlineInput,
+                    fieldErrors.name &&
+                      "border-destructive focus:border-destructive",
+                  )}
+                />
+                {fieldErrors.name && (
+                  <p className="text-xs text-destructive">{fieldErrors.name}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="contact-email" className={fieldLabel}>
+                  Email
+                </label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder={t.form.emailPlaceholder}
+                  value={form.email}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, email: e.target.value }));
+                    if (fieldErrors.email)
+                      setFieldErrors((fe) => ({ ...fe, email: undefined }));
+                  }}
+                  aria-invalid={!!fieldErrors.email}
+                  className={cn(
+                    underlineInput,
+                    fieldErrors.email &&
+                      "border-destructive focus:border-destructive",
+                  )}
+                />
+                {fieldErrors.email && (
+                  <p className="text-xs text-destructive">
+                    {fieldErrors.email}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="relative space-y-2 pb-6">
+              <label htmlFor="contact-message" className={fieldLabel}>
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                placeholder={t.form.messagePlaceholder}
+                value={form.message}
+                onChange={(e) => {
+                  if (e.target.value.length <= MESSAGE_MAX)
+                    setForm((f) => ({ ...f, message: e.target.value }));
+                  if (fieldErrors.message)
+                    setFieldErrors((fe) => ({ ...fe, message: undefined }));
+                }}
+                aria-invalid={!!fieldErrors.message}
+                rows={2}
+                className={cn(
+                  underlineInput,
+                  "resize-none leading-relaxed",
+                  fieldErrors.message &&
+                    "border-destructive focus:border-destructive",
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute bottom-0 right-0 text-[10px] tabular-nums tracking-wide",
+                  form.message.length > MESSAGE_MAX * 0.9
+                    ? "text-primary"
+                    : "text-muted-foreground/70",
+                )}
+              >
+                {form.message.length} / {MESSAGE_MAX}
+              </span>
+              {fieldErrors.message && (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.message}
+                </p>
               )}
-            >
-              {form.message.length} / {MESSAGE_MAX}
-            </span>
-            {fieldErrors.message && (
-              <p className="text-xs text-destructive">{fieldErrors.message}</p>
+            </div>
+
+            {status === "error" && (
+              <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {errorMessage}
+              </p>
             )}
-          </div>
 
-          {status === "error" && (
-            <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {errorMessage}
-            </p>
-          )}
-
-          <div className="flex items-center justify-end gap-4 pt-2">
-            {/* <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center justify-end gap-4 pt-2">
+              {/* <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Lock className="h-3 w-3" aria-hidden />
               Never shared.
             </span> */}
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="group h-11 gap-2 rounded-md px-6 text-[11px] font-bold uppercase tracking-[0.14em]"
-            >
-              {isPending ? t.form.submittingLabel : t.form.submitLabel}
-              <ArrowRight
-                aria-hidden
-                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-              />
-            </Button>
-          </div>
-        </form>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="group h-11 gap-2 rounded-md px-6 text-[11px] font-bold uppercase tracking-[0.14em]"
+              >
+                {isPending ? t.form.submittingLabel : t.form.submitLabel}
+                <ArrowRight
+                  aria-hidden
+                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                />
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
   );
