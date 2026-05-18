@@ -39,7 +39,7 @@ export function SiteFooter() {
               {siteConfig.contactEmail}
             </a>
 
-            <div className="flex flex-wrap gap-5 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               {siteConfig.socialLinks.map((link) => {
                 const Icon = socialIconMap[link.label] ?? Twitter;
                 return (
@@ -49,12 +49,12 @@ export function SiteFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={link.label}
-                    className="text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:text-primary"
+                    className="inline-flex min-h-10 w-fit items-center gap-2 rounded-full border border-border/70 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    <div className="flex gap-2">
-                      <Icon className="h-5 w-5" aria-hidden />
+                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                    <span className="leading-none">
                       {link.label}
-                    </div>
+                    </span>
                   </a>
                 );
               })}
