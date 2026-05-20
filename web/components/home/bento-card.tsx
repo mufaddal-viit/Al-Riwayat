@@ -3,8 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Play } from "lucide-react";
-
 import type { BentoCardItem } from "@/lib/content/social-bento-content";
 import { cn } from "@/lib/utils";
 
@@ -62,25 +60,6 @@ export function BentoCard({
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent"
       />
-
-      {/* Top row — media tag + outbound affordance. */}
-      {/* <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3.5 sm:p-4">
-        {item.tag ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur-sm">
-            {item.kind === "video" && (
-              <Play aria-hidden className="h-2.5 w-2.5 fill-current" />
-            )}
-            {item.tag}
-          </span>
-        ) : (
-          <span />
-        )}
-        {item.href && (
-          <span className="rounded-full bg-white/10 p-1.5 text-white/90 backdrop-blur-sm transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-            <ArrowUpRight aria-hidden className="h-3.5 w-3.5" />
-          </span>
-        )}
-      </div> */}
 
       {/* Caption — only when provided (typically the reels). */}
       {item.caption && (

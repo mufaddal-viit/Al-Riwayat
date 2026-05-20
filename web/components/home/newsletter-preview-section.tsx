@@ -71,8 +71,9 @@ export function NewsletterPreviewSection() {
       </div>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 xl:gap-16">
-        {/* LEFT — hero */}
-        <div className="flex flex-col gap-6 lg:sticky lg:top-24">
+        {/* LEFT — hero. lg:z-10 keeps the sticky column firmly below the site
+            header (z-50) at all scroll positions. */}
+        <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:z-10">
           <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
             <span aria-hidden className="h-px w-7 bg-primary" />
             In your inbox
@@ -141,6 +142,8 @@ export function NewsletterPreviewSection() {
 
             <p
               id="newsletter-message"
+              role={isError ? "alert" : "status"}
+              aria-live={isError ? "assertive" : "polite"}
               className={cn(
                 "flex items-center gap-1.5 text-xs",
                 isError ? "text-destructive" : "text-muted-foreground",

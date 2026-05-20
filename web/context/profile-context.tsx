@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -35,6 +36,12 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Mirror of the latest profile for stable callbacks. Avoids re-creating
+  // toggle/refresh on every profile change, which would otherwise force every
+  // consumer to re-render and break referential stability.
+  const profileRef = useRef<UserProfile | null>(null);
+  profileRef.current = profile;
+
   const refresh = useCallback(async () => {
     if (!isAuthenticated) {
       setProfile(null);
@@ -53,6 +60,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated]);
 
   // Auto-load when auth flips on; clear when it flips off.
+  // Deliberately depends only on `isAuthenticated` — including `refresh` would
+  // recreate the effect every time auth changes (because refresh closes over
+  // isAuthenticated) and could trigger spurious refetches.
   useEffect(() => {
     if (isAuthenticated) {
       void refresh();
@@ -60,7 +70,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       setError(null);
     }
-  }, [isAuthenticated, refresh]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   const updateProfile = useCallback(
     async (input: UpdateProfileInput): Promise<UserProfile> => {
@@ -80,6 +91,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [profile],
   );
 
+  // `toggle` reads the latest profile via ref instead of closing over it, so
+  // its identity is stable across renders. The rollback re-reads the current
+  // profile (which may already include other concurrent toggles) and removes
+  // *just this slug*, instead of stomping back to a stale snapshot.
   const toggle = useCallback(
     async (
       slug: string,
@@ -87,27 +102,41 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       addCall: (s: string) => Promise<UserProfile>,
       removeCall: (s: string) => Promise<UserProfile>,
     ) => {
-      if (!profile) return;
-      const has = profile[field].includes(slug);
+      const current = profileRef.current;
+      if (!current) return;
+      const had = current[field].includes(slug);
 
-      // Optimistic update
-      const next: UserProfile = {
-        ...profile,
-        [field]: has
-          ? profile[field].filter((s) => s !== slug)
-          : [...profile[field], slug],
-      };
-      setProfile(next);
+      // Optimistic update — derive from the freshest profile.
+      setProfile((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [field]: had
+            ? prev[field].filter((s) => s !== slug)
+            : [...prev[field], slug],
+        };
+      });
 
       try {
-        const fresh = has ? await removeCall(slug) : await addCall(slug);
+        const fresh = had ? await removeCall(slug) : await addCall(slug);
         setProfile(fresh);
       } catch (err) {
-        setProfile(profile); // rollback
+        // Surgical rollback — invert *only* this toggle, leaving any concurrent
+        // toggles intact. Replays the same set-mutation we did optimistically.
+        setProfile((prev) => {
+          if (!prev) return prev;
+          const list = prev[field];
+          const isStillToggled = had ? !list.includes(slug) : list.includes(slug);
+          if (!isStillToggled) return prev;
+          return {
+            ...prev,
+            [field]: had ? [...list, slug] : list.filter((s) => s !== slug),
+          };
+        });
         throw err;
       }
     },
-    [profile],
+    [],
   );
 
   const toggleBookmark = useCallback(

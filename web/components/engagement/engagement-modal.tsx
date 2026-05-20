@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-import { db } from "@/lib/firebase";
+import { submitEngagement } from "@/services/engagementService";
 import { setReaderIdentity } from "@/lib/reader-identity";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -102,13 +101,12 @@ export function EngagementModal() {
     const trimmedName = form.name.trim();
     const trimmedEmail = form.email.trim().toLowerCase();
     try {
-      await addDoc(collection(db, "engagement_submissions"), {
+      await submitEngagement({
         name: trimmedName,
         email: trimmedEmail,
         age: Number(form.age),
         occupation: form.occupation.trim(),
         subscribeToEmails: form.subscribe,
-        submittedAt: serverTimestamp(),
       });
       setReaderIdentity({ name: trimmedName, email: trimmedEmail });
       setFormState("success");

@@ -4,8 +4,28 @@ import { getFirestore, type Firestore } from "firebase/firestore";
 
 import { publicEnv } from "./public-env";
 
+const REQUIRED_KEYS = ["apiKey", "authDomain", "projectId", "appId"] as const;
+
+function envVarName(key: (typeof REQUIRED_KEYS)[number]): string {
+  return `NEXT_PUBLIC_FIREBASE_${key
+    .replace(/([A-Z])/g, "_$1")
+    .toUpperCase()}`;
+}
+
 function initFirebaseApp(): FirebaseApp {
   if (getApps().length > 0) return getApp();
+
+  const missing = REQUIRED_KEYS.filter(
+    (key) => !publicEnv.firebase[key] || publicEnv.firebase[key].trim() === "",
+  );
+  if (missing.length > 0) {
+    throw new Error(
+      `[firebase] Missing required config: ${missing
+        .map(envVarName)
+        .join(", ")}. Set these in the frontend env (Vercel dashboard or .env.local).`,
+    );
+  }
+
   return initializeApp({
     apiKey: publicEnv.firebase.apiKey,
     authDomain: publicEnv.firebase.authDomain,
