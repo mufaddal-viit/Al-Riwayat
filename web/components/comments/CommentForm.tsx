@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Send, X } from "lucide-react";
 
 import { getReaderIdentity } from "@/lib/reader-identity";
@@ -27,21 +27,28 @@ export function CommentForm({
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState("");
   const [isTransitionPending, startTransition] = useTransition();
+  const hasPrefilledRef = useRef(false);
 
   const busy = isPending || isTransitionPending;
   const canSend = body.trim().length > 0 && !busy;
 
-  // Prefill the author name from the engagement modal capture.
+  // Prefill the author name from the engagement modal capture exactly once.
+  // A ref (not state) is used so the effect can run on mount + when identity
+  // becomes available later, without ever overwriting what the user types.
   useEffect(() => {
+    if (hasPrefilledRef.current) return;
     const identity = getReaderIdentity();
-    if (identity && !authorName) setAuthorName(identity.name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (identity?.name) {
+      hasPrefilledRef.current = true;
+      setAuthorName((current) => current || identity.name);
+    }
   }, []);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("");
 
+    if (busy) return; // hard guard against double-submit while a send is in flight
     if (honeypot.length > 0) return;
     if (body.trim().length === 0) return;
 

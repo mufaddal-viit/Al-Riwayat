@@ -61,4 +61,30 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().min(1).optional(),
 });
 
-export const env = envSchema.parse(process.env);
+const refinedSchema = envSchema.superRefine((data, ctx) => {
+  if (data.DATA_BACKEND === "firestore") {
+    if (!data.FIREBASE_PROJECT_ID) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["FIREBASE_PROJECT_ID"],
+        message: "FIREBASE_PROJECT_ID is required when DATA_BACKEND=firestore.",
+      });
+    }
+    if (!data.FIREBASE_CLIENT_EMAIL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["FIREBASE_CLIENT_EMAIL"],
+        message: "FIREBASE_CLIENT_EMAIL is required when DATA_BACKEND=firestore.",
+      });
+    }
+    if (!data.FIREBASE_PRIVATE_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["FIREBASE_PRIVATE_KEY"],
+        message: "FIREBASE_PRIVATE_KEY is required when DATA_BACKEND=firestore.",
+      });
+    }
+  }
+});
+
+export const env = refinedSchema.parse(process.env);

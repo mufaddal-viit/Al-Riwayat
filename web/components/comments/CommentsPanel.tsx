@@ -81,9 +81,6 @@ export function CommentsPanel({
           <span className="flex-1 truncate text-sm text-muted-foreground">
             Say something worth reading…
           </span>
-          {/* <span className="rounded-md bg-primary px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
-            Post
-          </span> */}
         </button>
       )}
     </div>

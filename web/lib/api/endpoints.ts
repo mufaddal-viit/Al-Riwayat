@@ -21,7 +21,12 @@ export const ENDPOINTS = {
     featured: "/magazine/issues/featured",
     list:     "/magazine/issues",
     byId:     (id: string) => `/magazine/issue/${id}`,
-    search:   (q: string) => `/magazine/issues/search?q=${encodeURIComponent(q)}`,
+    search:   (q: string, opts?: { page?: number; limit?: number }) => {
+      const params = new URLSearchParams({ q });
+      if (opts?.page != null) params.set("page", String(opts.page));
+      if (opts?.limit != null) params.set("limit", String(opts.limit));
+      return `/magazine/issues/search?${params.toString()}`;
+    },
   },
 
   // ─── Magazine Admin ────────────────────────────────────────────────────────
@@ -49,6 +54,7 @@ export const ENDPOINTS = {
 
   // ─── Forms ─────────────────────────────────────────────────────────────────
   contact:     { submit:    "/contact" },
+  engagement:  { submit:    "/engagement" },
   newsletter:  { subscribe: "/newsletter" },
   submissions: { submit:    "/submissions" },
 

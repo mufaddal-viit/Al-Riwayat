@@ -98,6 +98,11 @@ export function PageReactionBar({
     const isToggleOff = ownReaction === reaction;
     const previous = ownReaction;
 
+    // Each call claims a token. A later call bumps the token, so when an
+    // earlier call's response (success or failure) lands, it can tell that
+    // it's stale and refuse to overwrite the newer state.
+    const token = ++ownReactionToken.current;
+
     // Optimistic update
     setOwnReaction(isToggleOff ? null : reaction);
     setCounts((prev) => {
@@ -111,19 +116,23 @@ export function PageReactionBar({
       const fresh = isToggleOff
         ? await clearPageReaction({ readerId, issueSlug, page })
         : await setPageReaction({ readerId, issueSlug, page, reaction });
-      setCounts(fresh);
+      // Ignore the success payload if a newer click has already happened.
+      if (token === ownReactionToken.current) setCounts(fresh);
     } catch {
-      // Roll back
-      setOwnReaction(previous);
-      setCounts((prev) => {
-        const next = { ...prev };
-        if (!isToggleOff) next[reaction] = Math.max(0, next[reaction] - 1);
-        if (previous) next[previous] = next[previous] + 1;
-        return next;
-      });
-      setError("Couldn't save — try again.");
+      // Ignore the rollback too — the newer click's optimistic state is what
+      // the user expects to see; rolling back to `previous` would erase it.
+      if (token === ownReactionToken.current) {
+        setOwnReaction(previous);
+        setCounts((prev) => {
+          const next = { ...prev };
+          if (!isToggleOff) next[reaction] = Math.max(0, next[reaction] - 1);
+          if (previous) next[previous] = next[previous] + 1;
+          return next;
+        });
+        setError("Couldn't save — try again.");
+      }
     } finally {
-      setPending(null);
+      if (token === ownReactionToken.current) setPending(null);
     }
   }
 

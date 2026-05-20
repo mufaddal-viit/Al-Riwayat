@@ -11,7 +11,7 @@ export function AboutStoryMedia() {
         fill
         aria-hidden
         priority
-        sizes="100vw"
+        sizes="(min-width: 1024px) 1280px, 100vw"
         className="pointer-events-none -z-30 object-cover object-center opacity-60 lg:object-right"
       />
 
