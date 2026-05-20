@@ -15,7 +15,27 @@
       "Bash(npm install *)",
       "Bash(npx prisma *)",
       "Bash(curl -s -m 3 http://localhost:4000/api/health)",
-      "Bash(node -e \"const s = \\(i\\) => i.normalize\\('NFKD'\\).replace\\(/[̀-ͯ]/g,''\\).toLowerCase\\(\\).replace\\(/[^a-z0-9]+/g,'-'\\).replace\\(/^-+|-+\\\\$/g,''\\); console.log\\(s\\('The Quiet Return Of Intentional Reading'\\)\\);\")"
+      "Bash(node -e \"const s = \\(i\\) => i.normalize\\('NFKD'\\).replace\\(/[̀-ͯ]/g,''\\).toLowerCase\\(\\).replace\\(/[^a-z0-9]+/g,'-'\\).replace\\(/^-+|-+\\\\$/g,''\\); console.log\\(s\\('The Quiet Return Of Intentional Reading'\\)\\);\")",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'audit fixes: Firebase, logic races, UI polish' --body ' *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)",
+      "Bash(ls web/public/images/hero web/app/icon* web/app/apple-icon* web/app/favicon* web/app/opengraph-image* web/app/manifest* 2>NUL; echo done)",
+      "Bash(cp web/public/images/logo.jpg web/app/icon.jpg)",
+      "Bash(cp web/public/images/logo.jpg web/app/apple-icon.jpg)",
+      "Bash(cp web/public/images/logo.jpg web/app/opengraph-image.jpg)",
+      "Bash(cp web/public/images/logo.jpg web/app/twitter-image.jpg)",
+      "Bash(cp public/images/logo.jpg app/icon.jpg)",
+      "Bash(cp public/images/logo.jpg app/apple-icon.jpg)",
+      "Bash(cp public/images/logo.jpg app/opengraph-image.jpg)",
+      "Bash(cp public/images/logo.jpg app/twitter-image.jpg)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(npx next *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Universal\\Documents\\mufaddal\\Z_OTHER\\Al-Riwayat"
     ]
   }
 }

@@ -13,7 +13,7 @@ export const siteConfig = {
     logo: "/images/logo.jpg",
     homeHero: "/images/hero/home-hero.webp",
   },
-  ogImage: "/images/hero/home-hero.webp",
+  ogImage: "/images/logo.jpg",
   navItems: [
     { href: "/", label: "Home" },
     { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
