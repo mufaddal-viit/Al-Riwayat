@@ -48,6 +48,9 @@ export async function generateMetadata({
       description: local.summary,
       path: `/issue/${local.slug}`,
       image: local.coverImageUrl,
+      type: "article",
+      publishedTime: local.publishedAt,
+      authors: [local.author],
     });
   }
 
@@ -60,6 +63,7 @@ export async function generateMetadata({
       description: magazine.summary,
       path: `/issue/${params.slug}`,
       image: magazine.coverImageUrl,
+      type: "article",
     });
   } catch {
     return buildMetadata({
