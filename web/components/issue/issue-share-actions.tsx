@@ -6,15 +6,21 @@ import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import type { Magazine } from "@/types/api";
+import type { IssueContent } from "@/lib/content/issues";
 
 interface IssueShareActionsProps {
   magazine?: Magazine;
+  issue?: IssueContent;
 }
 
-export function IssueShareActions({ magazine }: IssueShareActionsProps = {}) {
+export function IssueShareActions({
+  magazine,
+  issue,
+}: IssueShareActionsProps = {}) {
+  const article = issue ?? magazine;
   const fallbackUrl = siteConfig.url;
-  const articleText = magazine
-    ? `Read "${magazine.title}" on Al-Riwayat`
+  const articleText = article
+    ? `Read "${article.title}" on Al-Riwayat`
     : "Read the latest issue of Al-Riwayat";
 
   const [articleUrl, setArticleUrl] = useState(fallbackUrl);

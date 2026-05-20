@@ -14,7 +14,8 @@
       "Bash(echo \"=== API DONE \\(exit $?\\) ===\")",
       "Bash(npm install *)",
       "Bash(npx prisma *)",
-      "Bash(curl -s -m 3 http://localhost:4000/api/health)"
+      "Bash(curl -s -m 3 http://localhost:4000/api/health)",
+      "Bash(node -e \"const s = \\(i\\) => i.normalize\\('NFKD'\\).replace\\(/[̀-ͯ]/g,''\\).toLowerCase\\(\\).replace\\(/[^a-z0-9]+/g,'-'\\).replace\\(/^-+|-+\\\\$/g,''\\); console.log\\(s\\('The Quiet Return Of Intentional Reading'\\)\\);\")"
     ]
   }
 }

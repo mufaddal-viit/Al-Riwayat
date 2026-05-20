@@ -1,12 +1,17 @@
+import type { Metadata } from "next";
+
 import type { Magazine, ApiResponse, PaginatedResponse } from "@/types/api";
 import { AppError } from "@/lib/api/error";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 import { buildMetadata } from "@/lib/metadata";
 import { publicEnv } from "@/lib/public-env";
-import { IssuePageClient } from "./IssuePageClient";
-import type { Metadata } from "next";
+import { getIssueBySlug, listIssueSlugs } from "@/lib/content/issues";
+import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
+import { ArticleStructuredData } from "@/components/issue/article-structured-data";
+import { IssueRichContent } from "@/components/issue/issue-rich-content";
+import { IssueShareActions } from "@/components/issue/issue-share-actions";
 
-// ─── Server-side helper ───────────────────────────────────────────────────────
+import { IssuePageClient } from "./IssuePageClient";
 
 const API_URL = publicEnv.apiUrl;
 
@@ -17,28 +22,35 @@ async function serverFetch<T>(endpoint: string): Promise<T> {
   return res.json();
 }
 
-// ─── Static params (required for output: "export") ───────────────────────────
-
 export async function generateStaticParams() {
+  const localSlugs = listIssueSlugs();
   try {
     const { data: issues } = await serverFetch<PaginatedResponse<Magazine>>(
       ENDPOINTS.magazine.list,
     );
-    return issues.map((issue) => ({ slug: issue.slug }));
+    const apiSlugs = issues.map((issue) => issue.slug);
+    const all = new Set([...localSlugs, ...apiSlugs]);
+    return Array.from(all).map((slug) => ({ slug }));
   } catch {
-    // API not reachable at build time — no pages pre-rendered.
-    // The client component will fetch data at runtime instead.
-    return [];
+    return localSlugs.map((slug) => ({ slug }));
   }
 }
-
-// ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
+  const local = getIssueBySlug(params.slug);
+  if (local) {
+    return buildMetadata({
+      title: local.title,
+      description: local.summary,
+      path: `/issue/${local.slug}`,
+      image: local.coverImageUrl,
+    });
+  }
+
   try {
     const { data: magazine } = await serverFetch<ApiResponse<Magazine>>(
       ENDPOINTS.magazine.byId(params.slug),
@@ -58,8 +70,19 @@ export async function generateMetadata({
   }
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function IssuePage({ params }: { params: { slug: string } }) {
+  const local = getIssueBySlug(params.slug);
+
+  if (local) {
+    return (
+      <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
+        <ArticleStructuredData issue={local} />
+        <IssueRichContent issue={local} />
+        <IssueShareActions issue={local} />
+        <NewsletterPreviewSection />
+      </div>
+    );
+  }
+
   return <IssuePageClient slug={params.slug} />;
 }

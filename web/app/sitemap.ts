@@ -4,6 +4,7 @@ import { ENDPOINTS } from "@/lib/api/endpoints";
 import { AppError } from "@/lib/api/error";
 import { publicEnv } from "@/lib/public-env";
 import { siteConfig } from "@/lib/site";
+import { listIssueSlugs } from "@/lib/content/issues";
 import type { Magazine, PaginatedResponse } from "@/types/api";
 
 export const revalidate = 3600;
@@ -25,11 +26,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: new URL("/", siteConfig.url).toString(), lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: new URL("/about", siteConfig.url).toString(), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: new URL("/issue-1", siteConfig.url).toString(), lastModified: now, changeFrequency: "monthly", priority: 0.6 }
+    { url: new URL("/about", siteConfig.url).toString(), lastModified: now, changeFrequency: "monthly", priority: 0.7 }
   ];
 
-  const issueSlugs = await fetchIssueSlugs();
+  const apiSlugs = await fetchIssueSlugs();
+  const issueSlugs = Array.from(new Set([...listIssueSlugs(), ...apiSlugs]));
   const issueRoutes: MetadataRoute.Sitemap = issueSlugs.map((slug) => ({
     url: new URL(`/issue/${slug}`, siteConfig.url).toString(),
     lastModified: now,

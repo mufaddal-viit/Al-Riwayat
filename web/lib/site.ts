@@ -16,7 +16,7 @@ export const siteConfig = {
   ogImage: "/images/hero/home-hero.webp",
   navItems: [
     { href: "/", label: "Home" },
-    { href: "/issue-1", label: "Issue 1" },
+    { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
     { href: "/about", label: "Our World" },
     { href: "/contribute", label: "Contribute" },
   ],

@@ -1,9 +1,19 @@
 import type { Magazine } from "@/types/api";
+import type { IssueContent } from "@/lib/content/issues";
 import { siteConfig } from "@/lib/site";
-import { issueOneArticle } from "@/lib/content/issue-content";
 
-export function ArticleStructuredData({ magazine }: { magazine?: Magazine }) {
-  const article = magazine || issueOneArticle;
+interface ArticleStructuredDataProps {
+  magazine?: Magazine;
+  issue?: IssueContent;
+}
+
+export function ArticleStructuredData({
+  magazine,
+  issue,
+}: ArticleStructuredDataProps) {
+  const article = issue ?? magazine;
+  if (!article) return null;
+
   const articleImage = new URL(
     article.coverImageUrl,
     siteConfig.url,
