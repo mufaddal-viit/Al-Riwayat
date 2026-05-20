@@ -31,7 +31,7 @@ export const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.ALLOWED_ORIGIN,
+    origin: env.ALLOWED_ORIGIN,           // parsed into string[] by env.ts
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,          // Required for httpOnly cookie exchange

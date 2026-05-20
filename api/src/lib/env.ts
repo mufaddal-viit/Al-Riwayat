@@ -8,7 +8,20 @@ const envSchema = z.object({
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required."),
-  ALLOWED_ORIGIN: z.string().url("ALLOWED_ORIGIN must be a valid URL."),
+  ALLOWED_ORIGIN: z
+    .string()
+    .min(1, "ALLOWED_ORIGIN is required.")
+    .transform((raw) =>
+      raw
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    )
+    .pipe(
+      z
+        .array(z.string().url("ALLOWED_ORIGIN entries must each be a valid URL."))
+        .min(1, "ALLOWED_ORIGIN must contain at least one origin."),
+    ),
   MOCK_DB: z.coerce.boolean().default(false),
 
   // ─── JWT ──────────────────────────────────────────────────────────────────

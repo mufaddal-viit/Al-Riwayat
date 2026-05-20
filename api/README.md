@@ -30,11 +30,13 @@ Example local frontend origin:
 ALLOWED_ORIGIN=http://localhost:3000
 ```
 
-When the frontend is deployed to Netlify, set `ALLOWED_ORIGIN` to that exact site URL instead, for example:
+`ALLOWED_ORIGIN` accepts a comma-separated list, so you can keep local dev working while also allowing the deployed frontend. For example, with the frontend on Vercel:
 
 ```env
-ALLOWED_ORIGIN=https://your-site.netlify.app
+ALLOWED_ORIGIN=https://al-riwayat.vercel.app,http://localhost:3000
 ```
+
+Each entry must be a valid absolute URL (scheme + host, no trailing slash).
 
 ## Setup
 
