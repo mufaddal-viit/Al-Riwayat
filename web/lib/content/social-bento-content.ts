@@ -1,34 +1,31 @@
 /**
- * Content for the social proof bento section on the homepage.
- *
- * Each item is a "video-ready" card: it can render either a still image
- * (Instagram comment screenshot) or a looping video (Reel). Swap the
- * placeholder `src` values for real assets under `web/public/social/`.
- *
- * Grid placement is driven by `span` — the section composes these into an
- * asymmetric bento mosaic. The `feature` card is the large centerpiece.
+ * Content for the social proof section on the homepage — split into reels
+ * (carousel) and comments (marquee). Swap placeholder paths for real assets
+ * under `web/public/social/`.
  */
 
-export type BentoMediaKind = "image" | "video";
-
-export type BentoCardItem = {
-  /** Stable key + used for the aria-label. */
+export type ReelItem = {
   id: string;
-  kind: BentoMediaKind;
-  /** Image path, or video path for `kind: "video"`. */
+  /** Path to the video file (mp4/webm). */
   src: string;
-  /** Poster frame shown before a video plays / while it loads. */
-  poster?: string;
-  /** Accessible description of the media. */
+  /** Poster frame shown before the video plays. */
+  poster: string;
+  /** Accessible description of the reel. */
   alt: string;
-  /** Short caption rendered over the media. */
+  /** Short caption rendered over the reel. */
   caption?: string;
-  /** Tiny label chip, e.g. "Reel", "Comment". */
-  tag?: string;
-  /** Optional outbound link to the original Instagram post. */
+  /** Outbound link to the original Instagram post. */
   href?: string;
-  /** Column / row span on the lg bento grid. */
-  span: "feature" | "tall" | "wide" | "default";
+};
+
+export type CommentItem = {
+  id: string;
+  /** Path to the comment screenshot. */
+  src: string;
+  /** Accessible description of the comment. */
+  alt: string;
+  /** Outbound link to the original Instagram post. */
+  href?: string;
 };
 
 export const socialBentoContent = {
@@ -36,64 +33,49 @@ export const socialBentoContent = {
   title: "Stories that",
   titleHighlight: "reached us.",
   description:
-    "Real comments, reactions, and reels readers shared after Issue 1. This is the magazine living outside the page.",
+    "Real reels and comments readers shared after Issue 1. This is the magazine living outside the page.",
   cta: {
     href: "https://instagram.com",
     label: "Follow on Instagram",
   },
-  cards: [
+  reels: [
     {
       id: "reel-feature",
-      kind: "video",
       src: "/social/reel-feature.mp4",
       poster: "/social/reel-feature-poster.jpg",
       alt: "Reel highlighting reader reactions to Issue 1.",
       caption: "Issue 1, through your eyes.",
-      tag: "Reel",
       href: "https://instagram.com",
-      span: "feature",
-    },
-    {
-      id: "comment-1",
-      kind: "image",
-      src: "/social/comment-1.jpg",
-      alt: "Instagram comment praising the magazine's design.",
-      tag: "Comment",
-      span: "default",
-    },
-    {
-      id: "comment-2",
-      kind: "image",
-      src: "/social/comment-2.jpg",
-      alt: "Instagram comment from a reader sharing their favourite story.",
-      tag: "Comment",
-      span: "tall",
     },
     {
       id: "reel-2",
-      kind: "video",
       src: "/social/reel-2.mp4",
       poster: "/social/reel-2-poster.jpg",
       alt: "Reel showing a reader flipping through the issue.",
       caption: "Behind the pages.",
-      tag: "Reel",
-      span: "wide",
+      href: "https://instagram.com",
+    },
+  ] satisfies ReelItem[],
+  comments: [
+    {
+      id: "comment-1",
+      src: "/social/comment-1.jpg",
+      alt: "Instagram comment praising the magazine's design.",
+    },
+    {
+      id: "comment-2",
+      src: "/social/comment-2.jpg",
+      alt: "Instagram comment from a reader sharing their favourite story.",
     },
     {
       id: "comment-3",
-      kind: "image",
       src: "/social/comment-3.jpg",
       alt: "Instagram comment thanking the team for the issue.",
-      tag: "Comment",
-      span: "default",
     },
     {
       id: "comment-4",
-      kind: "image",
       src: "/social/comment-4.jpg",
       alt: "Instagram comment asking when the next issue drops.",
-      tag: "Comment",
-      span: "default",
     },
-  ] satisfies BentoCardItem[],
+  ] satisfies CommentItem[],
 } as const;

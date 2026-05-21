@@ -11,6 +11,7 @@
     "prebuild": "npm run docs:generate",
     "dev": "tsx watch src/server.ts",
     "build": "tsc && mkdir -p dist/src/data && cp -r src/data/* dist/src/data",
+    "vercel-build": "npm run docs:generate && prisma generate",
     "start": "node dist/src/server.js",
     "db:push": "prisma db push && prisma generate",
     "db:seed": "prisma db seed",

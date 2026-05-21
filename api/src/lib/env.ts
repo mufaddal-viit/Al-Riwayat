@@ -7,7 +7,7 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required."),
+  DATABASE_URL: z.string().min(1).optional(),
   ALLOWED_ORIGIN: z
     .string()
     .min(1, "ALLOWED_ORIGIN is required.")
@@ -62,6 +62,14 @@ const envSchema = z.object({
 });
 
 const refinedSchema = envSchema.superRefine((data, ctx) => {
+  if (data.DATA_BACKEND === "prisma" && !data.DATABASE_URL) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["DATABASE_URL"],
+      message: "DATABASE_URL is required when DATA_BACKEND=prisma.",
+    });
+  }
+
   if (data.DATA_BACKEND === "firestore") {
     if (!data.FIREBASE_PROJECT_ID) {
       ctx.addIssue({
