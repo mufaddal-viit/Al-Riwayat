@@ -9,6 +9,8 @@ export interface IssueContent {
   summary: string;
   coverImageUrl: string;
   coverImageAlt: string;
+  /** When true, the page renders a "Coming Soon" teaser instead of the flipbook. */
+  comingSoon?: boolean;
 }
 
 export function slugify(input: string): string {

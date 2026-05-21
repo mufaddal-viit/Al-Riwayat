@@ -11,7 +11,7 @@ export const issueOne: IssueContent = {
   slug: slugify(title),
   flipbookUrl: "https://heyzine.com/flip-book/7447c8853d.html",
   summary:
-    "A long-form editorial opening on why better digital magazines are built through pacing, restraint, and attention-friendly design.",
+    "Issue 01 of *Al-Riwayat* brings together everything that feels like Bohra Gen-Z life — from youth, identity, and traditions to relatable moments and memories. This edition explores topics like the golden phase of youth, what makes Bohra Gen-Z different, things only Bohra Gen-Z will understand, Tafreeh, Mohabbat ni Roti, Waras Mubarak, Hifz journeys, Rida stories, Eid mornings, and much more, capturing the experiences, culture, and moments that shape our generation.",
   coverImageUrl: siteConfig.assets.homeHero,
   coverImageAlt:
     "Issue 1 cover image framed as a premium editorial magazine cover.",
