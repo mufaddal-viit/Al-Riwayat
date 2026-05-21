@@ -8,6 +8,7 @@ import { publicEnv } from "@/lib/public-env";
 import { getIssueBySlug, listIssueSlugs } from "@/lib/content/issues";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { ArticleStructuredData } from "@/components/issue/article-structured-data";
+import { IssueComingSoon } from "@/components/issue/issue-coming-soon";
 import { IssueRichContent } from "@/components/issue/issue-rich-content";
 import { IssueShareActions } from "@/components/issue/issue-share-actions";
 
@@ -44,7 +45,7 @@ export async function generateMetadata({
   const local = getIssueBySlug(params.slug);
   if (local) {
     return buildMetadata({
-      title: local.title,
+      title: local.comingSoon ? `${local.title} — Coming Soon` : local.title,
       description: local.summary,
       path: `/issue/${local.slug}`,
       image: local.coverImageUrl,
@@ -78,6 +79,10 @@ export default function IssuePage({ params }: { params: { slug: string } }) {
   const local = getIssueBySlug(params.slug);
 
   if (local) {
+    if (local.comingSoon) {
+      return <IssueComingSoon issue={local} />;
+    }
+
     return (
       <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
         <ArticleStructuredData issue={local} />

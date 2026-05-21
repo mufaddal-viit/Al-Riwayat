@@ -117,14 +117,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
       suppressHydrationWarning
       data-consent={defaultConsent}
     >
-      <body
-        className={`${bodyFont.variable} ${headingFont.variable} min-h-dvh`}
-      >
+      <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `try{var d=document.documentElement;var consent=localStorage.getItem('${consentStorageKey}');if(consent==='accepted'||consent==='declined'){d.dataset.consent=consent;}}catch(e){}`,
           }}
         />
+      </head>
+      <body
+        className={`${bodyFont.variable} ${headingFont.variable} min-h-dvh`}
+      >
         <AppProviders>
           <div className="relative flex min-h-dvh flex-col">
             <SiteHeader />

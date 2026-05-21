@@ -1,16 +1,24 @@
 import Link from "next/link";
 import { Instagram } from "lucide-react";
 
-import { BentoCard } from "@/components/home/bento-card";
+import { InstagramCommentsMarquee } from "@/components/home/instagram-comments-marquee";
+import { InstagramReelsCarousel } from "@/components/home/instagram-reels-carousel";
 import { socialBentoContent } from "@/lib/content/social-bento-content";
 
 export function SocialBentoSection() {
-  const { eyebrow, title, titleHighlight, description, cta, cards } =
-    socialBentoContent;
+  const {
+    eyebrow,
+    title,
+    titleHighlight,
+    description,
+    cta,
+    reels,
+    comments,
+  } = socialBentoContent;
 
   return (
-    <section aria-label="From the community" className="w-full space-y-10">
-      {/* Section divider — matches the newsletter section's rhythm. */}
+    <section aria-label="From the community" className="w-full space-y-12">
+      {/* Section divider */}
       <div
         role="separator"
         aria-label={eyebrow}
@@ -25,8 +33,7 @@ export function SocialBentoSection() {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-3">
           <h2 className="font-heading text-3xl leading-tight sm:text-4xl lg:text-5xl">
-            {title}{" "}
-            <em className="not-italic text-primary">{titleHighlight}</em>
+            {title} <em className="not-italic text-primary">{titleHighlight}</em>
           </h2>
           <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
             {description}
@@ -47,16 +54,11 @@ export function SocialBentoSection() {
         </Link>
       </div>
 
-      {/*
-        Bento mosaic. Mobile: single column. sm+: a 3-column grid where the
-        feature card spans 2×2 and the others fill around it. Each row is a
-        fixed track height so spans compose into a clean asymmetric layout.
-      */}
-      <div className="grid auto-rows-[180px] grid-cols-1 gap-4 sm:auto-rows-[200px] sm:grid-cols-3 lg:auto-rows-[220px]">
-        {cards.map((item, index) => (
-          <BentoCard key={item.id} item={item} priority={index === 0} />
-        ))}
-      </div>
+      {/* Reels carousel */}
+      <InstagramReelsCarousel reels={reels} />
+
+      {/* Comments marquee */}
+      <InstagramCommentsMarquee comments={comments} />
     </section>
   );
 }

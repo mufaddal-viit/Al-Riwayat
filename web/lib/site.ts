@@ -17,6 +17,7 @@ export const siteConfig = {
   navItems: [
     { href: "/", label: "Home" },
     { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
+    { href: "/issue/rooh-al-akhlak", label: "Issue 2" },
     { href: "/about", label: "Our World" },
     { href: "/contribute", label: "Contribute" },
   ],
