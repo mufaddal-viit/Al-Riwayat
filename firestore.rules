@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Al-Riwayat Firestore security rules.
+//
+// All data access goes through the Express API (api/) using the Firebase
+// Admin SDK, which bypasses these rules. The client-side Firebase SDK
+// (web/lib/firebase.ts) is only used for Google sign-in; no client-side
+// Firestore reads or writes are performed by the app.
+//
+// These rules therefore deny everything by default. If you ever add direct
+// client reads, write a per-collection rule above the catch-all `match /{document=**}`.
+//
+// To deploy: `firebase deploy --only firestore:rules` (from a workspace with
+// the firebase CLI configured against the project).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
