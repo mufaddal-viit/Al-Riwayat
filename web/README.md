@@ -15,15 +15,15 @@ Next.js 14 frontend for the digital magazine MVP.
 Create `web/.env.local` and define:
 
 ```env
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3001
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
-NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 ```
 
-`NEXT_PUBLIC_API_URL` is optional until the API integration phase is wired in.
+`NEXT_PUBLIC_API_URL` must include the `/api` prefix.
 
-The frontend runs on port `3000`.
+The frontend runs on port `3001`.
 
 ## Setup
 
@@ -43,7 +43,7 @@ npm run dev
 
 ## Scripts
 
-- `npm run dev` - start Next.js on port `3000`
+- `npm run dev` - start Next.js on port `3001`
 - `npm run build` - production build
 - `npm run start` - run the production server
 - `npm run lint` - lint the project
@@ -74,12 +74,10 @@ This repository is configured to deploy the Next.js frontend from `/web` as a st
 ```env
 NEXT_PUBLIC_SITE_URL=https://your-site.netlify.app
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
-NEXT_PUBLIC_API_URL=
+NEXT_PUBLIC_API_URL=https://your-api.vercel.app/api
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 ```
 
 4. Use your final custom domain instead of `*.netlify.app` once it is available so canonical metadata and share links stay correct.
 
-The current frontend deploy does not require the Express backend at all. `/api` can stay in the repository without being deployed.
-
-When you later connect the backend, deploy `/api` separately and set its `ALLOWED_ORIGIN` to the frontend URL you use on Netlify.
+The Express backend is deployed separately from `/api` on Vercel. Set the API deployment's `ALLOWED_ORIGIN` to the frontend URL you use on Netlify or Vercel.

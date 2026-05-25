@@ -15,8 +15,8 @@ export const EMPTY_REACTION_COUNTS: PageReactionCounts = {
 
 /**
  * Page reactions are anonymous, per-device engagement signals. They are
- * written through the `/api` backend (firebase-admin), NOT the browser
- * Firestore SDK — so no client-side security rules are required and writes
+ * written through the `/api` backend, NOT from the browser directly,
+ * so no client-side datastore credentials are required and writes
  * actually persist. One reaction per (reader, issue, page); changing it
  * overwrites, clearing it removes.
  */

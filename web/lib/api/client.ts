@@ -1,7 +1,8 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { publicEnv } from "@/lib/public-env";
 import { normalizeError } from "./error";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const BASE_URL = publicEnv.apiUrl;
 const REQUEST_TIMEOUT = 15_000; // 15 s
 
 export const apiClient = axios.create({

@@ -2,12 +2,21 @@ import "dotenv/config";
 
 import { z } from "zod";
 
+const emptyStringToUndefined = (value: unknown) =>
+  typeof value === "string" && value.trim() === "" ? undefined : value;
+
+const optionalString = (schema: z.ZodString = z.string()) =>
+  z.preprocess(emptyStringToUndefined, schema.optional());
+
+const optionalNumber = () =>
+  z.preprocess(emptyStringToUndefined, z.coerce.number().int().optional());
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
-  DATABASE_URL: z.string().min(1).optional(),
+  DATABASE_URL: optionalString(z.string().min(1)),
   ALLOWED_ORIGIN: z
     .string()
     .min(1, "ALLOWED_ORIGIN is required.")
@@ -35,30 +44,30 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_DAYS: z.coerce.number().int().min(1).default(7),
 
   // ─── Cookie ───────────────────────────────────────────────────────────────
-  COOKIE_DOMAIN: z.string().optional(),
+  COOKIE_DOMAIN: optionalString(),
 
   // ─── Email ────────────────────────────────────────────────────────────────
   EMAIL_FROM: z.string().default("noreply@alriwayat.com"),
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().int().optional(),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASS: z.string().optional(),
+  SMTP_HOST: optionalString(),
+  SMTP_PORT: optionalNumber(),
+  SMTP_USER: optionalString(),
+  SMTP_PASS: optionalString(),
 
   // ─── App ──────────────────────────────────────────────────────────────────
-  FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+  FRONTEND_URL: z.string().url().default("http://localhost:3001"),
 
   // ─── Data backend ─────────────────────────────────────────────────────────
   DATA_BACKEND: z.enum(["firestore", "prisma"]).default("firestore"),
 
   // ─── Firebase Admin ───────────────────────────────────────────────────────
-  FIREBASE_PROJECT_ID: z.string().min(1).optional(),
-  FIREBASE_CLIENT_EMAIL: z.string().email().optional(),
-  FIREBASE_PRIVATE_KEY: z.string().min(1).optional(),
+  FIREBASE_PROJECT_ID: optionalString(z.string().min(1)),
+  FIREBASE_CLIENT_EMAIL: optionalString(z.string().email()),
+  FIREBASE_PRIVATE_KEY: optionalString(z.string().min(1)),
 
   // ─── Cloudinary ───────────────────────────────────────────────────────────
-  CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
-  CLOUDINARY_API_KEY: z.string().min(1).optional(),
-  CLOUDINARY_API_SECRET: z.string().min(1).optional(),
+  CLOUDINARY_CLOUD_NAME: optionalString(z.string().min(1)),
+  CLOUDINARY_API_KEY: optionalString(z.string().min(1)),
+  CLOUDINARY_API_SECRET: optionalString(z.string().min(1)),
 });
 
 const refinedSchema = envSchema.superRefine((data, ctx) => {

@@ -3,20 +3,14 @@ function withFallback(value: string | undefined, fallback: string) {
 }
 
 const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
-const siteUrlFallback = vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000";
+const siteUrlFallback = vercelUrl ? `https://${vercelUrl}` : "http://localhost:3001";
 
 export const publicEnv = {
   siteUrl: withFallback(process.env.NEXT_PUBLIC_SITE_URL, siteUrlFallback),
   gaMeasurementId: withFallback(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, ""),
-  apiUrl: withFallback(process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000"),
+  apiUrl: withFallback(process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000/api"),
   cloudinaryCloudName: withFallback(
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     "demo"
   ),
-  firebase: {
-    apiKey:       process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "",
-    authDomain:   process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? "",
-    projectId:    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "",
-    appId:        process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? "",
-  },
 };

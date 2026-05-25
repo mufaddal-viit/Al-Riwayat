@@ -428,7 +428,7 @@ export default function AccountPage() {
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
           <div className="space-y-1">
             <CardTitle className="font-heading text-xl">Account details</CardTitle>
-            <CardDescription>Managed by your Google account.</CardDescription>
+            <CardDescription>Managed through your Al-Riwayat account.</CardDescription>
           </div>
           <Button asChild variant="outline" size="sm" className="gap-2">
             <Link href="/account/profile">
