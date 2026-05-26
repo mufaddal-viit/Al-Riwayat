@@ -79,12 +79,12 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
         aria-current={isActive ? "true" : undefined}
         tabIndex={isActive ? 0 : -1}
         className={cn(
-          "group relative block aspect-[9/16] w-full max-w-[min(72vw,42vh,340px)] overflow-hidden rounded-3xl border border-border bg-card shadow-lifted sm:max-w-[min(72vw,340px)]",
+          "group relative block aspect-[9/16] w-[min(72vw,42vh,340px)] overflow-hidden rounded-3xl border border-border bg-card shadow-lifted sm:w-[min(72vw,340px)]",
           "transition-[transform,opacity] duration-500 ease-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
         style={{
-          transform: isActive ? "scale(1) rotateX(0deg)" : "scale(0.92) rotateX(8deg)",
+          transform: isActive ? "rotateX(0deg)" : "rotateX(8deg)",
           transformOrigin: "bottom",
           opacity: isActive ? 1 : 0.65,
         }}

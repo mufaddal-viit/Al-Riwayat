@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { Marquee } from "@/components/ui/marquee";
 import type { CommentItem } from "@/lib/content/social-bento-content";
-import { cn } from "@/lib/utils";
 
 interface InstagramCommentsMarqueeProps {
   comments: readonly CommentItem[];
@@ -13,7 +12,7 @@ interface InstagramCommentsMarqueeProps {
 
 function CommentCard({ comment }: { comment: CommentItem }) {
   const inner = (
-    <div className="relative aspect-[4/3] w-[clamp(220px,76vw,320px)] overflow-hidden rounded-2xl border border-border bg-card shadow-lifted">
+    <div className="relative aspect-[4/3] w-[clamp(220px,76vw,320px)] overflow-hidden rounded-2xl border border-border bg-card">
       <Image
         src={comment.src}
         alt={comment.alt}
@@ -47,11 +46,7 @@ export function InstagramCommentsMarquee({ comments }: InstagramCommentsMarqueeP
   return (
     <div
       aria-label="Reader comments from Instagram"
-      className={cn(
-        "relative w-full overflow-hidden",
-        // Soft edge masks so cards fade in/out at the rim.
-        "[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]",
-      )}
+      className="relative w-full overflow-hidden"
     >
       <Marquee pauseOnHover className="[--duration:50s]">
         {comments.map((comment) => (
