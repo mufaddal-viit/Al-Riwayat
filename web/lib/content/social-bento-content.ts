@@ -28,6 +28,8 @@ export type CommentItem = {
   href?: string;
 };
 
+const reelPoster = "/reelcover.jpg";
+
 export const socialBentoContent = {
   eyebrow: "From the community",
   title: "Stories that",
@@ -42,7 +44,7 @@ export const socialBentoContent = {
     {
       id: "reel-feature",
       src: "/social/reel-feature.mp4",
-      poster: "/social/reel-feature-poster.jpg",
+      poster: reelPoster,
       alt: "Reel highlighting reader reactions to Issue 1.",
       caption: "Issue 1, through your eyes.",
       href: "https://instagram.com",
@@ -50,7 +52,23 @@ export const socialBentoContent = {
     {
       id: "reel-2",
       src: "/social/reel-2.mp4",
-      poster: "/social/reel-2-poster.jpg",
+      poster: reelPoster,
+      alt: "Reel showing a reader flipping through the issue.",
+      caption: "Behind the pages.",
+      href: "https://instagram.com",
+    },
+    {
+      id: "reel-3",
+      src: "/social/reel-2.mp4",
+      poster: reelPoster,
+      alt: "Reel showing a reader flipping through the issue.",
+      caption: "Behind the pages.",
+      href: "https://instagram.com",
+    },
+    {
+      id: "reel-4",
+      src: "/social/reel-2.mp4",
+      poster: reelPoster,
       alt: "Reel showing a reader flipping through the issue.",
       caption: "Behind the pages.",
       href: "https://instagram.com",
@@ -59,23 +77,28 @@ export const socialBentoContent = {
   comments: [
     {
       id: "comment-1",
-      src: "/social/comment-1.jpg",
+      src: "/images/instaComments/WhatsApp%20Image%202026-05-26%20at%2007.16.45.jpeg",
       alt: "Instagram comment praising the magazine's design.",
     },
     {
       id: "comment-2",
-      src: "/social/comment-2.jpg",
+      src: "/images/instaComments/WhatsApp%20Image%202026-05-26%20at%2007.16.46.jpeg",
       alt: "Instagram comment from a reader sharing their favourite story.",
     },
     {
       id: "comment-3",
-      src: "/social/comment-3.jpg",
+      src: "/images/instaComments/WhatsApp%20Image%202026-05-26%20at%2007.16.47%20%281%29.jpeg",
       alt: "Instagram comment thanking the team for the issue.",
     },
     {
       id: "comment-4",
-      src: "/social/comment-4.jpg",
+      src: "/images/instaComments/WhatsApp%20Image%202026-05-26%20at%2007.16.47%20%282%29.jpeg",
       alt: "Instagram comment asking when the next issue drops.",
+    },
+    {
+      id: "comment-5",
+      src: "/images/instaComments/WhatsApp%20Image%202026-05-26%20at%2007.16.47.jpeg",
+      alt: "Instagram comment reacting to Al-Riwayat.",
     },
   ] satisfies CommentItem[],
 } as const;

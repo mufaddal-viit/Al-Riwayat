@@ -9,8 +9,4 @@ export const publicEnv = {
   siteUrl: withFallback(process.env.NEXT_PUBLIC_SITE_URL, siteUrlFallback),
   gaMeasurementId: withFallback(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, ""),
   apiUrl: withFallback(process.env.NEXT_PUBLIC_API_URL, "http://localhost:4000/api"),
-  cloudinaryCloudName: withFallback(
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    "demo"
-  ),
 };

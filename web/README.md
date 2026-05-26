@@ -18,7 +18,6 @@ Create `web/.env.local` and define:
 NEXT_PUBLIC_SITE_URL=http://localhost:3001
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
 NEXT_PUBLIC_API_URL=http://localhost:4000/api
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 ```
 
 `NEXT_PUBLIC_API_URL` must include the `/api` prefix.
@@ -75,7 +74,6 @@ This repository is configured to deploy the Next.js frontend from `/web` as a st
 NEXT_PUBLIC_SITE_URL=https://your-site.netlify.app
 NEXT_PUBLIC_GA_MEASUREMENT_ID=
 NEXT_PUBLIC_API_URL=https://your-api.vercel.app/api
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
 ```
 
 4. Use your final custom domain instead of `*.netlify.app` once it is available so canonical metadata and share links stay correct.

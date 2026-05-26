@@ -65,7 +65,8 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
   return (
     <li
       ref={slideRef}
-      className="relative z-10 flex shrink-0 basis-full justify-center [perspective:1200px] [transform-style:preserve-3d]"
+      aria-hidden={!isActive}
+      className="relative z-10 flex min-w-0 shrink-0 basis-full justify-center px-1 [perspective:1200px] [transform-style:preserve-3d]"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
@@ -75,8 +76,10 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
         aria-label={
           isActive && reel.href ? `Open on Instagram: ${reel.alt}` : `Show reel: ${reel.alt}`
         }
+        aria-current={isActive ? "true" : undefined}
+        tabIndex={isActive ? 0 : -1}
         className={cn(
-          "group relative block aspect-[9/16] w-[min(70vw,320px)] overflow-hidden rounded-3xl border border-border bg-card shadow-lifted",
+          "group relative block aspect-[9/16] w-full max-w-[min(72vw,42vh,340px)] overflow-hidden rounded-3xl border border-border bg-card shadow-lifted sm:max-w-[min(72vw,340px)]",
           "transition-[transform,opacity] duration-500 ease-out",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
@@ -193,10 +196,9 @@ export function InstagramReelsCarousel({ reels }: InstagramReelsCarouselProps) {
 
       <div className="overflow-hidden">
         <ul
-          className="flex transition-transform duration-700 ease-in-out"
+          className="flex w-full transition-transform duration-700 ease-in-out"
           style={{
-            transform: `translateX(-${current * (100 / reels.length)}%)`,
-            width: `${reels.length * 100}%`,
+            transform: `translate3d(-${current * 100}%, 0, 0)`,
           }}
         >
           {reels.map((reel, index) => (

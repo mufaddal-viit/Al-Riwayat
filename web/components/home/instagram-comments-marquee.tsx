@@ -13,12 +13,12 @@ interface InstagramCommentsMarqueeProps {
 
 function CommentCard({ comment }: { comment: CommentItem }) {
   const inner = (
-    <div className="relative aspect-[4/3] w-[280px] overflow-hidden rounded-2xl border border-border bg-card shadow-lifted sm:w-[320px]">
+    <div className="relative aspect-[4/3] w-[clamp(220px,76vw,320px)] overflow-hidden rounded-2xl border border-border bg-card shadow-lifted">
       <Image
         src={comment.src}
         alt={comment.alt}
         fill
-        sizes="(min-width: 640px) 320px, 280px"
+        sizes="(min-width: 640px) 320px, 76vw"
         className="object-cover"
       />
     </div>
