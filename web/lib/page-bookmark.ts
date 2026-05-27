@@ -13,7 +13,7 @@ export interface PageBookmark {
   issueSlug: string;
   issueTitle: string;
   page: number;
-  /** Path on this site that renders the issue (e.g. "/issue/issue-1"). */
+  /** Path on this site that renders the issue (e.g. "/issue/rooh-al-akhlak"). */
   issuePath: string;
   savedAt: number;
 }

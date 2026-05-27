@@ -2,23 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
-import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { buttonVariants } from "@/components/ui/button";
 
 import { SiteBrand } from "./site-brand";
+
+const MOBILE_NAV_TOGGLE_ID = "site-mobile-nav-toggle";
+
+function closeMobileNav() {
+  if (typeof document === "undefined") return;
+  const toggle = document.getElementById(
+    MOBILE_NAV_TOGGLE_ID,
+  ) as HTMLInputElement | null;
+  if (toggle) toggle.checked = false;
+}
 
 function NavLink({
   href,
@@ -142,7 +145,15 @@ function MobileNav({
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") closeMobileNav();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/30 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 dark:border-border/20 dark:bg-background/30 dark:supports-[backdrop-filter]:bg-background/20">
@@ -165,38 +176,51 @@ export function SiteHeader() {
           <ThemeSwitcher />
         </div>
 
-        {/* Mobile: hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Open menu"
-                className="h-9 w-9 rounded-full"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="flex flex-col border-border/60 bg-background/40 p-6 backdrop-blur-2xl h-[70vh] sm:h-[500px] rounded-l-2xl data-[state=open]:animate-in
-                      
-              
-              data-[state=closed]:animate-out
-                      data-[state=open]:slide-in-from-right
-                      data-[state=closed]:slide-out-to-right
-                      duration-300"
+        <div className="relative flex items-center gap-2 md:hidden">
+          <input
+            id={MOBILE_NAV_TOGGLE_ID}
+            type="checkbox"
+            aria-label="Toggle menu"
+            className="peer sr-only"
+          />
+          <label
+            htmlFor={MOBILE_NAV_TOGGLE_ID}
+            aria-label="Open menu"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "h-9 w-9 cursor-pointer rounded-full",
+            )}
+          >
+            <Menu className="h-5 w-5" />
+          </label>
+
+          <div className="fixed inset-0 z-[60] hidden peer-checked:block md:hidden">
+            <label
+              htmlFor={MOBILE_NAV_TOGGLE_ID}
+              aria-label="Close menu"
+              className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-nav-title"
+              className="absolute right-0 top-0 flex h-[70vh] w-[min(85vw,24rem)] flex-col rounded-l-2xl border-l border-border/60 bg-background/90 p-6 shadow-editorial backdrop-blur-2xl sm:h-[500px]"
             >
-              <SheetHeader className="space-y-3">
-                <SheetTitle className="font-bold">{siteConfig.name}</SheetTitle>
-              </SheetHeader>
-              <MobileNav
-                pathname={pathname}
-                onClose={() => setIsMobileMenuOpen(false)}
-              />
-            </SheetContent>
-          </Sheet>
+              <div className="flex items-center justify-between gap-4">
+                <h2 id="mobile-nav-title" className="font-bold">
+                  {siteConfig.name}
+                </h2>
+                <label
+                  htmlFor={MOBILE_NAV_TOGGLE_ID}
+                  aria-label="Close menu"
+                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <X className="h-5 w-5" />
+                </label>
+              </div>
+              <MobileNav pathname={pathname} onClose={closeMobileNav} />
+            </div>
+          </div>
         </div>
       </div>
     </header>

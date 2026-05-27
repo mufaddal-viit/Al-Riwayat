@@ -1,9 +1,12 @@
 import Image from "next/image";
 
+import { listIssues } from "@/lib/content/issues";
 import { FeaturedIssueCard } from "./featured-issue-card";
 import { HomeHeroContent } from "./home-hero-content";
 
 export function HomeHero() {
+  const [primaryIssue, secondaryIssue] = listIssues();
+
   return (
     <section className="relative -mt-[100px] overflow-hidden">
       <Image
@@ -26,12 +29,26 @@ export function HomeHero() {
 
       <div className="relative grid min-h-screen lg:grid-cols-3">
         <div className="lg:col-span-2 flex items-center">
-          <HomeHeroContent />
+          <HomeHeroContent
+            primaryIssue={primaryIssue}
+            secondaryIssue={secondaryIssue}
+          />
         </div>
 
         <div className="hidden lg:flex items-center justify-center px-8 pb-16 pt-[calc(100px+3rem)] xl:px-12">
-          <div className="w-full max-w-[340px]">
-            <FeaturedIssueCard aspectClass="aspect-[3/4]" />
+          <div className="grid w-full max-w-[340px] gap-4">
+            <FeaturedIssueCard
+              issue={primaryIssue}
+              aspectClass="aspect-[3/4]"
+              priority
+            />
+            {secondaryIssue ? (
+              <FeaturedIssueCard
+                issue={secondaryIssue}
+                badgeLabel="Previous Issue"
+                aspectClass="aspect-[16/10]"
+              />
+            ) : null}
           </div>
         </div>
       </div>

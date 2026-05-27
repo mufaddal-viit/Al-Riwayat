@@ -3,7 +3,7 @@ export interface IssueContent {
   issueNumber: number;
   publishedAt: string;
   author: string;
-  /** URL-safe identifier derived from the title — produced by `slugify(title)`. */
+  /** URL-safe identifier used in the public /issue/[slug] path. */
   slug: string;
   flipbookUrl: string;
   summary: string;
@@ -16,7 +16,7 @@ export interface IssueContent {
 export function slugify(input: string): string {
   return input
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");

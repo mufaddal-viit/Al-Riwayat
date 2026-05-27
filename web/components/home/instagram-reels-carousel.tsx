@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
 import type { ReelItem } from "@/lib/content/social-bento-content";
@@ -19,6 +19,7 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
   const xRef = useRef(0);
   const yRef = useRef(0);
   const frameRef = useRef<number>();
+  const [isMuted, setIsMuted] = useState(true);
   const isActive = current === index;
 
   // Subtle parallax: shift the inner card based on cursor distance from center.
@@ -37,17 +38,20 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
 
   // Only the centered reel plays; others pause to save CPU/bandwidth.
   useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = isMuted;
+
     if (isActive) {
-      void v.play().catch(() => {
-        /* Autoplay blocked — poster stays. */
+      void video.play().catch(() => {
+        /* Autoplay blocked - poster stays. */
       });
     } else {
-      v.pause();
-      v.currentTime = 0;
+      video.pause();
+      video.currentTime = 0;
     }
-  }, [isActive]);
+  }, [isActive, isMuted]);
 
   function handleMouseMove(event: React.MouseEvent) {
     const el = slideRef.current;
@@ -62,6 +66,34 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
     yRef.current = 0;
   }
 
+  function handleCardAction() {
+    if (!isActive) {
+      onSelect(index);
+      return;
+    }
+
+    if (reel.href) {
+      window.open(reel.href, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  function handleSoundToggle(event: React.MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = nextMuted;
+    if (isActive) {
+      void video.play().catch(() => {
+        /* Some browsers wait for the next direct user gesture. */
+      });
+    }
+  }
+
   return (
     <li
       ref={slideRef}
@@ -70,34 +102,15 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <button
-        type="button"
-        onClick={() => onSelect(index)}
-        aria-label={
-          isActive && reel.href ? `Open on Instagram: ${reel.alt}` : `Show reel: ${reel.alt}`
-        }
-        aria-current={isActive ? "true" : undefined}
-        tabIndex={isActive ? 0 : -1}
+      <div
         className={cn(
           "group relative block aspect-[9/16] w-[min(72vw,42vh,340px)] overflow-hidden rounded-3xl border border-border bg-card shadow-lifted sm:w-[min(72vw,340px)]",
           "transition-[transform,opacity] duration-500 ease-out",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
         style={{
           transform: isActive ? "rotateX(0deg)" : "rotateX(8deg)",
           transformOrigin: "bottom",
           opacity: isActive ? 1 : 0.65,
-        }}
-        onClickCapture={(e) => {
-          // Inactive slide click → just select it (don't follow link).
-          // Active slide click → also open the Instagram post if href provided.
-          if (!isActive) {
-            e.preventDefault();
-            return;
-          }
-          if (reel.href) {
-            window.open(reel.href, "_blank", "noopener,noreferrer");
-          }
         }}
       >
         <div
@@ -112,7 +125,7 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
             ref={videoRef}
             src={reel.src}
             poster={reel.poster}
-            muted
+            muted={isMuted}
             loop
             playsInline
             preload="metadata"
@@ -125,10 +138,23 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
           />
         </div>
 
+        <button
+          type="button"
+          onClick={handleCardAction}
+          aria-label={
+            isActive && reel.href
+              ? `Open on Instagram: ${reel.alt}`
+              : `Show reel: ${reel.alt}`
+          }
+          aria-current={isActive ? "true" : undefined}
+          tabIndex={isActive ? 0 : -1}
+          className="absolute inset-0 z-10 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        />
+
         {reel.caption && (
           <p
             className={cn(
-              "absolute inset-x-0 bottom-0 p-5 font-heading text-lg leading-tight text-white sm:text-xl",
+              "pointer-events-none absolute inset-x-0 bottom-0 z-20 p-5 pr-16 font-heading text-lg leading-tight text-white sm:text-xl",
               "transition-opacity duration-500",
               isActive ? "opacity-100" : "opacity-0",
             )}
@@ -136,7 +162,26 @@ function ReelSlide({ reel, index, current, onSelect }: ReelSlideProps) {
             {reel.caption}
           </p>
         )}
-      </button>
+
+        <button
+          type="button"
+          onClick={handleSoundToggle}
+          aria-label={isMuted ? "Enable reel sound" : "Mute reel sound"}
+          title={isMuted ? "Enable sound" : "Mute sound"}
+          tabIndex={isActive ? 0 : -1}
+          className={cn(
+            "absolute bottom-4 right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white shadow-lifted backdrop-blur-md",
+            "transition-all duration-200 hover:bg-black/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            !isActive && "pointer-events-none opacity-0",
+          )}
+        >
+          {isMuted ? (
+            <VolumeX className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Volume2 className="h-5 w-5" aria-hidden="true" />
+          )}
+        </button>
+      </div>
     </li>
   );
 }

@@ -1,10 +1,19 @@
 import Link from "next/link";
 
-import { homeHeroContent } from "@/lib/content/home-content";
 import { Button } from "@/components/ui/button";
+import { homeHeroContent } from "@/lib/content/home-content";
+import type { IssueContent } from "@/lib/content/issues";
 import { FeaturedIssueCard } from "./featured-issue-card";
 
-export function HomeHeroContent() {
+type HomeHeroContentProps = {
+  primaryIssue?: IssueContent;
+  secondaryIssue?: IssueContent;
+};
+
+export function HomeHeroContent({
+  primaryIssue,
+  secondaryIssue,
+}: HomeHeroContentProps) {
   return (
     <div className="flex flex-col w-full justify-center gap-8 px-6 pb-12 pt-[calc(100px+3rem)] sm:px-10 lg:px-14 lg:pb-20 lg:pt-[calc(100px+4rem)]">
       <div className="space-y-6">
@@ -26,9 +35,19 @@ export function HomeHeroContent() {
         </div>
       </div>
 
-      {/* Mobile only — desktop sees it in the right hero column */}
-      <div className="lg:hidden">
-        <FeaturedIssueCard aspectClass="h-[62svh] w-full sm:h-auto sm:aspect-[16/9]" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
+        <FeaturedIssueCard
+          issue={primaryIssue}
+          aspectClass="aspect-[4/5]"
+          priority
+        />
+        {secondaryIssue ? (
+          <FeaturedIssueCard
+            issue={secondaryIssue}
+            badgeLabel="Previous Issue"
+            aspectClass="aspect-[4/5]"
+          />
+        ) : null}
       </div>
     </div>
   );

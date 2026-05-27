@@ -1,11 +1,15 @@
 import Image from "next/image";
 
-import { formatIssuePublishedAt } from "@/lib/content/issues";
+import { formatIssuePublishedAt, type IssueContent } from "@/lib/content/issues";
 import { Badge } from "@/components/ui/badge";
 import type { Magazine } from "@/types/api";
 
 interface IssueCoverHeroProps {
-  magazine: Magazine;
+  magazine: Magazine | IssueContent;
+}
+
+function cleanSummary(summary: string) {
+  return summary.replace(/\*/g, "");
 }
 
 export function IssueCoverHero({ magazine }: IssueCoverHeroProps) {
@@ -30,7 +34,7 @@ export function IssueCoverHero({ magazine }: IssueCoverHeroProps) {
             {magazine.title}
           </h1>
           <p className="text-base text-muted-foreground sm:text-lg">
-            {magazine.summary}
+            {cleanSummary(magazine.summary)}
           </p>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-xs uppercase tracking-[0.16em] text-muted-foreground sm:text-sm">

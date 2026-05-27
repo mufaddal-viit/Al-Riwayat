@@ -35,6 +35,7 @@ export function IssueRichContent({
 
   useEffect(() => {
     if (!article) return;
+    if (!article.flipbookUrl.trim()) return;
     const start = readPageFromUrl();
     setPage(start);
     if (start > 1) {
@@ -50,6 +51,7 @@ export function IssueRichContent({
   if (!article) return null;
 
   const resolvedIssuePath = issuePath ?? `/issue/${article.slug}`;
+  const hasFlipbook = article.flipbookUrl.trim().length > 0;
 
   return (
     <section>
@@ -61,17 +63,27 @@ export function IssueRichContent({
                 {article.title}
               </h2>
 
-              <Link
-                href={article.flipbookUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open full screen"
-                title="Open full screen"
-                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/70 bg-background/80 p-2 text-sm font-medium text-foreground transition-colors hover:bg-background sm:px-4 sm:py-2"
-              >
-                <Maximize2 className="h-4 w-4" aria-hidden="true" />
-                <span className="hidden sm:inline">Open Full Screen</span>
-              </Link>
+              {hasFlipbook ? (
+                <Link
+                  href={article.flipbookUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Open full screen"
+                  title="Open full screen"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/70 bg-background/80 p-2 text-sm font-medium text-foreground transition-colors hover:bg-background sm:px-4 sm:py-2"
+                >
+                  <Maximize2 className="h-4 w-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Open Full Screen</span>
+                </Link>
+              ) : (
+                <span
+                  aria-disabled="true"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/70 bg-background/60 p-2 text-sm font-medium text-muted-foreground opacity-70 sm:px-4 sm:py-2"
+                >
+                  <Maximize2 className="h-4 w-4" aria-hidden="true" />
+                  <span className="hidden sm:inline">Open Full Screen</span>
+                </span>
+              )}
             </div>
 
             <div className="mt-3">
@@ -84,17 +96,28 @@ export function IssueRichContent({
             </div>
           </div>
 
-          <div className="relative h-[72svh] min-h-[540px] w-full bg-background sm:h-[78svh] sm:min-h-[720px] lg:h-[860px] xl:h-[940px]">
-            <iframe
-              id={FLIPBOOK_IFRAME_ID}
-              src={article.flipbookUrl}
-              title={`${article.title} flipbook`}
-              className="h-full w-full border-0"
-              loading="lazy"
-              allowFullScreen
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
-            />
-          </div>
+          {hasFlipbook ? (
+            <div className="relative h-[72svh] min-h-[540px] w-full bg-background sm:h-[78svh] sm:min-h-[720px] lg:h-[860px] xl:h-[940px]">
+              <iframe
+                id={FLIPBOOK_IFRAME_ID}
+                src={article.flipbookUrl}
+                title={`${article.title} flipbook`}
+                className="h-full w-full border-0"
+                loading="lazy"
+                allowFullScreen
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+              />
+            </div>
+          ) : (
+            <div className="flex min-h-[280px] w-full items-center justify-center bg-background px-6 py-12 text-center">
+              <div className="max-w-md space-y-2">
+                <p className="font-heading text-2xl">Flipbook coming soon</p>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  The full digital flipbook for this issue has not been added yet.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

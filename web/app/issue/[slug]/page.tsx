@@ -9,6 +9,7 @@ import { getIssueBySlug, listIssueSlugs } from "@/lib/content/issues";
 import { NewsletterPreviewSection } from "@/components/home/newsletter-preview-section";
 import { ArticleStructuredData } from "@/components/issue/article-structured-data";
 import { IssueComingSoon } from "@/components/issue/issue-coming-soon";
+import { IssueCoverHero } from "@/components/issue/issue-cover-hero";
 import { IssueRichContent } from "@/components/issue/issue-rich-content";
 import { IssueShareActions } from "@/components/issue/issue-share-actions";
 
@@ -86,6 +87,7 @@ export default function IssuePage({ params }: { params: { slug: string } }) {
     return (
       <div className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10 lg:py-14">
         <ArticleStructuredData issue={local} />
+        <IssueCoverHero magazine={local} />
         <IssueRichContent issue={local} />
         <IssueShareActions issue={local} />
         <NewsletterPreviewSection />

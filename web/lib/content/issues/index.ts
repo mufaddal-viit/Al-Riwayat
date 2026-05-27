@@ -5,7 +5,7 @@ import { issueTwo } from "./issue-2";
 export type { IssueContent } from "./types";
 export { formatIssuePublishedAt } from "./types";
 
-const issues: IssueContent[] = [issueOne, issueTwo];
+const issues: IssueContent[] = [issueTwo, issueOne];
 
 const issuesBySlug = new Map(issues.map((issue) => [issue.slug, issue]));
 

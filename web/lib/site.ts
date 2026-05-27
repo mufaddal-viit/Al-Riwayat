@@ -16,8 +16,8 @@ export const siteConfig = {
   ogImage: "/images/logo.jpg",
   navItems: [
     { href: "/", label: "Home" },
-    { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
     { href: "/issue/rooh-al-akhlak", label: "Issue 2" },
+    { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
     { href: "/about", label: "Our World" },
     { href: "/contribute", label: "Contribute" },
   ],

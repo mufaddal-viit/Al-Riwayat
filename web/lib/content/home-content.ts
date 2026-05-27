@@ -1,14 +1,14 @@
 import { siteConfig } from "@/lib/site";
 
 export const homeHeroContent = {
-  eyebrow: "Issue 1",
+  eyebrow: "Issue 2",
   title: "A premium digital magazine created for",
   titleHighlight: "Bohra Gen-Z by Bohra Gen-Z.",
   description:
     "It is created to share stories, thoughts, memories, and everything in between. This magazine is about the moments that shape us, the things we relate to, and the voices that deserve to be heard. Whether you’re here to read, reflect, or someday share your own story, we hope you feel a sense of belonging the moment you arrive. Take your time, explore freely, and make yourself at home.",
   primaryCta: {
-    href: "/issue/the-quiet-return-of-intentional-reading",
-    label: "Read Issue 1",
+    href: "/issue/rooh-al-akhlak",
+    label: "Read Issue 2",
   },
   secondaryCta: {
     href: "/about",
@@ -20,7 +20,7 @@ export const homeHeroContent = {
   metrics: [
     { value: "72ch", label: "reading measure" },
     { value: "375+", label: "mobile-first width" },
-    { value: "1 issue", label: "featured focus" },
+    { value: "2 issues", label: "featured focus" },
   ],
 } as const;
 

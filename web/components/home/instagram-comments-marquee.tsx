@@ -12,14 +12,16 @@ interface InstagramCommentsMarqueeProps {
 
 function CommentCard({ comment }: { comment: CommentItem }) {
   const inner = (
-    <div className="relative aspect-[4/3] w-[clamp(220px,76vw,320px)] overflow-hidden rounded-2xl border border-border bg-card">
-      <Image
-        src={comment.src}
-        alt={comment.alt}
-        fill
-        sizes="(min-width: 640px) 320px, 76vw"
-        className="object-cover"
-      />
+    <div className="flex h-[clamp(260px,72vw,360px)] w-[clamp(220px,70vw,320px)] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white p-3 shadow-lifted">
+      <div className="relative h-full w-full">
+        <Image
+          src={comment.src}
+          alt={comment.alt}
+          fill
+          sizes="(min-width: 640px) 320px, 70vw"
+          className="object-contain"
+        />
+      </div>
     </div>
   );
 

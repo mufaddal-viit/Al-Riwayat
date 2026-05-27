@@ -1,7 +1,7 @@
 /**
  * Content for the social proof section on the homepage — split into reels
  * (carousel) and comments (marquee). Swap placeholder paths for real assets
- * under `web/public/social/`.
+ * under `web/public/videos/`.
  */
 
 export type ReelItem = {
@@ -43,7 +43,7 @@ export const socialBentoContent = {
   reels: [
     {
       id: "reel-feature",
-      src: "/social/reel-feature.mp4",
+      src: "/videos/Video.mov",
       poster: reelPoster,
       alt: "Reel highlighting reader reactions to Issue 1.",
       caption: "Issue 1, through your eyes.",
@@ -51,7 +51,7 @@ export const socialBentoContent = {
     },
     {
       id: "reel-2",
-      src: "/social/reel-2.mp4",
+      src: "/videos/Video_1.mov",
       poster: reelPoster,
       alt: "Reel showing a reader flipping through the issue.",
       caption: "Behind the pages.",
@@ -59,15 +59,7 @@ export const socialBentoContent = {
     },
     {
       id: "reel-3",
-      src: "/social/reel-2.mp4",
-      poster: reelPoster,
-      alt: "Reel showing a reader flipping through the issue.",
-      caption: "Behind the pages.",
-      href: "https://instagram.com",
-    },
-    {
-      id: "reel-4",
-      src: "/social/reel-2.mp4",
+      src: "/videos/Video_2.mov",
       poster: reelPoster,
       alt: "Reel showing a reader flipping through the issue.",
       caption: "Behind the pages.",
