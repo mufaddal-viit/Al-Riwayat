@@ -8,7 +8,7 @@ export const issueTwo: IssueContent = {
   publishedAt: "2026-05-29T09:00:00.000Z",
   author: "Editorial Desk",
   slug: slugify(title),
-  flipbookUrl: "https://heyzine.com/flip-book/30f884cf17.html",
+  flipbookUrl: "https://heyzine.com/flip-book/52e0786bc6.html",
   summary:
     "Issue 02 is bringing a whole new vibe - better aesthetics, fun interactive content, exciting topics, and moments you'll genuinely enjoy. This one has a little bit of everything. Trust us, you're not ready for what's coming.",
   coverImageUrl: "/images/issues/issue2.jpeg",
