@@ -38,7 +38,7 @@ export function HomeHeroContent({
       <div className="grid gap-4 sm:grid-cols-2 lg:hidden">
         <FeaturedIssueCard
           issue={primaryIssue}
-          aspectClass="aspect-[4/5]"
+          aspectClass="aspect-[3/4]"
           priority
         />
         {secondaryIssue ? (

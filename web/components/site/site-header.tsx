@@ -13,15 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 import { SiteBrand } from "./site-brand";
 
-const MOBILE_NAV_TOGGLE_ID = "site-mobile-nav-toggle";
-
-function closeMobileNav() {
-  if (typeof document === "undefined") return;
-  const toggle = document.getElementById(
-    MOBILE_NAV_TOGGLE_ID,
-  ) as HTMLInputElement | null;
-  if (toggle) toggle.checked = false;
-}
+const MOBILE_NAV_DIALOG_ID = "site-mobile-nav";
 
 function NavLink({
   href,
@@ -145,15 +137,22 @@ function MobileNav({
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeMobileNav();
+      if (event.key === "Escape") setMobileNavOpen(false);
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [mobileNavOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/30 bg-background/75 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 dark:border-border/20 dark:bg-background/30 dark:supports-[backdrop-filter]:bg-background/20">
@@ -177,50 +176,55 @@ export function SiteHeader() {
         </div>
 
         <div className="relative flex items-center gap-2 md:hidden">
-          <input
-            id={MOBILE_NAV_TOGGLE_ID}
-            type="checkbox"
-            aria-label="Toggle menu"
-            className="peer sr-only"
-          />
-          <label
-            htmlFor={MOBILE_NAV_TOGGLE_ID}
+          <button
+            type="button"
             aria-label="Open menu"
+            aria-controls={MOBILE_NAV_DIALOG_ID}
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen(true)}
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon" }),
               "h-9 w-9 cursor-pointer rounded-full",
             )}
           >
             <Menu className="h-5 w-5" />
-          </label>
+          </button>
 
-          <div className="fixed inset-0 z-[60] hidden peer-checked:block md:hidden">
-            <label
-              htmlFor={MOBILE_NAV_TOGGLE_ID}
-              aria-label="Close menu"
-              className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
-            />
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="mobile-nav-title"
-              className="absolute right-0 top-0 flex h-[70vh] w-[min(85vw,24rem)] flex-col rounded-l-2xl border-l border-border/60 bg-background/90 p-6 shadow-editorial backdrop-blur-2xl sm:h-[500px]"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <h2 id="mobile-nav-title" className="font-bold">
-                  {siteConfig.name}
-                </h2>
-                <label
-                  htmlFor={MOBILE_NAV_TOGGLE_ID}
-                  aria-label="Close menu"
-                  className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <X className="h-5 w-5" />
-                </label>
+          {mobileNavOpen ? (
+            <div className="fixed inset-0 z-[60] md:hidden">
+              <button
+                type="button"
+                aria-label="Close menu"
+                onClick={() => setMobileNavOpen(false)}
+                className="absolute inset-0 bg-foreground/30 backdrop-blur-sm"
+              />
+              <div
+                id={MOBILE_NAV_DIALOG_ID}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-nav-title"
+                className="absolute right-0 top-0 flex h-[70vh] w-[min(85vw,24rem)] flex-col rounded-l-2xl border-l border-border/60 bg-background/90 p-6 shadow-editorial backdrop-blur-2xl sm:h-[500px]"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h2 id="mobile-nav-title" className="font-bold">
+                    {siteConfig.name}
+                  </h2>
+                  <button
+                    type="button"
+                    aria-label="Close menu"
+                    onClick={() => setMobileNavOpen(false)}
+                    className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <MobileNav
+                  pathname={pathname}
+                  onClose={() => setMobileNavOpen(false)}
+                />
               </div>
-              <MobileNav pathname={pathname} onClose={closeMobileNav} />
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </header>

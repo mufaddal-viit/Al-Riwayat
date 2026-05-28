@@ -46,7 +46,7 @@ export const socialBentoContent = {
       src: "/videos/Video.mov",
       poster: reelPoster,
       alt: "Reel highlighting reader reactions to Issue 1.",
-      caption: "Issue 1, through your eyes.",
+      caption: "Know Al Riwayat",
       href: "https://instagram.com",
     },
     {
@@ -62,7 +62,7 @@ export const socialBentoContent = {
       src: "/videos/Video_2.mov",
       poster: reelPoster,
       alt: "Reel showing a reader flipping through the issue.",
-      caption: "Behind the pages.",
+      caption: "Rooh Al Akhlak",
       href: "https://instagram.com",
     },
   ] satisfies ReelItem[],

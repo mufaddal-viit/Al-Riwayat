@@ -15,16 +15,25 @@ function cleanSummary(summary: string) {
 export function IssueCoverHero({ magazine }: IssueCoverHeroProps) {
   return (
     <section className="space-y-6 sm:space-y-8">
-      <div className="relative min-h-[240px] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-editorial sm:min-h-[360px] sm:rounded-[2.5rem] lg:min-h-[480px]">
+      <div className="relative min-h-[360px] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-editorial sm:min-h-[520px] sm:rounded-[2.5rem] lg:min-h-[640px]">
+        <Image
+          src={magazine.coverImageUrl}
+          alt=""
+          fill
+          priority
+          aria-hidden
+          className="scale-105 object-cover opacity-20"
+          sizes="(min-width: 1024px) 1280px, 100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/45 to-background/70" />
         <Image
           src={magazine.coverImageUrl}
           alt={magazine.coverImageAlt}
           fill
           priority
-          className="object-cover"
-          sizes="(min-width: 1024px) 1280px, 100vw"
+          className="object-contain p-4 sm:p-6 lg:p-8"
+          sizes="(min-width: 1024px) 720px, 100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/15 to-transparent" />
       </div>
 
       <div className="mx-auto max-w-[72ch] space-y-4 sm:space-y-5">
