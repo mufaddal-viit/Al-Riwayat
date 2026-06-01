@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { requireAuth } from "../../middleware/requireAuth";
+import { requireRole } from "../../middleware/requireRole";
 import { validate } from "../../middleware/validate";
 import {
   adminMagazineListQuerySchema,
@@ -22,6 +24,8 @@ import {
 } from "./magazine.admin.controller";
 
 const router = Router();
+
+router.use(requireAuth, requireRole("ADMIN"));
 
 router.post(
   "/issues",

@@ -52,6 +52,10 @@ export const ENDPOINTS = {
     delete: (id: string) => `/admin/users/${id}`,
   },
 
+  "admin.dashboard": {
+    get: "/admin/dashboard",
+  },
+
   // ─── Forms ─────────────────────────────────────────────────────────────────
   contact:     { submit:    "/contact" },
   engagement:  { submit:    "/engagement" },

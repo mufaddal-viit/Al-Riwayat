@@ -63,6 +63,7 @@ const envSchema = z.object({
   FIREBASE_PROJECT_ID: optionalString(z.string().min(1)),
   FIREBASE_CLIENT_EMAIL: optionalString(z.string().email()),
   FIREBASE_PRIVATE_KEY: optionalString(z.string().min(1)),
+  ADMIN_DASHBOARD_SHARED_SECRET: optionalString(z.string().min(16)),
 
   // ─── Cloudinary ───────────────────────────────────────────────────────────
   CLOUDINARY_CLOUD_NAME: optionalString(z.string().min(1)),

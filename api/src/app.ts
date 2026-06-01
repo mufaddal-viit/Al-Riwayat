@@ -22,6 +22,7 @@ import { commentsPublicRouter, commentsAdminRouter } from "./modules/comments/co
 import { pageReactionsRouter } from "./modules/page-reactions/page-reactions.routes";
 import adminUsersRoutes from "./modules/users/users.routes";
 import meRoutes from "./modules/users/me.routes";
+import adminDashboardRoutes from "./modules/admin-dashboard/admin-dashboard.routes";
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ app.use("/api/me", meRoutes);
 app.use("/api/admin/magazine", magazineAdminRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/admin/comments", commentsAdminRouter);
+app.use("/api/admin/dashboard", adminDashboardRoutes);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 
