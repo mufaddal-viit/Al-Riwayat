@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   useCallback,
   useEffect,
   useMemo,
@@ -9,10 +10,13 @@ import {
 } from "react";
 import {
   Activity,
+  Braces,
   ChevronDown,
   ChevronRight,
   Database,
+  ExternalLink,
   FileText,
+  ImageIcon,
   LogOut,
   RefreshCcw,
   Search,
@@ -36,6 +40,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -64,6 +74,207 @@ function valueToText(value: AdminJsonValue): string {
     return String(value);
   }
   return JSON.stringify(value, null, 2);
+}
+
+const IMAGE_EXTENSIONS = /\.(png|jpe?g|gif|webp|avif|svg|bmp|ico)(\?.*)?$/i;
+const IMAGE_FORMATS = new Set([
+  "png",
+  "jpg",
+  "jpeg",
+  "gif",
+  "webp",
+  "avif",
+  "svg",
+  "bmp",
+  "ico",
+]);
+
+function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  const exponent = Math.min(
+    units.length - 1,
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+  );
+  const size = bytes / 1024 ** exponent;
+  return `${size.toFixed(size >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`;
+}
+
+function isHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+function isImageUrl(value: string): boolean {
+  if (!isHttpUrl(value)) return false;
+  if (IMAGE_EXTENSIONS.test(value)) return true;
+  // Cloudinary image delivery URLs may omit an extension.
+  return /res\.cloudinary\.com\/.+\/image\/upload\//i.test(value);
+}
+
+function isPlainRecord(
+  value: AdminJsonValue,
+): value is { [key: string]: AdminJsonValue } {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+interface AssetEntry {
+  url: string;
+  label: string;
+  isImage: boolean;
+  meta?: { [key: string]: AdminJsonValue };
+}
+
+function labelFromUrl(url: string): string {
+  const withoutQuery = url.split("?")[0] ?? url;
+  return decodeURIComponent(withoutQuery.split("/").pop() || url);
+}
+
+/**
+ * Build an asset entry from a stored Cloudinary-style object
+ * ({ url, publicId, resourceType, format, bytes }) or null when it isn't one.
+ */
+function assetFromObject(obj: {
+  [key: string]: AdminJsonValue;
+}): AssetEntry | null {
+  const url = obj.url;
+  if (typeof url !== "string" || !isHttpUrl(url)) return null;
+
+  const resourceType =
+    typeof obj.resourceType === "string" ? obj.resourceType : "";
+  const format = typeof obj.format === "string" ? obj.format.toLowerCase() : "";
+  const publicId = typeof obj.publicId === "string" ? obj.publicId : "";
+  const isImage =
+    resourceType === "image" || IMAGE_FORMATS.has(format) || isImageUrl(url);
+  const label = publicId ? labelFromUrl(publicId) : labelFromUrl(url);
+
+  return { url, label, isImage, meta: obj };
+}
+
+function assetFromValue(value: AdminJsonValue): AssetEntry | null {
+  if (typeof value === "string") {
+    return isImageUrl(value)
+      ? { url: value, label: labelFromUrl(value), isImage: true }
+      : null;
+  }
+  if (isPlainRecord(value)) {
+    return assetFromObject(value);
+  }
+  return null;
+}
+
+/**
+ * Detect renderable assets in a Firestore field value: a single image URL, a
+ * stored asset object, or an array made up entirely of either. Returns null so
+ * the caller can fall back to the default text/JSON rendering.
+ */
+function extractAssets(value: AdminJsonValue): AssetEntry[] | null {
+  if (Array.isArray(value)) {
+    if (value.length === 0) return null;
+    const entries = value.map(assetFromValue);
+    if (entries.some((entry) => entry === null)) return null;
+    return entries as AssetEntry[];
+  }
+
+  const entry = assetFromValue(value);
+  return entry ? [entry] : null;
+}
+
+function AssetGallery({ assets }: { assets: AssetEntry[] }) {
+  const [active, setActive] = useState<AssetEntry | null>(null);
+  const images = assets.filter((asset) => asset.isImage);
+  const files = assets.filter((asset) => !asset.isImage);
+
+  return (
+    <div className="space-y-2">
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {images.map((asset) => (
+            <button
+              key={asset.url}
+              type="button"
+              onClick={() => setActive(asset)}
+              title={asset.label}
+              className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted/40 focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              {/* Admin-only preview; plain img avoids per-host next/image config. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={asset.url}
+                alt={asset.label}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform group-hover:scale-105"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {files.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {files.map((asset) => (
+            <a
+              key={asset.url}
+              href={asset.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+            >
+              <FileText className="h-4 w-4 shrink-0" />
+              <span className="break-all">{asset.label}</span>
+              <ExternalLink className="h-3 w-3 shrink-0" />
+            </a>
+          ))}
+        </div>
+      )}
+
+      <Dialog
+        open={Boolean(active)}
+        onOpenChange={(open) => {
+          if (!open) setActive(null);
+        }}
+      >
+        <DialogContent className="max-w-3xl">
+          {active && (
+            <div className="space-y-3">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 break-all text-base">
+                  <ImageIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  {active.label}
+                </DialogTitle>
+              </DialogHeader>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={active.url}
+                alt={active.label}
+                className="max-h-[70vh] w-full rounded-lg object-contain"
+              />
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                {typeof active.meta?.resourceType === "string" && (
+                  <span>Type: {active.meta.resourceType}</span>
+                )}
+                {typeof active.meta?.format === "string" && (
+                  <span>Format: {active.meta.format}</span>
+                )}
+                {typeof active.meta?.bytes === "number" &&
+                  formatBytes(active.meta.bytes) && (
+                    <span>{formatBytes(active.meta.bytes)}</span>
+                  )}
+                <a
+                  href={active.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Open original
+                </a>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
 
 function documentSearchText(collection: AdminFirestoreCollection): string {
@@ -113,6 +324,25 @@ function MetricIcon({ id }: { id: string }) {
 function AdminValue({ value }: { value: AdminJsonValue | undefined }) {
   if (value === undefined || value === null) {
     return <span className="text-muted-foreground">None</span>;
+  }
+
+  const assets = extractAssets(value);
+  if (assets && assets.length > 0) {
+    return <AssetGallery assets={assets} />;
+  }
+
+  if (typeof value === "string" && isHttpUrl(value)) {
+    return (
+      <a
+        href={value}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex max-w-md items-start gap-1 text-sm text-primary hover:underline"
+      >
+        <span className="break-all">{value}</span>
+        <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
+      </a>
+    );
   }
 
   const text = valueToText(value);
@@ -268,6 +498,13 @@ function CollectionSection({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const [rawDocs, setRawDocs] = useState<Record<string, boolean>>({});
+  const columnCount = collection.fields.length + 2;
+
+  function toggleRaw(path: string) {
+    setRawDocs((current) => ({ ...current, [path]: !current[path] }));
+  }
+
   return (
     <Card className="overflow-hidden border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
       <CardHeader className="space-y-4">
@@ -346,27 +583,44 @@ function CollectionSection({
                 </thead>
                 <tbody>
                   {collection.documents.map((document) => (
-                    <tr
-                      key={document.path}
-                      className="border-t border-border/40 align-top"
-                    >
-                      <td className="w-56 px-4 py-4">
-                        <div className="space-y-1">
-                          <p className="break-all font-medium">{document.id}</p>
-                          <p className="break-all text-xs text-muted-foreground">
-                            {document.path}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                        {formatDate(document.primaryDate)}
-                      </td>
-                      {collection.fields.map((field) => (
-                        <td key={field} className="px-4 py-4">
-                          <AdminValue value={document.data[field]} />
+                    <Fragment key={document.path}>
+                      <tr className="border-t border-border/40 align-top">
+                        <td className="w-56 px-4 py-4">
+                          <div className="space-y-1">
+                            <p className="break-all font-medium">{document.id}</p>
+                            <p className="break-all text-xs text-muted-foreground">
+                              {document.path}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => toggleRaw(document.path)}
+                              aria-expanded={Boolean(rawDocs[document.path])}
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                            >
+                              <Braces className="h-3 w-3" />
+                              {rawDocs[document.path] ? "Hide raw" : "Raw JSON"}
+                            </button>
+                          </div>
                         </td>
-                      ))}
-                    </tr>
+                        <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                          {formatDate(document.primaryDate)}
+                        </td>
+                        {collection.fields.map((field) => (
+                          <td key={field} className="px-4 py-4">
+                            <AdminValue value={document.data[field]} />
+                          </td>
+                        ))}
+                      </tr>
+                      {rawDocs[document.path] && (
+                        <tr className="border-t border-border/30 bg-muted/20">
+                          <td colSpan={columnCount} className="px-4 pb-4">
+                            <pre className="max-h-96 overflow-auto rounded-lg bg-background/70 p-3 font-mono text-xs leading-5">
+                              {JSON.stringify(document.data, null, 2)}
+                            </pre>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
