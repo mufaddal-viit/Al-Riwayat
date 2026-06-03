@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronRight,
   Database,
+  Eye,
   ExternalLink,
   FileText,
   ImageIcon,
@@ -321,9 +322,76 @@ function MetricIcon({ id }: { id: string }) {
   return <Database className={className} />;
 }
 
-function AdminValue({ value }: { value: AdminJsonValue | undefined }) {
+const TEXT_PREVIEW_LIMIT = 160;
+
+function LongTextValue({
+  text,
+  label,
+  monospace = false,
+}: {
+  text: string;
+  label: string;
+  monospace?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const preview = `${text.slice(0, TEXT_PREVIEW_LIMIT).trimEnd()}…`;
+
+  return (
+    <div className="max-w-md space-y-1.5">
+      <p
+        className={`whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground ${
+          monospace ? "font-mono text-xs" : ""
+        }`}
+      >
+        {preview}
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-muted"
+      >
+        <Eye className="h-3 w-3" />
+        Click to view
+      </button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">{label}</DialogTitle>
+          </DialogHeader>
+          <div
+            className={`max-h-[70vh] overflow-auto whitespace-pre-wrap break-words rounded-lg bg-muted/30 p-4 text-sm leading-7 ${
+              monospace ? "font-mono text-xs leading-6" : ""
+            }`}
+          >
+            {text}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function AdminValue({
+  value,
+  label = "Value",
+}: {
+  value: AdminJsonValue | undefined;
+  label?: string;
+}) {
   if (value === undefined || value === null) {
     return <span className="text-muted-foreground">None</span>;
+  }
+
+  if (Array.isArray(value) && value.length === 0) {
+    return <span className="text-muted-foreground">Empty</span>;
+  }
+
+  if (
+    isPlainRecord(value) &&
+    Object.keys(value).length === 0
+  ) {
+    return <span className="text-muted-foreground">Empty</span>;
   }
 
   const assets = extractAssets(value);
@@ -345,10 +413,24 @@ function AdminValue({ value }: { value: AdminJsonValue | undefined }) {
     );
   }
 
+  if (typeof value === "string") {
+    if (value.length > TEXT_PREVIEW_LIMIT) {
+      return <LongTextValue text={value} label={label} />;
+    }
+    return (
+      <span className="block max-w-md whitespace-pre-wrap break-words text-sm leading-6">
+        {value}
+      </span>
+    );
+  }
+
   const text = valueToText(value);
   const isStructured = typeof value === "object";
 
   if (isStructured) {
+    if (text.length > TEXT_PREVIEW_LIMIT) {
+      return <LongTextValue text={text} label={label} monospace />;
+    }
     return (
       <code className="block max-w-md whitespace-pre-wrap break-words rounded-lg bg-muted/50 px-2 py-1 font-mono text-xs leading-5">
         {text}
@@ -607,7 +689,10 @@ function CollectionSection({
                         </td>
                         {collection.fields.map((field) => (
                           <td key={field} className="px-4 py-4">
-                            <AdminValue value={document.data[field]} />
+                            <AdminValue
+                              value={document.data[field]}
+                              label={field}
+                            />
                           </td>
                         ))}
                       </tr>
