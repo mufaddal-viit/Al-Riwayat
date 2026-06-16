@@ -115,3 +115,27 @@ export type MagazineResponse       = ApiResponse<Magazine>;
 export type MagazineSearchResponse = PaginatedResponse<Magazine>;
 
 export type CreateMagazineInput = Omit<Magazine, "id" | "status" | "createdAt" | "updatedAt">;
+
+// ─── Contributions ──────────────────────────────────────────────────────────
+
+export type ContributionCategory = "Story" | "Poetry" | "Reflection" | "Art";
+
+/** A published reader submission showcased on /contributions. */
+export interface Contribution {
+  id: string;
+  slug: string;
+  title: string;
+  author: string;
+  category: ContributionCategory;
+  publishedAt: string;
+  /** Short preview shown on cards. */
+  excerpt: string;
+  /** Full piece — plain text / lightweight markdown, rendered paragraph-wise. */
+  body: string;
+  coverImageUrl?: string;
+  coverImageAlt?: string;
+  featured?: boolean;
+}
+
+export type ContributionListResponse = ApiResponse<Contribution[]>;
+export type ContributionResponse     = ApiResponse<Contribution>;
