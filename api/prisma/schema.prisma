@@ -23,6 +23,23 @@ model Magazine {
   createdAt     DateTime @default(now())
 }
 
+model Contribution {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  slug          String   @unique
+  author        String
+  category      String
+  publishedAt   DateTime
+  excerpt       String
+  body          String
+  coverImageUrl String?
+  coverImageAlt String?
+  featured      Boolean  @default(false)
+  status        String   @default("draft")
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
 model ContactSubmission {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String

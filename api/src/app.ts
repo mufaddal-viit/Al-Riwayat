@@ -13,6 +13,7 @@ import {
 // ─── Route imports ────────────────────────────────────────────────────────────
 import authRoutes from "./modules/auth/auth.routes";
 import contactRoutes from "./modules/contact/contact.routes";
+import contributionsRoutes from "./modules/contributions/contributions.routes";
 import engagementRoutes from "./modules/engagement/engagement.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
@@ -65,6 +66,7 @@ app.use("/api/auth", authRoutes);
 // ─── Feature routes ───────────────────────────────────────────────────────────
 
 app.use("/api/contact", contactRoutes);
+app.use("/api/contributions", contributionsRoutes);
 app.use("/api/engagement", engagementRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/submissions", submissionsRoutes);

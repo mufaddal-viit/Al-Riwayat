@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
 import { issue1MagazineSeed } from "../src/modules/magazine/magazine.seed";
+import { contributionSeeds } from "../src/modules/contributions/contributions.seed";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,29 @@ async function main() {
   });
 
   console.log("✓ Magazine Issue 1 seeded.");
+
+  // ─── Contributions ─────────────────────────────────────────────────────────
+
+  for (const contribution of contributionSeeds) {
+    await prisma.contribution.upsert({
+      where: { slug: contribution.slug },
+      update: {
+        title: contribution.title,
+        author: contribution.author,
+        category: contribution.category,
+        publishedAt: contribution.publishedAt,
+        excerpt: contribution.excerpt,
+        body: contribution.body,
+        coverImageUrl: contribution.coverImageUrl,
+        coverImageAlt: contribution.coverImageAlt,
+        featured: contribution.featured,
+        status: contribution.status,
+      },
+      create: contribution,
+    });
+  }
+
+  console.log(`✓ ${contributionSeeds.length} contributions seeded.`);
 
   // ─── Default Admin User ────────────────────────────────────────────────────
   //
