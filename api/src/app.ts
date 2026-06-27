@@ -14,6 +14,7 @@ import {
 import authRoutes from "./modules/auth/auth.routes";
 import contactRoutes from "./modules/contact/contact.routes";
 import contributionsRoutes from "./modules/contributions/contributions.routes";
+import contributionsAdminRoutes from "./modules/contributions/contributions.admin.routes";
 import engagementRoutes from "./modules/engagement/engagement.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
@@ -78,6 +79,7 @@ app.use("/api/me", meRoutes);
 // ─── Admin routes (ADMIN role required — enforced inside each router) ─────────
 
 app.use("/api/admin/magazine", magazineAdminRoutes);
+app.use("/api/admin/contributions", contributionsAdminRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/admin/comments", commentsAdminRouter);
 

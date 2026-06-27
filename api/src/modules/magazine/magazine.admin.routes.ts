@@ -1,6 +1,8 @@
 import { Router } from "express";
 
 import { validate } from "../../middleware/validate";
+import { requireAuth } from "../../middleware/requireAuth";
+import { requireRole } from "../../middleware/requireRole";
 import {
   adminMagazineListQuerySchema,
   createMagazineSchema,
@@ -22,6 +24,9 @@ import {
 } from "./magazine.admin.controller";
 
 const router = Router();
+
+// All admin magazine routes require a valid access token AND the ADMIN role.
+router.use(requireAuth, requireRole("ADMIN"));
 
 router.post(
   "/issues",

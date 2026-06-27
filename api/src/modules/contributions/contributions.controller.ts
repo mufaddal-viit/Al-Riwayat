@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 
-import type { ContributionIdParams } from "./contributions.schema";
+import type { ContributionSlugParams } from "./contributions.schema";
 import {
   findPublishedContributionBySlug,
   listPublishedContributions,
@@ -26,7 +26,7 @@ export async function listContributions(_req: Request, res: Response) {
 }
 
 export async function getContribution(
-  req: Request<ContributionIdParams>,
+  req: Request<ContributionSlugParams>,
   res: Response,
 ) {
   try {

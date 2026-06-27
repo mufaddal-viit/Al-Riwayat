@@ -1,72 +1,46 @@
-import { Prisma } from "@prisma/client";
+import * as repo from "./contributions.repo.firestore";
+import type {
+  PublishContributionInput,
+  UpdateContributionInput,
+} from "./contributions.schema";
+import type { ContributionStatus } from "./contributions.types";
 
-import { env } from "../../lib/env";
-import { prisma } from "../../lib/prisma";
-import * as mockRepo from "./contributions.repo.mock";
+// ─── Public reads ─────────────────────────────────────────────────────────────
 
-const useMockBackend = () => env.DATA_BACKEND !== "prisma";
-
-const publicContributionSelect = {
-  id: true,
-  title: true,
-  slug: true,
-  author: true,
-  category: true,
-  publishedAt: true,
-  excerpt: true,
-  body: true,
-  coverImageUrl: true,
-  coverImageAlt: true,
-  featured: true,
-} satisfies Prisma.ContributionSelect;
-
-type PublicContributionRecord = Prisma.ContributionGetPayload<{
-  select: typeof publicContributionSelect;
-}>;
-
-function serializePublicContribution(contribution: PublicContributionRecord) {
-  return {
-    id: contribution.id,
-    title: contribution.title,
-    slug: contribution.slug,
-    author: contribution.author,
-    category: contribution.category,
-    publishedAt: contribution.publishedAt.toISOString(),
-    excerpt: contribution.excerpt,
-    body: contribution.body,
-    coverImageUrl: contribution.coverImageUrl ?? undefined,
-    coverImageAlt: contribution.coverImageAlt ?? undefined,
-    featured: contribution.featured,
-  };
+export function listPublishedContributions() {
+  return repo.listPublishedContributions();
 }
 
-export async function listPublishedContributions() {
-  if (useMockBackend()) {
-    return mockRepo.listPublishedContributions();
-  }
-
-  const contributions = await prisma.contribution.findMany({
-    where: { status: "published" },
-    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-    select: publicContributionSelect,
-  });
-
-  return contributions.map(serializePublicContribution);
+export function findPublishedContributionBySlug(slug: string) {
+  return repo.findPublishedContributionBySlug(slug);
 }
 
-export async function findPublishedContributionBySlug(slug: string) {
-  if (useMockBackend()) {
-    return mockRepo.findPublishedContributionBySlug(slug);
-  }
+// ─── Admin ────────────────────────────────────────────────────────────────────
 
-  const contribution = await prisma.contribution.findFirst({
-    where: { AND: [{ slug }, { status: "published" }] },
-    select: publicContributionSelect,
-  });
+export function listAdminContributions(status?: ContributionStatus) {
+  return repo.listAdminContributions(status);
+}
 
-  if (!contribution) {
-    return null;
-  }
+export function findAdminContributionById(id: string) {
+  return repo.findAdminContributionById(id);
+}
 
-  return serializePublicContribution(contribution);
+export function updateContribution(id: string, input: UpdateContributionInput) {
+  return repo.updateContribution(id, input);
+}
+
+export function publishContribution(id: string, input: PublishContributionInput) {
+  return repo.publishContribution(id, input);
+}
+
+export function unpublishContribution(id: string) {
+  return repo.unpublishContribution(id);
+}
+
+export function rejectContribution(id: string) {
+  return repo.rejectContribution(id);
+}
+
+export function deleteContribution(id: string) {
+  return repo.deleteContribution(id);
 }

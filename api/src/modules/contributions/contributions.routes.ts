@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { validate } from "../../middleware/validate";
-import { contributionIdParamsSchema } from "./contributions.schema";
+import { contributionSlugParamsSchema } from "./contributions.schema";
 import {
   getContribution,
   listContributions,
@@ -30,7 +30,7 @@ router.get(
        type: 'string'
      }
   */
-  validate(contributionIdParamsSchema, "params"),
+  validate(contributionSlugParamsSchema, "params"),
   getContribution,
 );
 
