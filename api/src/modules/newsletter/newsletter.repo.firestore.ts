@@ -24,6 +24,8 @@ export async function createNewsletterSubscription(
 
   await docRef.set({
     email: input.email,
+    // Soft-unsubscribe flag managed from the admin dashboard.
+    isActive: true,
     createdAt: FieldValue.serverTimestamp(),
   });
 }

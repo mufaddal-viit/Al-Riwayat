@@ -16,6 +16,8 @@ export async function createContactSubmission(input: CreateContactRepoInput) {
     name: input.name,
     email: input.email,
     message: input.message,
+    // Moderation lifecycle for the admin inbox: new → read → archived.
+    status: "new",
     createdAt: FieldValue.serverTimestamp(),
   });
 }
