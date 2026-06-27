@@ -29,6 +29,12 @@ export const ENDPOINTS = {
     },
   },
 
+  // ─── Contributions (public) ───────────────────────────────────────────────
+  contributions: {
+    list:   "/contributions",
+    byId:   (slug: string) => `/contributions/${slug}`,
+  },
+
   // ─── Magazine Admin ────────────────────────────────────────────────────────
   "magazine.admin": {
     issues: {

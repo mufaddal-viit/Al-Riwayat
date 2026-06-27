@@ -25,6 +25,7 @@ import {
 
 const router = Router();
 
+// All admin magazine routes require a valid access token AND the ADMIN role.
 router.use(requireAuth, requireRole("ADMIN"));
 
 router.post(

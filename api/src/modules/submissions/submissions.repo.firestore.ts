@@ -33,6 +33,10 @@ export async function createSubmission(input: CreateSubmissionRepoInput) {
     content: input.content,
     anonymous: input.anonymous,
     assets: input.assets,
+    // Moderation lifecycle: every new visitor submission enters the review
+    // queue as "pending" until an admin publishes or rejects it. See the
+    // contributions module for the admin-facing moderation + publish flow.
+    status: "pending",
     createdAt: FieldValue.serverTimestamp(),
   });
   return { id: ref.id };
