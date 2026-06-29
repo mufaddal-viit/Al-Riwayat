@@ -9,6 +9,11 @@ const engagementSuccessResponse = {
 } as const;
 
 export async function createEngagementSubmission(input: EngagementInput) {
+  // Bot-filled honeypot → return the same generic success without storing.
+  if (input.honeypot.trim().length > 0) {
+    return engagementSuccessResponse;
+  }
+
   if (env.DATA_BACKEND !== "firestore") {
     throw new AppError(
       "Engagement submissions require DATA_BACKEND=firestore.",

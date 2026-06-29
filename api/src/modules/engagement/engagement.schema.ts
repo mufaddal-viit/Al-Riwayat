@@ -6,6 +6,8 @@ export const engagementSchema = z.object({
   age: z.coerce.number().int().min(13).max(120),
   occupation: z.string().trim().min(1, "Occupation is required.").max(120),
   subscribeToEmails: z.boolean().default(false),
+  // Bot trap: a hidden field real users never fill. Filled → silently dropped.
+  honeypot: z.string().max(200).optional().default(""),
 });
 
 export type EngagementInput = z.infer<typeof engagementSchema>;

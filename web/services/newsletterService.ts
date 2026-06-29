@@ -4,9 +4,11 @@ import type { NewsletterResponse } from "@/types/api";
 
 export async function subscribeToNewsletter(
   email: string,
+  honeypot = "",
 ): Promise<NewsletterResponse> {
   const { data } = await apiClient.post(ENDPOINTS.newsletter.subscribe, {
     email,
+    honeypot,
   });
   return data;
 }

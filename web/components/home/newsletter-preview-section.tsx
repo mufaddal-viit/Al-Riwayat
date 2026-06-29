@@ -15,6 +15,7 @@ const fieldLabel =
 
 export function NewsletterPreviewSection() {
   const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [isJoined, setIsJoined] = useState(false);
@@ -36,7 +37,7 @@ export function NewsletterPreviewSection() {
       try {
         setMessage(null);
         setIsError(false);
-        await subscribeToNewsletter(trimmedEmail);
+        await subscribeToNewsletter(trimmedEmail, honeypot);
         setIsJoined(true);
         setEmail("");
       } catch (error: unknown) {
@@ -94,6 +95,17 @@ export function NewsletterPreviewSection() {
         {/* RIGHT — form */}
         <div className="flex h-full w-full items-center justify-center">
           <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5">
+            {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
+            <input
+              type="text"
+              name="company"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={honeypot}
+              onChange={(event) => setHoneypot(event.target.value)}
+              className="absolute left-[-9999px] h-0 w-0 opacity-0"
+            />
             <div className="space-y-2">
               <label htmlFor="newsletter-email" className={fieldLabel}>
                 Email address

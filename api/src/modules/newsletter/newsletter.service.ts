@@ -13,7 +13,12 @@ const newsletterSuccessResponse = {
 } as const;
 
 export async function createNewsletterSubscription(input: NewsletterInput) {
-  const { email } = input;
+  const { email, honeypot } = input;
+
+  // Bot-filled honeypot → return the same generic success without storing.
+  if (honeypot.trim().length > 0) {
+    return newsletterSuccessResponse;
+  }
 
   if (useFirestoreBackend()) {
     await firestoreRepo.createNewsletterSubscription({ email });

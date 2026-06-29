@@ -29,6 +29,7 @@ interface FormValues {
   age: string;
   occupation: string;
   subscribe: boolean;
+  honeypot: string;
 }
 
 const empty: FormValues = {
@@ -37,6 +38,7 @@ const empty: FormValues = {
   age: "",
   occupation: "",
   subscribe: true,
+  honeypot: "",
 };
 
 export function EngagementModal() {
@@ -107,6 +109,7 @@ export function EngagementModal() {
         age: Number(form.age),
         occupation: form.occupation.trim(),
         subscribeToEmails: form.subscribe,
+        honeypot: form.honeypot,
       });
       setReaderIdentity({ name: trimmedName, email: trimmedEmail });
       setFormState("success");
@@ -134,6 +137,20 @@ export function EngagementModal() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
+            {/* Honeypot — hidden from real users; bots that fill it are dropped. */}
+            <input
+              type="text"
+              name="company"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={form.honeypot}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, honeypot: e.target.value }))
+              }
+              className="absolute left-[-9999px] h-0 w-0 opacity-0"
+            />
+
             {/* Decorative top strip */}
             <div className="h-1.5 w-full bg-gradient-to-r from-foreground/20 via-foreground/60 to-foreground/20" />
 

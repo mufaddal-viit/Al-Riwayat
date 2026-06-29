@@ -7,6 +7,8 @@ export interface EngagementInput {
   age: number;
   occupation: string;
   subscribeToEmails: boolean;
+  /** Honeypot — left empty by real users; bots that fill it are dropped. */
+  honeypot?: string;
 }
 
 export interface EngagementResponse {

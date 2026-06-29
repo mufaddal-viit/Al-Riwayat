@@ -184,16 +184,20 @@ export async function findPublishedContributionBySlug(
   slug: string,
 ): Promise<PublicContribution | null> {
   const db = getAdminDb();
+  // Query by slug alone (unique, single-field auto-indexed) and check the
+  // status in code. This avoids requiring a composite (status + slug) index,
+  // which Firestore would otherwise demand on first call in production.
   const snap = await db
     .collection(COLLECTION)
-    .where("status", "==", "published")
     .where("slug", "==", slug)
     .limit(1)
     .get();
 
   if (snap.empty) return null;
   const doc = snap.docs[0]!;
-  return toPublic(doc.id, doc.data() as StoredSubmission);
+  const data = doc.data() as StoredSubmission;
+  if (data.status !== "published") return null;
+  return toPublic(doc.id, data);
 }
 
 // ─── Admin reads ──────────────────────────────────────────────────────────────

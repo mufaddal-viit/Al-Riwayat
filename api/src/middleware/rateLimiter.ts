@@ -34,6 +34,13 @@ export const newsletterRateLimiter = createLimiter(
   "newsletter subscription",
 );
 
+/** Engagement form — 5 submissions per IP per 15 minutes */
+export const engagementRateLimiter = createLimiter(
+  15 * 60 * 1000,
+  5,
+  "engagement",
+);
+
 /**
  * Comment submission — 10 per IP per 15 minutes.
  * Loose enough for genuine readers; tight enough to deter spam bots.
