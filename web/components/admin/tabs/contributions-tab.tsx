@@ -1,13 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Clock, FileText, Inbox, RefreshCcw, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  Eye,
+  FileText,
+  Inbox,
+  Pencil,
+  RefreshCcw,
+  RotateCcw,
+  XCircle,
+} from "lucide-react";
 
 import {
   listAdminContributions,
   publishContribution,
   rejectContribution,
   unpublishContribution,
+  updateContribution,
   type AdminContribution,
   type ModerationStatus,
 } from "@/services/adminContributionsService";
@@ -27,7 +38,7 @@ import { StatusDonutChart } from "../charts/status-donut-chart";
 import { CategoryBarChart } from "../charts/category-bar-chart";
 import { TrendAreaChart } from "../charts/trend-area-chart";
 import { CATEGORICAL, STATUS_COLORS } from "../charts/palette";
-import { ReviewDialog } from "../review-dialog";
+import { ReviewDialog, type ReviewMode } from "../review-dialog";
 
 const STATUS_TABS: { key: ModerationStatus; label: string; icon: typeof Clock }[] = [
   { key: "pending", label: "Pending", icon: Clock },
@@ -49,7 +60,13 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<AdminContribution | null>(null);
+  const [dialogMode, setDialogMode] = useState<ReviewMode>("publish");
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  function openDialog(item: AdminContribution, mode: ReviewMode) {
+    setDialogMode(mode);
+    setActive(item);
+  }
 
   // ── Analytics derived from the dashboard snapshot ──
   const submissionDocs = docs(data, "submissions");
@@ -100,35 +117,36 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
     void load(statusFilter);
   }, [load, statusFilter]);
 
-  const handlePublished = useCallback(() => {
+  const handleSaved = useCallback(() => {
     setActive(null);
-    // Refresh the current list so the row leaves the pending queue.
+    // Refresh so the row reflects its new status / edits.
     void load(statusFilter);
   }, [load, statusFilter]);
 
-  async function handleReject(item: AdminContribution) {
+  async function runAction(
+    item: AdminContribution,
+    fn: (id: string) => Promise<unknown>,
+    failMessage: string,
+  ) {
     setBusyId(item.id);
+    setError(null);
     try {
-      await rejectContribution(item.id);
+      await fn(item.id);
       void load(statusFilter);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not reject.");
+      setError(err instanceof Error ? err.message : failMessage);
     } finally {
       setBusyId(null);
     }
   }
 
-  async function handleUnpublish(item: AdminContribution) {
-    setBusyId(item.id);
-    try {
-      await unpublishContribution(item.id);
-      void load(statusFilter);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not unpublish.");
-    } finally {
-      setBusyId(null);
-    }
-  }
+  const handleReject = (item: AdminContribution) =>
+    runAction(item, rejectContribution, "Could not reject.");
+  const handleUnpublish = (item: AdminContribution) =>
+    runAction(item, unpublishContribution, "Could not unpublish.");
+  // Rejected → back into the pending queue (unpublish sets status = pending).
+  const handleReconsider = (item: AdminContribution) =>
+    runAction(item, unpublishContribution, "Could not move back to pending.");
 
   return (
     <div className="space-y-6">
@@ -268,13 +286,27 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
                     </p>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    {/* View full — always available */}
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openDialog(item, "view")}
+                      disabled={busyId === item.id}
+                      className="gap-1.5"
+                      aria-label="View full contribution"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      View
+                    </Button>
+
                     {statusFilter === "pending" && (
                       <>
                         <Button
                           type="button"
                           size="sm"
-                          onClick={() => setActive(item)}
+                          onClick={() => openDialog(item, "publish")}
                           disabled={busyId === item.id}
                           className="gap-1.5"
                         >
@@ -294,26 +326,43 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
                         </Button>
                       </>
                     )}
+
                     {statusFilter === "published" && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleUnpublish(item)}
-                        disabled={busyId === item.id}
-                      >
-                        Unpublish
-                      </Button>
+                      <>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openDialog(item, "edit")}
+                          disabled={busyId === item.id}
+                          className="gap-1.5"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleUnpublish(item)}
+                          disabled={busyId === item.id}
+                        >
+                          Unpublish
+                        </Button>
+                      </>
                     )}
+
                     {statusFilter === "rejected" && (
                       <Button
                         type="button"
                         size="sm"
                         variant="outline"
-                        onClick={() => setActive(item)}
+                        onClick={() => handleReconsider(item)}
                         disabled={busyId === item.id}
+                        className="gap-1.5"
                       >
-                        Reconsider
+                        <RotateCcw className="h-3.5 w-3.5" />
+                        Move to pending
                       </Button>
                     )}
                   </div>
@@ -326,9 +375,11 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
 
       <ReviewDialog
         contribution={active}
+        mode={dialogMode}
         onClose={() => setActive(null)}
-        onPublished={handlePublished}
+        onSaved={handleSaved}
         publish={publishContribution}
+        update={updateContribution}
       />
     </div>
   );

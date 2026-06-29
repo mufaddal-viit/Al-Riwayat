@@ -67,6 +67,19 @@ export async function publishContribution(
   return parse<AdminContribution>(response);
 }
 
+/** Edit display fields of an existing (e.g. already-published) contribution. */
+export async function updateContribution(
+  id: string,
+  payload: Partial<PublishPayload>,
+): Promise<AdminContribution> {
+  const response = await fetch(`/api/admin/contributions/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return parse<AdminContribution>(response);
+}
+
 export async function rejectContribution(
   id: string,
 ): Promise<AdminContribution> {

@@ -228,21 +228,21 @@ export function attentionItems(data: AdminDashboardData | null): AttentionItem[]
       label: "Comments awaiting moderation",
       count: commentStatus.PENDING ?? 0,
       tone: "warning",
-      tab: "engagement",
+      tab: "comments",
     },
     {
       id: "spam-comments",
       label: "Comments flagged as spam",
       count: commentStatus.SPAM ?? 0,
       tone: "danger",
-      tab: "engagement",
+      tab: "comments",
     },
     {
       id: "contact-messages",
       label: "Contact messages",
       count: total(data, "contacts"),
       tone: "info",
-      tab: "audience",
+      tab: "contacts",
     },
   ];
 

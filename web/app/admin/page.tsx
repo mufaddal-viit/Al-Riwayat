@@ -5,11 +5,13 @@ import {
   BarChart3,
   Database,
   FileText,
+  Inbox,
   LogOut,
+  Mail,
+  MessageSquare,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
-  Users,
 } from "lucide-react";
 
 import { getAdminDashboard } from "@/services/adminDashboardService";
@@ -20,8 +22,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLogin } from "@/components/admin/admin-login";
 import { OverviewTab } from "@/components/admin/tabs/overview-tab";
 import { ContributionsTab } from "@/components/admin/tabs/contributions-tab";
+import { CommentsTab } from "@/components/admin/tabs/comments-tab";
 import { EngagementTab } from "@/components/admin/tabs/engagement-tab";
-import { AudienceTab } from "@/components/admin/tabs/audience-tab";
+import { ContactsTab } from "@/components/admin/tabs/contacts-tab";
+import { NewsletterTab } from "@/components/admin/tabs/newsletter-tab";
 import { DataTab } from "@/components/admin/tabs/data-tab";
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
@@ -37,8 +41,10 @@ function formatDate(value: string): string {
 const TABS = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "contributions", label: "Contributions", icon: FileText },
+  { key: "comments", label: "Comments", icon: MessageSquare },
   { key: "engagement", label: "Engagement", icon: Sparkles },
-  { key: "audience", label: "Audience", icon: Users },
+  { key: "contacts", label: "Contacts", icon: Inbox },
+  { key: "newsletter", label: "Newsletter", icon: Mail },
   { key: "data", label: "Data", icon: Database },
 ] as const;
 
@@ -203,11 +209,17 @@ export default function AdminPage() {
           <TabsContent value="contributions">
             <ContributionsTab data={dashboard} />
           </TabsContent>
+          <TabsContent value="comments">
+            <CommentsTab data={dashboard} />
+          </TabsContent>
           <TabsContent value="engagement">
             <EngagementTab data={dashboard} />
           </TabsContent>
-          <TabsContent value="audience">
-            <AudienceTab data={dashboard} />
+          <TabsContent value="contacts">
+            <ContactsTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="newsletter">
+            <NewsletterTab data={dashboard} />
           </TabsContent>
           <TabsContent value="data">
             <DataTab data={dashboard} />

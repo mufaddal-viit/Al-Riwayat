@@ -44,9 +44,8 @@ export const RESOURCES: Record<string, ResourceConfig> = {
     statusActions: [
       { action: "read", field: "status", value: "read" },
       { action: "unread", field: "status", value: "new" },
-      { action: "archive", field: "status", value: "archived" },
     ],
-    allowDelete: true,
+    allowDelete: false,
   },
   newsletter: {
     collection: "newsletter",
@@ -64,7 +63,7 @@ export const RESOURCES: Record<string, ResourceConfig> = {
   engagement: {
     collection: "engagement_submissions",
     statusActions: [],
-    allowDelete: true,
+    allowDelete: false,
   },
 };
 

@@ -33,23 +33,43 @@ const SUBMISSION_TYPE_TO_CATEGORY: Record<string, ContributionCategory> = {
   ART: "Art",
 };
 
+export type ReviewMode = "publish" | "edit" | "view";
+
 interface ReviewDialogProps {
   contribution: AdminContribution | null;
+  mode: ReviewMode;
   onClose: () => void;
-  onPublished: () => void;
+  onSaved: () => void;
   publish: (id: string, payload: PublishPayload) => Promise<AdminContribution>;
+  update: (
+    id: string,
+    payload: Partial<PublishPayload>,
+  ) => Promise<AdminContribution>;
 }
 
+const MODE_COPY: Record<ReviewMode, { title: string; cta: string }> = {
+  publish: { title: "Review & publish", cta: "Publish to live page" },
+  edit: { title: "Edit contribution", cta: "Save changes" },
+  view: { title: "View contribution", cta: "" },
+};
+
 /**
- * Admin review + publish flow: set a title, lightly edit the body, choose a
- * category, mark featured — the original visitor content is never destroyed.
+ * Admin review flow: set a title, lightly edit the body, choose a category,
+ * mark featured — the original visitor content is never destroyed.
+ *
+ * - publish: validates a title and sets status → published.
+ * - edit:    saves display-field edits to an existing contribution.
+ * - view:    read-only display of the stored content.
  */
 export function ReviewDialog({
   contribution,
+  mode,
   onClose,
-  onPublished,
+  onSaved,
   publish,
+  update,
 }: ReviewDialogProps) {
+  const readOnly = mode === "view";
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<ContributionCategory>("Story");
   const [body, setBody] = useState("");
@@ -78,7 +98,7 @@ export function ReviewDialog({
   }, [contribution]);
 
   async function handleSubmit() {
-    if (!contribution) return;
+    if (!contribution || readOnly) return;
     if (title.trim().length < 3) {
       setError("Please provide a title (at least 3 characters).");
       return;
@@ -95,10 +115,20 @@ export function ReviewDialog({
       const trimmedExcerpt = excerpt.trim();
       if (trimmedExcerpt.length >= 20) payload.excerpt = trimmedExcerpt;
 
-      await publish(contribution.id, payload);
-      onPublished();
+      if (mode === "publish") {
+        await publish(contribution.id, payload);
+      } else {
+        await update(contribution.id, payload);
+      }
+      onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not publish.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : mode === "publish"
+            ? "Could not publish."
+            : "Could not save changes.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -114,7 +144,7 @@ export function ReviewDialog({
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading text-xl">
-            Review &amp; publish
+            {MODE_COPY[mode].title}
           </DialogTitle>
         </DialogHeader>
 
@@ -136,7 +166,7 @@ export function ReviewDialog({
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="Give this piece a title"
-                disabled={submitting}
+                disabled={submitting || readOnly}
               />
             </div>
 
@@ -148,7 +178,7 @@ export function ReviewDialog({
                     key={option}
                     type="button"
                     onClick={() => setCategory(option)}
-                    disabled={submitting}
+                    disabled={submitting || readOnly}
                     className={cn(
                       "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
                       category === option
@@ -174,7 +204,7 @@ export function ReviewDialog({
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
                 className="min-h-[200px]"
-                disabled={submitting}
+                disabled={submitting || readOnly}
               />
             </div>
 
@@ -191,7 +221,7 @@ export function ReviewDialog({
                 onChange={(event) => setExcerpt(event.target.value)}
                 className="min-h-[80px]"
                 placeholder="A short preview shown on the contributions grid"
-                disabled={submitting}
+                disabled={submitting || readOnly}
               />
             </div>
 
@@ -200,7 +230,7 @@ export function ReviewDialog({
                 type="checkbox"
                 checked={featured}
                 onChange={(event) => setFeatured(event.target.checked)}
-                disabled={submitting}
+                disabled={submitting || readOnly}
                 className="h-4 w-4 rounded border-border accent-[color:var(--primary)]"
               />
               Feature this contribution on the page
@@ -222,17 +252,19 @@ export function ReviewDialog({
                 onClick={onClose}
                 disabled={submitting}
               >
-                Cancel
+                {readOnly ? "Close" : "Cancel"}
               </Button>
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="gap-1.5"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                {submitting ? "Publishing..." : "Publish to live page"}
-              </Button>
+              {!readOnly && (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="gap-1.5"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {submitting ? "Saving..." : MODE_COPY[mode].cta}
+                </Button>
+              )}
             </div>
           </div>
         )}
