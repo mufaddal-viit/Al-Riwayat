@@ -55,7 +55,7 @@ const MODE_COPY: Record<ReviewMode, { title: string; cta: string }> = {
 
 /**
  * Admin review flow: set a title, lightly edit the body, choose a category,
- * mark featured — the original visitor content is never destroyed.
+ * choose a category — the original visitor content is never destroyed.
  *
  * - publish: validates a title and sets status → published.
  * - edit:    saves display-field edits to an existing contribution.
@@ -74,7 +74,6 @@ export function ReviewDialog({
   const [category, setCategory] = useState<ContributionCategory>("Story");
   const [body, setBody] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [featured, setFeatured] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +92,6 @@ export function ReviewDialog({
     );
     setBody(contribution.body || contribution.originalContent || "");
     setExcerpt(contribution.excerpt ?? "");
-    setFeatured(contribution.featured ?? false);
     setError(null);
   }, [contribution]);
 
@@ -110,7 +108,6 @@ export function ReviewDialog({
         title: title.trim(),
         category,
         editedContent: body.trim(),
-        featured,
       };
       const trimmedExcerpt = excerpt.trim();
       if (trimmedExcerpt.length >= 20) payload.excerpt = trimmedExcerpt;
@@ -153,7 +150,7 @@ export function ReviewDialog({
             <p className="text-xs text-muted-foreground">
               Submitted by{" "}
               <span className="font-medium text-foreground">
-                {contribution.anonymous ? "Anonymous" : contribution.author}
+                {contribution.author}
               </span>{" "}
               ({contribution.authorEmail}) · original type{" "}
               {contribution.submissionType}
@@ -224,17 +221,6 @@ export function ReviewDialog({
                 disabled={submitting || readOnly}
               />
             </div>
-
-            <label className="flex items-center gap-2.5 text-sm">
-              <input
-                type="checkbox"
-                checked={featured}
-                onChange={(event) => setFeatured(event.target.checked)}
-                disabled={submitting || readOnly}
-                className="h-4 w-4 rounded border-border accent-[color:var(--primary)]"
-              />
-              Feature this contribution on the page
-            </label>
 
             {error && (
               <p

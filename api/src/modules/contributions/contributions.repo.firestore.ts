@@ -105,7 +105,8 @@ function deriveCategory(data: StoredSubmission): ContributionCategory {
 }
 
 function deriveAuthor(data: StoredSubmission): string {
-  return data.anonymous ? "Anonymous" : data.name;
+  // Contributions are always credited by name (no anonymous publishing).
+  return data.name?.trim() || "Unknown";
 }
 
 function deriveBody(data: StoredSubmission): string {

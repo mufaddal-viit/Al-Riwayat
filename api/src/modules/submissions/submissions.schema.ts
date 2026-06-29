@@ -42,7 +42,9 @@ export const submissionSchema = z.object({
     .trim()
     .min(1, "Your submission cannot be empty.")
     .max(20000, "Submission is too long."),
-  anonymous: booleanString,
+  // Contributions are always credited by name; kept optional for backward
+  // compatibility with older clients but no longer surfaced anywhere.
+  anonymous: booleanString.optional().default(false),
   honeypot: z.string().max(200).optional().default(""),
 });
 

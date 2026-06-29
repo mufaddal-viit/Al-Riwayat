@@ -9,7 +9,6 @@ import { contributeCTA, contributeIntro } from "@/lib/content/contribute";
 import { submitContribution } from "@/services/submissionService";
 
 type SubmissionType = "POEM" | "STORY" | "ART";
-type AnonymousChoice = "YES" | "NO";
 type FormState = "idle" | "submitting" | "success" | "error";
 
 interface FormValues {
@@ -18,7 +17,6 @@ interface FormValues {
   email: string;
   submissionType: SubmissionType | "";
   content: string;
-  anonymous: AnonymousChoice | "";
   files: File[];
 }
 
@@ -28,7 +26,6 @@ const empty: FormValues = {
   email: "",
   submissionType: "",
   content: "",
-  anonymous: "",
   files: [],
 };
 
@@ -69,7 +66,6 @@ export function ContributeCTA() {
       e.email = "Enter a valid email.";
     if (!form.submissionType) e.submissionType = "Select a type.";
     if (!form.content.trim()) e.content = "Your submission cannot be empty.";
-    if (!form.anonymous) e.anonymous = "Please select an option.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -99,7 +95,6 @@ export function ContributeCTA() {
           ""
         >,
         content: form.content.trim(),
-        anonymous: form.anonymous === "YES",
         files: form.files,
       });
       setFormState("success");
@@ -391,38 +386,6 @@ export function ContributeCTA() {
                       </li>
                     ))}
                   </ul>
-                )}
-              </div>
-
-              {/* Anonymous */}
-              <div className="space-y-3">
-                <p className={fieldLabel}>Keep submission anonymous? *</p>
-                <div className="flex flex-wrap gap-2">
-                  {(["YES", "NO"] as AnonymousChoice[]).map((choice) => {
-                    const active = form.anonymous === choice;
-                    return (
-                      <button
-                        key={choice}
-                        type="button"
-                        onClick={() =>
-                          setForm((f) => ({ ...f, anonymous: choice }))
-                        }
-                        disabled={formState === "submitting"}
-                        aria-pressed={active}
-                        className={cn(
-                          pillButton,
-                          active
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-transparent text-muted-foreground hover:border-foreground/40 hover:text-foreground",
-                        )}
-                      >
-                        {choice}
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.anonymous && (
-                  <p className="text-xs text-destructive">{errors.anonymous}</p>
                 )}
               </div>
 

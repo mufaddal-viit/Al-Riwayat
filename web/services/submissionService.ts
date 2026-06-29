@@ -9,7 +9,6 @@ export interface SubmissionPayload {
   email: string;
   submissionType: SubmissionType;
   content: string;
-  anonymous: boolean;
   files: File[];
 }
 
@@ -27,7 +26,6 @@ export async function submitContribution(
   formData.append("email", payload.email);
   formData.append("submissionType", payload.submissionType);
   formData.append("content", payload.content);
-  formData.append("anonymous", String(payload.anonymous));
   for (const file of payload.files) {
     formData.append("files", file);
   }

@@ -24,8 +24,6 @@ import {
 } from "@/services/adminContributionsService";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 import {
-  countByField,
-  countByFieldWithDefault,
   docs,
   toSlices,
   weeklyTimeline,
@@ -57,7 +55,7 @@ function formatDate(value: string): string {
 export function ContributionsTab({ data }: { data: AdminDashboardData }) {
   const [range, setRange] = useState<RangeKey>("12w");
   const [statusFilter, setStatusFilter] = useState<ModerationStatus>("pending");
-  const [items, setItems] = useState<AdminContribution[]>([]);
+  const [allItems, setAllItems] = useState<AdminContribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<AdminContribution | null>(null);
@@ -69,46 +67,14 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
     setActive(item);
   }
 
-  // ── Analytics derived from the dashboard snapshot ──
-  // Legacy submissions created before the `status` field existed count as
-  // "pending" (mirrors the backend), so the queue counts match reality.
-  const submissionDocs = docs(data, "submissions");
-  const statusCounts = countByFieldWithDefault(submissionDocs, "status", "pending");
-  const categoryCounts = countByField(submissionDocs, "category");
-  const typeCounts = countByField(submissionDocs, "submissionType");
-
-  const statusSlices = toSlices(
-    {
-      pending: statusCounts.pending ?? 0,
-      published: statusCounts.published ?? 0,
-      rejected: statusCounts.rejected ?? 0,
-    },
-  );
-
-  // Category prefers admin-set category; falls back to raw submissionType.
-  const categorySlices = useMemo(() => {
-    if (Object.keys(categoryCounts).length > 0) return toSlices(categoryCounts);
-    return toSlices(typeCounts, {
-      STORY: "Story",
-      POEM: "Poetry",
-      ART: "Art",
-    });
-  }, [categoryCounts, typeCounts]);
-
-  const trend = useMemo(
-    () => weeklyTimeline([{ key: "submissions", documents: submissionDocs }], range),
-    [submissionDocs, range],
-  );
-
-  const totalSubmissions = submissionDocs.length;
-
-  // ── Live moderation list ──
-  const load = useCallback(async (status: ModerationStatus) => {
+  // ── Live moderation list — load ALL once, derive counts + filtered views ──
+  // from it so badges and rows stay consistent and update after every action
+  // (the dashboard snapshot is fetched once and would otherwise go stale).
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await listAdminContributions(status);
-      setItems(result);
+      setAllItems(await listAdminContributions());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load contributions.");
     } finally {
@@ -117,14 +83,50 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
   }, []);
 
   useEffect(() => {
-    void load(statusFilter);
-  }, [load, statusFilter]);
+    void load();
+  }, [load]);
+
+  // Live counts from the loaded items (not the cached snapshot).
+  const statusCounts = useMemo(() => {
+    return allItems.reduce<Record<string, number>>((acc, item) => {
+      acc[item.status] = (acc[item.status] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [allItems]);
+
+  const items = useMemo(
+    () => allItems.filter((item) => item.status === statusFilter),
+    [allItems, statusFilter],
+  );
+
+  const totalSubmissions = allItems.length;
+
+  const statusSlices = toSlices({
+    pending: statusCounts.pending ?? 0,
+    published: statusCounts.published ?? 0,
+    rejected: statusCounts.rejected ?? 0,
+  });
+
+  // Category breakdown from live items.
+  const categorySlices = useMemo(() => {
+    const counts = allItems.reduce<Record<string, number>>((acc, item) => {
+      acc[item.category] = (acc[item.category] ?? 0) + 1;
+      return acc;
+    }, {});
+    return toSlices(counts);
+  }, [allItems]);
+
+  // Time trend still uses the dashboard snapshot (it has the createdAt dates).
+  const submissionDocs = docs(data, "submissions");
+  const trend = useMemo(
+    () => weeklyTimeline([{ key: "submissions", documents: submissionDocs }], range),
+    [submissionDocs, range],
+  );
 
   const handleSaved = useCallback(() => {
     setActive(null);
-    // Refresh so the row reflects its new status / edits.
-    void load(statusFilter);
-  }, [load, statusFilter]);
+    void load();
+  }, [load]);
 
   async function runAction(
     item: AdminContribution,
@@ -135,7 +137,7 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
     setError(null);
     try {
       await fn(item.id);
-      void load(statusFilter);
+      void load();
     } catch (err) {
       setError(err instanceof Error ? err.message : failMessage);
     } finally {
@@ -230,7 +232,7 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => load(statusFilter)}
+                onClick={() => load()}
                 disabled={loading}
                 className="gap-1.5"
               >
@@ -284,8 +286,7 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
                       {item.originalContent || item.body}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.anonymous ? "Anonymous" : item.author} ·{" "}
-                      {formatDate(item.createdAt)}
+                      {item.author} · {formatDate(item.createdAt)}
                     </p>
                   </div>
 

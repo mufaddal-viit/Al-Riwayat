@@ -19,10 +19,12 @@ type ContributionsGridProps = {
 function FilterChips({
   categories,
   active,
+  counts,
   onSelect,
 }: {
   categories: ContributionCategory[];
   active: Filter;
+  counts: Record<string, number>;
   onSelect: (filter: Filter) => void;
 }) {
   const options: Filter[] = ["All", ...categories];
@@ -43,13 +45,21 @@ function FilterChips({
             aria-selected={isActive}
             onClick={() => onSelect(option)}
             className={cn(
-              "rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               isActive
                 ? "border-foreground bg-foreground text-background"
                 : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
             )}
           >
             {option}
+            <span
+              className={cn(
+                "tabular-nums",
+                isActive ? "text-background/70" : "text-muted-foreground/60",
+              )}
+            >
+              {counts[option] ?? 0}
+            </span>
           </button>
         );
       })}
@@ -68,32 +78,28 @@ export function ContributionsGrid({
     [contributions],
   );
 
-  // First contribution flagged featured (or the newest) becomes the hero card.
-  const featured = useMemo(
-    () => contributions.find((c) => c.featured) ?? contributions[0],
-    [contributions],
-  );
-
-  const rest = useMemo(
-    () => contributions.filter((c) => c !== featured),
-    [contributions, featured],
-  );
+  const counts = useMemo(() => {
+    const result: Record<string, number> = { All: contributions.length };
+    for (const c of contributions) {
+      result[c.category] = (result[c.category] ?? 0) + 1;
+    }
+    return result;
+  }, [contributions]);
 
   const visible = useMemo(
     () =>
-      active === "All" ? rest : rest.filter((c) => c.category === active),
-    [rest, active],
+      active === "All"
+        ? contributions
+        : contributions.filter((c) => c.category === active),
+    [contributions, active],
   );
 
   if (loading) {
     return (
-      <div className="space-y-10">
-        <Skeleton className="aspect-[3/4] w-full rounded-2xl sm:aspect-[16/9]" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[4/5] w-full rounded-2xl" />
-          ))}
-        </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-80 w-full rounded-2xl" />
+        ))}
       </div>
     );
   }
@@ -109,13 +115,14 @@ export function ContributionsGrid({
   }
 
   return (
-    <div className="space-y-12">
-      {featured ? (
-        <ContributionCard contribution={featured} featured />
-      ) : null}
-
+    <div className="space-y-8">
       {categories.length > 1 ? (
-        <FilterChips categories={categories} active={active} onSelect={setActive} />
+        <FilterChips
+          categories={categories}
+          active={active}
+          counts={counts}
+          onSelect={setActive}
+        />
       ) : null}
 
       {visible.length > 0 ? (
