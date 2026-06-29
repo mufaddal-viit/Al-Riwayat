@@ -25,6 +25,7 @@ import {
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 import {
   countByField,
+  countByFieldWithDefault,
   docs,
   toSlices,
   weeklyTimeline,
@@ -69,8 +70,10 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
   }
 
   // ── Analytics derived from the dashboard snapshot ──
+  // Legacy submissions created before the `status` field existed count as
+  // "pending" (mirrors the backend), so the queue counts match reality.
   const submissionDocs = docs(data, "submissions");
-  const statusCounts = countByField(submissionDocs, "status");
+  const statusCounts = countByFieldWithDefault(submissionDocs, "status", "pending");
   const categoryCounts = countByField(submissionDocs, "category");
   const typeCounts = countByField(submissionDocs, "submissionType");
 

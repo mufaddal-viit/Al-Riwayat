@@ -15,6 +15,7 @@ import type { AdminDashboardData } from "@/types/admin-dashboard";
 import {
   attentionItems,
   countByField,
+  countByFieldWithDefault,
   docs,
   sparkSeries,
   total,
@@ -48,7 +49,11 @@ export function OverviewTab({
   const userDocs = docs(data, "users");
   const newsletterDocs = docs(data, "newsletter");
 
-  const submissionStatus = countByField(submissionDocs, "status");
+  const submissionStatus = countByFieldWithDefault(
+    submissionDocs,
+    "status",
+    "pending",
+  );
   const commentStatus = countByField(commentDocs, "status");
 
   const timeline = useMemo(

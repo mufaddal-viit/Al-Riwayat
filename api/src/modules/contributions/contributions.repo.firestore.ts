@@ -206,14 +206,16 @@ export async function listAdminContributions(
   status?: ContributionStatus,
 ): Promise<AdminContribution[]> {
   const db = getAdminDb();
-  let query: FirebaseFirestore.Query = db.collection(COLLECTION);
-  if (status) {
-    query = query.where("status", "==", status);
-  }
-  const snap = await query.get();
+  // Fetch all and filter in code rather than `where("status","==",...)`.
+  // A Firestore equality filter skips documents that LACK the field, so
+  // legacy submissions created before the `status` field existed would never
+  // appear in the "pending" queue. toAdmin() defaults a missing status to
+  // "pending", so filtering on the serialized value surfaces them correctly.
+  const snap = await db.collection(COLLECTION).get();
 
   return snap.docs
     .map((d) => toAdmin(d.id, d.data() as StoredSubmission))
+    .filter((item) => !status || item.status === status)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 

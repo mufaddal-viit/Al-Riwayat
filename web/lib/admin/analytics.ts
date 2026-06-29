@@ -63,6 +63,24 @@ export function countByField(
   }, {});
 }
 
+/**
+ * Like countByField, but documents missing the field (or with an empty value)
+ * are bucketed under `fallback`. Used for submission `status`, where legacy
+ * documents created before the field existed should count as "pending".
+ */
+export function countByFieldWithDefault(
+  documents: AdminFirestoreDocument[],
+  field: string,
+  fallback: string,
+): Record<string, number> {
+  return documents.reduce<Record<string, number>>((acc, document) => {
+    const value = asString(document.data[field]);
+    const key = value && value.length > 0 ? value : fallback;
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {});
+}
+
 /** Sum the lengths of an array-valued field across documents. */
 export function sumArrayField(
   documents: AdminFirestoreDocument[],
@@ -212,7 +230,12 @@ export interface AttentionItem {
 }
 
 export function attentionItems(data: AdminDashboardData | null): AttentionItem[] {
-  const submissionStatus = countByField(docs(data, "submissions"), "status");
+  // Legacy submissions without a status field count as pending (see repo).
+  const submissionStatus = countByFieldWithDefault(
+    docs(data, "submissions"),
+    "status",
+    "pending",
+  );
   const commentStatus = countByField(docs(data, "comments"), "status");
 
   const items: AttentionItem[] = [
