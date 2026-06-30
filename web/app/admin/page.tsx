@@ -9,6 +9,7 @@ import {
   LogOut,
   Mail,
   MessageSquare,
+  Newspaper,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
@@ -22,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLogin } from "@/components/admin/admin-login";
 import { OverviewTab } from "@/components/admin/tabs/overview-tab";
 import { ContributionsTab } from "@/components/admin/tabs/contributions-tab";
+import { WeeklyTab } from "@/components/admin/tabs/weekly-tab";
 import { CommentsTab } from "@/components/admin/tabs/comments-tab";
 import { EngagementTab } from "@/components/admin/tabs/engagement-tab";
 import { ContactsTab } from "@/components/admin/tabs/contacts-tab";
@@ -41,6 +43,7 @@ function formatDate(value: string): string {
 const TABS = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "contributions", label: "Contributions", icon: FileText },
+  { key: "weekly", label: "Weekly Riwayat", icon: Newspaper },
   { key: "comments", label: "Comments", icon: MessageSquare },
   { key: "engagement", label: "Engagement", icon: Sparkles },
   { key: "contacts", label: "Contacts", icon: Inbox },
@@ -208,6 +211,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="contributions">
             <ContributionsTab data={dashboard} />
+          </TabsContent>
+          <TabsContent value="weekly">
+            <WeeklyTab />
           </TabsContent>
           <TabsContent value="comments">
             <CommentsTab data={dashboard} />

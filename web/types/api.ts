@@ -139,3 +139,24 @@ export interface Contribution {
 
 export type ContributionListResponse = ApiResponse<Contribution[]>;
 export type ContributionResponse     = ApiResponse<Contribution>;
+
+// ─── Weekly Riwayat ─────────────────────────────────────────────────────────
+
+/** A short, admin-authored weekly article published on /weekly-riwayat. */
+export interface WeeklyArticle {
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  author: string;
+  excerpt: string;
+  /** Full body — Markdown. */
+  body: string;
+  readingTime: number;
+  weekOf: string | null;
+  tags: string[];
+  publishedAt: string | null;
+}
+
+export type WeeklyListResponse = ApiResponse<WeeklyArticle[]>;
+export type WeeklyResponse     = ApiResponse<WeeklyArticle>;

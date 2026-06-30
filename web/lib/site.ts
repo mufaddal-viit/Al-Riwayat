@@ -19,6 +19,7 @@ export const siteConfig = {
     { href: "/issue/rooh-al-akhlak", label: "Issue 2" },
     { href: "/issue/the-quiet-return-of-intentional-reading", label: "Issue 1" },
     { href: "/about", label: "Our World" },
+    { href: "/weekly-riwayat", label: "Weekly Riwayat" },
     { href: "/contributions", label: "Contributions" },
     { href: "/contribute", label: "Contribute" },
   ],

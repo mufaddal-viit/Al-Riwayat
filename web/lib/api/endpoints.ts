@@ -35,6 +35,12 @@ export const ENDPOINTS = {
     byId:   (slug: string) => `/contributions/${slug}`,
   },
 
+  // ─── Weekly Riwayat (public) ──────────────────────────────────────────────
+  weekly: {
+    list: "/weekly",
+    byId: (slug: string) => `/weekly/${slug}`,
+  },
+
   // ─── Magazine Admin ────────────────────────────────────────────────────────
   "magazine.admin": {
     issues: {
