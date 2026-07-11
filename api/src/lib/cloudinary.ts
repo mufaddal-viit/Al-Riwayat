@@ -39,7 +39,15 @@ export interface UploadedAsset {
 
 export async function uploadBufferToCloudinary(
   buffer: Buffer,
-  options: { folder: string; filename?: string },
+  options: {
+    folder: string;
+    filename?: string;
+    /**
+     * Constrain the asset kind. Defaults to "auto"; pass "image" to reject
+     * anything Cloudinary would otherwise ingest as raw/video/pdf.
+     */
+    resourceType?: "auto" | "image";
+  },
 ): Promise<UploadedAsset> {
   ensureConfigured();
 
@@ -47,7 +55,7 @@ export async function uploadBufferToCloudinary(
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: options.folder,
-        resource_type: "auto",
+        resource_type: options.resourceType ?? "auto",
         use_filename: Boolean(options.filename),
         unique_filename: true,
         filename_override: options.filename,

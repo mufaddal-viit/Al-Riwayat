@@ -7,7 +7,8 @@ import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContributionShareActions } from "@/components/contributions/contribution-share-actions";
-import { MarkdownContent } from "@/components/weekly/markdown-content";
+import { WeeklyBody } from "@/components/weekly/blocks/weekly-body";
+import { weeklyCopy } from "@/lib/content/weekly";
 import { useWeeklyArticle, useWeeklyArticles } from "@/hooks/useWeekly";
 import type { WeeklyArticle } from "@/types/api";
 
@@ -69,14 +70,12 @@ function ArticleSkeleton() {
 function NotFound() {
   return (
     <div className="container flex min-h-[50vh] flex-col items-center justify-center gap-4 py-20 text-center">
-      <h1 className="font-heading text-4xl">Article not found</h1>
-      <p className="text-muted-foreground">
-        This weekly read does not exist or has been removed.
-      </p>
+      <h1 className="font-heading text-4xl">{weeklyCopy.notFoundTitle}</h1>
+      <p className="text-muted-foreground">{weeklyCopy.notFoundBody}</p>
       <Button asChild variant="outline" className="mt-2">
         <Link href="/weekly-riwayat">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Weekly Riwayat
+          Back to {weeklyCopy.articleEyebrow}
         </Link>
       </Button>
     </div>
@@ -157,13 +156,13 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
           className="mx-auto flex max-w-[68ch] items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Weekly Riwayat
+          {weeklyCopy.articleEyebrow}
         </Link>
 
         {/* Header */}
         <header className="mx-auto max-w-[68ch] space-y-5 text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
-            Weekly Riwayat
+            {weeklyCopy.articleEyebrow}
           </p>
           <h1 className="balanced-wrap font-heading text-4xl leading-[1.08] sm:text-5xl">
             {article.title}
@@ -192,9 +191,7 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
         <div aria-hidden className="mx-auto h-px max-w-[68ch] bg-border" />
 
         {/* Body */}
-        <div className="mx-auto max-w-[68ch]">
-          <MarkdownContent dropCap>{article.body}</MarkdownContent>
-        </div>
+        <WeeklyBody body={article.body} />
 
         {/* Tags */}
         {article.tags.length > 0 && (

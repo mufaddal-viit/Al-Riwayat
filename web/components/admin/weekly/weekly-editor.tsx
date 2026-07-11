@@ -13,7 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MarkdownEditor } from "./markdown-editor";
+import {
+  hasContent,
+  MAX_BODY_CHARS,
+  parseBody,
+  serializeBody,
+  type Block,
+} from "@/lib/weekly/blocks";
+import { BlockListEditor } from "./editor/block-list-editor";
 
 interface WeeklyEditorProps {
   /** Existing article to edit, or null to create a new one. */
@@ -33,7 +40,7 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
   const [subtitle, setSubtitle] = useState("");
   const [author, setAuthor] = useState("Editorial Desk");
   const [excerpt, setExcerpt] = useState("");
-  const [body, setBody] = useState("");
+  const [blocks, setBlocks] = useState<Block[]>(() => parseBody("").blocks);
   const [readingTime, setReadingTime] = useState("3");
   const [weekOf, setWeekOf] = useState("");
   const [tagsInput, setTagsInput] = useState("");
@@ -46,7 +53,7 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
       setSubtitle(article.subtitle);
       setAuthor(article.author);
       setExcerpt(article.excerpt);
-      setBody(article.body);
+      setBlocks(parseBody(article.body).blocks);
       setReadingTime(String(article.readingTime));
       setWeekOf(isoToDateInput(article.weekOf));
       setTagsInput(article.tags.join(", "));
@@ -57,10 +64,19 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
     setError(null);
     if (title.trim().length < 3) return setError("Title must be at least 3 characters.");
     if (excerpt.trim().length < 20) return setError("Excerpt must be at least 20 characters.");
-    if (body.trim().length < 20) return setError("Body must be at least 20 characters.");
+    if (!hasContent(blocks)) {
+      return setError("Add some content — at least one block with text or an image.");
+    }
     const minutes = Number(readingTime);
     if (!Number.isInteger(minutes) || minutes < 1) {
       return setError("Reading time must be a whole number of minutes.");
+    }
+
+    const body = serializeBody(blocks);
+    if (body.length > MAX_BODY_CHARS) {
+      return setError(
+        "This article is too large to save. Try shortening the text or using fewer blocks.",
+      );
     }
 
     const payload: WeeklyPayload = {
@@ -68,7 +84,7 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
       subtitle: subtitle.trim(),
       author: author.trim() || "Editorial Desk",
       excerpt: excerpt.trim(),
-      body: body.trim(),
+      body,
       readingTime: minutes,
       tags: tagsInput
         .split(",")
@@ -172,8 +188,12 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="w-body">Body</Label>
-            <MarkdownEditor id="w-body" value={body} onChange={setBody} disabled={saving} />
+            <Label>Body</Label>
+            <p className="text-xs text-muted-foreground">
+              Build the article from blocks. Add text, columns, and up to three
+              photos, and reorder them however you like.
+            </p>
+            <BlockListEditor blocks={blocks} onChange={setBlocks} disabled={saving} />
           </div>
         </div>
 

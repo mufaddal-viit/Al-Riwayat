@@ -6,6 +6,7 @@ import { ArrowRight, Clock } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { weeklyCopy, weeklyIntro } from "@/lib/content/weekly";
 import { useWeeklyArticles } from "@/hooks/useWeekly";
 import type { WeeklyArticle } from "@/types/api";
 
@@ -120,14 +121,13 @@ export function WeeklyIndexClient() {
       <header className="space-y-5">
         <p className="flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
           <span aria-hidden className="h-px w-7 bg-primary" />
-          Weekly Riwayat
+          {weeklyIntro.eyebrow}
         </p>
         <h1 className="balanced-wrap max-w-3xl font-heading text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
-          A short read, every week.
+          {weeklyIntro.title}
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Brief reflections, ideas, and stories from the editorial desk — meant
-          to be read slowly, one each week.
+          {weeklyIntro.description}
         </p>
       </header>
 
@@ -161,9 +161,7 @@ export function WeeklyIndexClient() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border py-20 text-center">
-          <p className="text-muted-foreground">
-            No weekly reads published yet. Check back soon.
-          </p>
+          <p className="text-muted-foreground">{weeklyCopy.emptyState}</p>
         </div>
       ) : (
         <div className="space-y-14">

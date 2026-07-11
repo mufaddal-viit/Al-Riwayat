@@ -59,6 +59,17 @@ export const submissionRateLimiter = createLimiter(
 );
 
 /**
+ * Weekly editor image uploads — 40 per IP per 15 minutes.
+ * Comfortable for an editor placing up to 3 photos across several drafts,
+ * tight enough that a compromised admin session cannot hammer Cloudinary.
+ */
+export const weeklyUploadRateLimiter = createLimiter(
+  15 * 60 * 1000,
+  40,
+  "image upload",
+);
+
+/**
  * Page reactions — 120 writes per IP per 15 minutes.
  * Generous: a reader flipping reactions across many pages is normal;
  * this only exists to blunt scripted abuse.

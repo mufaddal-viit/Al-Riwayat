@@ -19,6 +19,7 @@ import contributionsDashboardRoutes from "./modules/contributions/contributions.
 import adminCollectionsRoutes from "./modules/admin-collections/admin-collections.routes";
 import weeklyRoutes from "./modules/weekly/weekly.routes";
 import weeklyDashboardRoutes from "./modules/weekly/weekly.dashboard.routes";
+import weeklyUploadRoutes from "./modules/weekly/weekly.upload.routes";
 import engagementRoutes from "./modules/engagement/engagement.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
@@ -91,6 +92,7 @@ app.use("/api/admin/comments", commentsAdminRouter);
 app.use("/api/admin/dashboard", adminDashboardRoutes);
 app.use("/api/admin/dashboard/contributions", contributionsDashboardRoutes);
 app.use("/api/admin/dashboard/collections", adminCollectionsRoutes);
+app.use("/api/admin/dashboard/weekly-upload", weeklyUploadRoutes);
 app.use("/api/admin/dashboard/weekly", weeklyDashboardRoutes);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
