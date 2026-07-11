@@ -32,7 +32,15 @@
       "Bash(cp public/images/logo.jpg app/opengraph-image.jpg)",
       "Bash(cp public/images/logo.jpg app/twitter-image.jpg)",
       "Bash(echo \"EXIT=$?\")",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(npm run *)",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(echo \"WEB_EXIT=$?\")",
+      "Bash(echo \"API_EXIT=$?\")",
+      "Bash(git restore *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)",
+      "Bash(git commit --amend -m ' *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Universal\\Documents\\mufaddal\\Z_OTHER\\Al-Riwayat"
