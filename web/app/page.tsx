@@ -19,11 +19,9 @@ export default function HomePage() {
   return (
     <>
       <HomeHero />
-      <div className="container space-y-8 py-10 pb-16 lg:space-y-12">
+      <div className="container space-y-20 py-16 pb-24 lg:space-y-28 lg:py-20">
         <SocialBentoSection />
-        <div className="sm:block">
-          <ReaderEngagementSection />
-        </div>
+        <ReaderEngagementSection />
         <NewsletterPreviewSection />
       </div>
     </>

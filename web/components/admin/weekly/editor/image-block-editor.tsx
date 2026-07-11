@@ -34,6 +34,7 @@ export function ImageBlockEditor({ block, onChange, disabled }: Props) {
     <div className="space-y-4">
       <ImageUploadField
         src={block.src}
+        pending={block.pending}
         alt={block.alt}
         caption={block.caption}
         onChange={(patch) => onChange({ ...block, ...patch })}

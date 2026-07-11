@@ -37,6 +37,7 @@ export function ImageTextBlockEditor({ block, onChange, disabled }: Props) {
 
       <ImageUploadField
         src={block.src}
+        pending={block.pending}
         alt={block.alt}
         caption={block.caption}
         onChange={(patch) => onChange({ ...block, ...patch })}

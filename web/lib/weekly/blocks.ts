@@ -41,6 +41,17 @@ export interface ColumnsBlock {
   cols: string[];
 }
 
+/**
+ * A photo the admin picked but has not saved yet. Held only in editor state —
+ * the actual upload to Cloudinary is deferred until the article is saved, so
+ * cancelling an edit never leaves an orphaned asset. Never serialized.
+ */
+export interface PendingImage {
+  file: File;
+  /** Object URL for local preview; the editor revokes it when replaced. */
+  previewUrl: string;
+}
+
 export interface ImageBlock {
   type: "image";
   src: string;
@@ -48,6 +59,8 @@ export interface ImageBlock {
   caption: string;
   width: ImageWidth;
   align: ImageAlign;
+  /** Editor-only; present when a not-yet-uploaded file is staged. */
+  pending?: PendingImage;
 }
 
 export interface ImageTextBlock {
@@ -57,6 +70,8 @@ export interface ImageTextBlock {
   caption: string;
   text: string;
   imageSide: ImageSide;
+  /** Editor-only; present when a not-yet-uploaded file is staged. */
+  pending?: PendingImage;
 }
 
 export type Block = RichTextBlock | ColumnsBlock | ImageBlock | ImageTextBlock;
@@ -221,15 +236,69 @@ export function parseBody(body: string | null | undefined): WeeklyDoc {
   return { version: WEEKLY_DOC_VERSION, blocks: [emptyRichText(text)] };
 }
 
-/** Serialize blocks back into the `body` string for storage. */
+/** Drop editor-only transient fields so a block is safe to persist. */
+function stripTransient(block: Block): Block {
+  if (block.type === "image" || block.type === "imageText") {
+    const { pending: _pending, ...rest } = block;
+    return rest;
+  }
+  return block;
+}
+
+/**
+ * Serialize blocks into the stored `body` string. Transient fields (staged,
+ * not-yet-uploaded files) are stripped — callers must resolve pending uploads
+ * with `resolvePendingUploads` before serializing.
+ */
 export function serializeBody(blocks: Block[]): string {
-  const doc: WeeklyDoc = { version: WEEKLY_DOC_VERSION, blocks };
+  const doc: WeeklyDoc = {
+    version: WEEKLY_DOC_VERSION,
+    blocks: blocks.map(stripTransient),
+  };
   return JSON.stringify(doc);
 }
 
 /** Count photo-bearing blocks (for the editor's article-wide cap). */
 export function countPhotos(blocks: Block[]): number {
   return blocks.filter((b) => PHOTO_BLOCK_TYPES.has(b.type)).length;
+}
+
+/** True when the block holds a saved image or a staged (pending) one. */
+export function blockHasImage(block: ImageBlock | ImageTextBlock): boolean {
+  return Boolean(block.pending) || isAllowedImageSrc(block.src);
+}
+
+/** True when any block has a staged file awaiting upload. */
+export function hasPendingUploads(blocks: Block[]): boolean {
+  return blocks.some(
+    (b) => (b.type === "image" || b.type === "imageText") && Boolean(b.pending),
+  );
+}
+
+/**
+ * Upload every staged file, returning blocks whose `src` now points at the
+ * uploaded Cloudinary URL and whose `pending` field is cleared. Preview object
+ * URLs are revoked. Throws if any upload fails, so the caller can abort the
+ * save without persisting half-uploaded state.
+ */
+export async function resolvePendingUploads(
+  blocks: Block[],
+  upload: (file: File) => Promise<{ url: string }>,
+): Promise<Block[]> {
+  return Promise.all(
+    blocks.map(async (block) => {
+      if (
+        (block.type === "image" || block.type === "imageText") &&
+        block.pending
+      ) {
+        const { url } = await upload(block.pending.file);
+        URL.revokeObjectURL(block.pending.previewUrl);
+        const { pending: _pending, ...rest } = block;
+        return { ...rest, src: url } as Block;
+      }
+      return block;
+    }),
+  );
 }
 
 /** True when the document has at least one block with real content. */
@@ -241,9 +310,9 @@ export function hasContent(blocks: Block[]): boolean {
       case "columns":
         return b.cols.some((c) => c.trim().length > 0);
       case "image":
-        return isAllowedImageSrc(b.src);
+        return blockHasImage(b);
       case "imageText":
-        return isAllowedImageSrc(b.src) || b.text.trim().length > 0;
+        return blockHasImage(b) || b.text.trim().length > 0;
       default:
         return false;
     }

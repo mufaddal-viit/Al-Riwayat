@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 
 const linkClass =
-  "h-10 justify-start bg-transparent px-3 text-xs shadow-none sm:h-11 sm:px-4 sm:text-sm";
+  "h-11 justify-start bg-transparent px-3 text-xs shadow-none sm:px-4 sm:text-sm";
 
 export function ContributionShareActions({ title }: { title: string }) {
   const shareText = `Read "${title}" on Al-Riwayat`;

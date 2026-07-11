@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Save, X } from "lucide-react";
 
 import {
@@ -17,9 +17,11 @@ import {
   hasContent,
   MAX_BODY_CHARS,
   parseBody,
+  resolvePendingUploads,
   serializeBody,
   type Block,
 } from "@/lib/weekly/blocks";
+import { uploadWeeklyImage } from "@/services/weeklyUploadService";
 import { BlockListEditor } from "./editor/block-list-editor";
 
 interface WeeklyEditorProps {
@@ -47,6 +49,20 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Revoke any staged image preview URLs when the editor unmounts (e.g. Cancel /
+  // Back), so leaving without saving frees the object URLs.
+  const blocksRef = useRef(blocks);
+  blocksRef.current = blocks;
+  useEffect(() => {
+    return () => {
+      for (const b of blocksRef.current) {
+        if ((b.type === "image" || b.type === "imageText") && b.pending) {
+          URL.revokeObjectURL(b.pending.previewUrl);
+        }
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (article) {
       setTitle(article.title);
@@ -72,35 +88,44 @@ export function WeeklyEditor({ article, onClose, onSaved }: WeeklyEditorProps) {
       return setError("Reading time must be a whole number of minutes.");
     }
 
-    const body = serializeBody(blocks);
-    if (body.length > MAX_BODY_CHARS) {
-      return setError(
-        "This article is too large to save. Try shortening the text or using fewer blocks.",
-      );
-    }
-
-    const payload: WeeklyPayload = {
-      title: title.trim(),
-      subtitle: subtitle.trim(),
-      author: author.trim() || "Editorial Desk",
-      excerpt: excerpt.trim(),
-      body,
-      readingTime: minutes,
-      tags: tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-    };
-    if (weekOf) payload.weekOf = weekOf;
-
     setSaving(true);
     try {
+      // Upload any staged photos now — nothing hit Cloudinary during editing,
+      // so a cancelled edit leaves no orphans. On success the blocks carry
+      // real Cloudinary URLs.
+      const uploaded = await resolvePendingUploads(blocks, uploadWeeklyImage);
+      setBlocks(uploaded);
+
+      const body = serializeBody(uploaded);
+      if (body.length > MAX_BODY_CHARS) {
+        setError(
+          "This article is too large to save. Try shortening the text or using fewer blocks.",
+        );
+        return;
+      }
+
+      const payload: WeeklyPayload = {
+        title: title.trim(),
+        subtitle: subtitle.trim(),
+        author: author.trim() || "Editorial Desk",
+        excerpt: excerpt.trim(),
+        body,
+        readingTime: minutes,
+        tags: tagsInput
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+      };
+      if (weekOf) payload.weekOf = weekOf;
+
       const saved = article
         ? await updateWeekly(article.id, payload)
         : await createWeekly(payload);
       onSaved(saved);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not save the article.");
+      setError(
+        err instanceof Error ? err.message : "Could not save the article.",
+      );
     } finally {
       setSaving(false);
     }

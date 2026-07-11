@@ -40,7 +40,19 @@
       "Bash(git restore *)",
       "Bash(git commit -m ' *)",
       "Bash(git config *)",
-      "Bash(git commit --amend -m ' *)"
+      "Bash(git commit --amend -m ' *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(mkdir -p .claude/skills)",
+      "Bash(cp -r .codex/skills/ui-ux-pro-max .claude/skills/ui-ux-pro-max)",
+      "Bash(python scripts/search.py --help)",
+      "Bash(echo \"=== EXIT $? ===\")",
+      "Bash(python scripts/search.py \"mobile responsive reading touch target typography\" --domain ux --stack nextjs -n 8)",
+      "Bash(python scripts/search.py \"touch target spacing mobile layout\" --domain ux -n 10)",
+      "Bash(python scripts/search.py \"touch target mobile\" --domain ux -n 8)",
+      "Bash(python scripts/search.py \"reading line length article body max width measure\" --domain typography -n 5)",
+      "Bash(python scripts/search.py \"hero section landing cta hierarchy above the fold spacing\" --domain landing -n 4)",
+      "Bash(grep -E \"Compiled|error|Error|✓|○ /$|/  \")",
+      "Bash(grep -E \"^\\\\S*\\\\s+/\\\\s\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Universal\\Documents\\mufaddal\\Z_OTHER\\Al-Riwayat"

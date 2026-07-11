@@ -4,6 +4,9 @@ export const homeHeroContent = {
   eyebrow: "Issue 2",
   title: "A premium digital magazine created for",
   titleHighlight: "Bohra Gen-Z by Bohra Gen-Z.",
+  /** Short, scannable hero subtitle. */
+  tagline:
+    "Stories, thoughts, and memories from our generation — the moments that shape us and the voices worth hearing.",
   description:
     "It is created to share stories, thoughts, memories, and everything in between. This magazine is about the moments that shape us, the things we relate to, and the voices that deserve to be heard. Whether you’re here to read, reflect, or someday share your own story, we hope you feel a sense of belonging the moment you arrive. Take your time, explore freely, and make yourself at home.",
   primaryCta: {

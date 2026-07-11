@@ -54,7 +54,7 @@ function ReadingProgress() {
 
 function ArticleSkeleton() {
   return (
-    <div className="container max-w-[68ch] space-y-6 py-12">
+    <div className="container max-w-[75ch] space-y-6 py-12">
       <Skeleton className="h-5 w-28 rounded-full" />
       <Skeleton className="h-12 w-3/4 rounded-xl" />
       <Skeleton className="h-5 w-1/2 rounded-xl" />
@@ -91,7 +91,7 @@ function AdjacentNav({
 }) {
   if (!prev && !next) return null;
   return (
-    <nav className="mx-auto grid max-w-[68ch] gap-3 sm:grid-cols-2">
+    <nav className="mx-auto grid w-full max-w-[75ch] gap-3 sm:grid-cols-2">
       {prev ? (
         <Link
           href={`/weekly-riwayat/${prev.slug}`}
@@ -146,25 +146,27 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
     return <NotFound />;
   }
 
+  const dateLabel = formatDate(article.weekOf ?? article.publishedAt);
+
   return (
     <>
       <ReadingProgress />
 
-      <article className="container space-y-10 py-10 pb-20 sm:py-14 lg:space-y-12">
+      <article className="container space-y-8 py-8 pb-20 sm:py-10 lg:space-y-10">
         <Link
           href="/weekly-riwayat"
-          className="mx-auto flex max-w-[68ch] items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="mx-auto -my-2 flex min-h-[44px] w-full max-w-[75ch] items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           {weeklyCopy.articleEyebrow}
         </Link>
 
-        {/* Header */}
-        <header className="mx-auto max-w-[68ch] space-y-5 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+        {/* Header — compact, left-aligned editorial masthead */}
+        <header className="mx-auto w-full max-w-[75ch] space-y-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
             {weeklyCopy.articleEyebrow}
           </p>
-          <h1 className="balanced-wrap font-heading text-4xl leading-[1.08] sm:text-5xl">
+          <h1 className="balanced-wrap font-heading text-[2rem] leading-[1.1] sm:text-4xl lg:text-[2.75rem]">
             {article.title}
           </h1>
           {article.subtitle && (
@@ -172,15 +174,15 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
               {article.subtitle}
             </p>
           )}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 pt-1 text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{article.author}</span>
-            {formatDate(article.weekOf ?? article.publishedAt) && (
+            {dateLabel && (
               <>
-                <span aria-hidden>·</span>
-                <span>{formatDate(article.weekOf ?? article.publishedAt)}</span>
+                <span aria-hidden className="opacity-50">·</span>
+                <span>{dateLabel}</span>
               </>
             )}
-            <span aria-hidden>·</span>
+            <span aria-hidden className="opacity-50">·</span>
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
               {article.readingTime} min read
@@ -188,14 +190,14 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
           </div>
         </header>
 
-        <div aria-hidden className="mx-auto h-px max-w-[68ch] bg-border" />
+        <div aria-hidden className="mx-auto h-px w-full max-w-[75ch] bg-border" />
 
         {/* Body */}
         <WeeklyBody body={article.body} />
 
         {/* Tags */}
         {article.tags.length > 0 && (
-          <div className="mx-auto flex max-w-[68ch] flex-wrap gap-2">
+          <div className="mx-auto flex w-full max-w-[75ch] flex-wrap gap-2">
             {article.tags.map((tag) => (
               <span
                 key={tag}
@@ -209,7 +211,7 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
 
         <ContributionShareActions title={article.title} />
 
-        <div aria-hidden className="mx-auto h-px max-w-[68ch] bg-border" />
+        <div aria-hidden className="mx-auto h-px w-full max-w-[75ch] bg-border" />
 
         <AdjacentNav prev={prev} next={next} />
       </article>

@@ -25,9 +25,9 @@ export function MarkdownContent({
   return (
     <div
       className={cn(
-        "space-y-5 text-base leading-relaxed text-foreground/90 sm:text-lg sm:leading-[1.85]",
+        "space-y-5 text-[1.05rem] leading-relaxed text-foreground/90 sm:text-lg sm:leading-[1.8] lg:text-xl lg:leading-[1.8]",
         dropCap &&
-          "[&>p:first-of-type::first-letter]:float-left [&>p:first-of-type::first-letter]:mr-3 [&>p:first-of-type::first-letter]:font-heading [&>p:first-of-type::first-letter]:text-[3.5rem] [&>p:first-of-type::first-letter]:font-bold [&>p:first-of-type::first-letter]:leading-[0.8] [&>p:first-of-type::first-letter]:text-primary",
+          "[&>p:first-of-type::first-letter]:float-left [&>p:first-of-type::first-letter]:mr-2 [&>p:first-of-type::first-letter]:font-heading [&>p:first-of-type::first-letter]:text-[2.75rem] [&>p:first-of-type::first-letter]:font-bold [&>p:first-of-type::first-letter]:leading-[0.8] [&>p:first-of-type::first-letter]:text-primary sm:[&>p:first-of-type::first-letter]:mr-3 sm:[&>p:first-of-type::first-letter]:text-[3.5rem]",
         className,
       )}
     >

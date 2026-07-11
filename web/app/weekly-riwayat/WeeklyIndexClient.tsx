@@ -131,16 +131,21 @@ export function WeeklyIndexClient() {
         </p>
       </header>
 
-      {/* Tag filter */}
+      {/* Tag filter — swipeable strip on phones, wraps on larger screens */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2.5">
+        <div
+          className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+          role="group"
+          aria-label="Filter by tag"
+        >
           {["All", ...tags].map((tag) => (
             <button
               key={tag}
               type="button"
               onClick={() => setActiveTag(tag)}
+              aria-pressed={activeTag === tag}
               className={cn(
-                "rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors",
+                "inline-flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-xs font-semibold uppercase tracking-[0.16em] transition-colors sm:min-h-0 sm:py-2",
                 activeTag === tag
                   ? "border-foreground bg-foreground text-background"
                   : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",

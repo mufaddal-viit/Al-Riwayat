@@ -1,53 +1,75 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ACCEPTED_IMAGE_TYPES,
-  uploadWeeklyImage,
-} from "@/services/weeklyUploadService";
+import type { PendingImage } from "@/lib/weekly/blocks";
+import { ACCEPTED_IMAGE_TYPES } from "@/services/weeklyUploadService";
+
+const MAX_FILE_BYTES = 4 * 1024 * 1024; // matches server cap
 
 interface ImageUploadFieldProps {
+  /** Already-uploaded Cloudinary URL, or "" if none saved yet. */
   src: string;
+  /** Staged local file awaiting upload, if any. */
+  pending?: PendingImage;
   alt: string;
   caption: string;
-  onChange: (patch: { src?: string; alt?: string; caption?: string }) => void;
+  onChange: (patch: {
+    src?: string;
+    pending?: PendingImage;
+    alt?: string;
+    caption?: string;
+  }) => void;
   disabled?: boolean;
 }
 
 /**
- * Picks an image file, uploads it to Cloudinary via the admin BFF, and edits
- * its alt text + caption. Alt is required for accessibility and surfaced as a
- * hint when a photo has none.
+ * Stages an image for upload. The file is NOT sent to Cloudinary here — it is
+ * held locally with an object-URL preview and only uploaded when the article is
+ * saved. This means replacing or cancelling never leaves an orphaned asset.
  */
 export function ImageUploadField({
   src,
+  pending,
   alt,
   caption,
   onChange,
   disabled = false,
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleFile(file: File | undefined) {
+  const previewSrc = pending?.previewUrl || src;
+  const hasImage = Boolean(previewSrc);
+
+  function stageFile(file: File | undefined) {
     if (!file) return;
     setError(null);
-    setUploading(true);
-    try {
-      const { url } = await uploadWeeklyImage(file);
-      onChange({ src: url });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      setError("Choose a JPEG, PNG, WebP, GIF, or AVIF image.");
+      return;
     }
+    if (file.size > MAX_FILE_BYTES) {
+      setError("Image is too large (max 4 MB).");
+      return;
+    }
+    // Revoke a previously-staged preview before replacing it.
+    if (pending) URL.revokeObjectURL(pending.previewUrl);
+    const previewUrl = URL.createObjectURL(file);
+    // Clearing `src` marks the old saved image as replaced; it is never
+    // uploaded again, and the new file takes its place on save.
+    onChange({ pending: { file, previewUrl }, src: "" });
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function removeImage() {
+    if (pending) URL.revokeObjectURL(pending.previewUrl);
+    onChange({ pending: undefined, src: "" });
+    setError(null);
   }
 
   return (
@@ -57,20 +79,25 @@ export function ImageUploadField({
         type="file"
         accept={ACCEPTED_IMAGE_TYPES.join(",")}
         className="hidden"
-        disabled={disabled || uploading}
-        onChange={(e) => handleFile(e.target.files?.[0])}
+        disabled={disabled}
+        onChange={(e) => stageFile(e.target.files?.[0])}
       />
 
-      {src ? (
+      {hasImage ? (
         <div className="relative overflow-hidden rounded-xl border border-border">
-          {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of a variable-aspect upload */}
-          <img src={src} alt={alt} className="max-h-56 w-full object-cover" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of a variable-aspect image */}
+          <img src={previewSrc} alt={alt} className="max-h-56 w-full object-cover" />
+          {pending && (
+            <span className="absolute left-2 top-2 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
+              Uploads on save
+            </span>
+          )}
           <button
             type="button"
-            onClick={() => onChange({ src: "" })}
-            disabled={disabled || uploading}
+            onClick={removeImage}
+            disabled={disabled}
             aria-label="Remove image"
-            className="absolute right-2 top-2 rounded-full bg-background/80 p-1.5 text-foreground shadow-sm transition-colors hover:bg-background"
+            className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm transition-colors hover:bg-background"
           >
             <X className="h-4 w-4" />
           </button>
@@ -79,30 +106,21 @@ export function ImageUploadField({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          disabled={disabled || uploading}
+          disabled={disabled}
           className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground disabled:opacity-60"
         >
-          {uploading ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Uploading…
-            </>
-          ) : (
-            <>
-              <ImagePlus className="h-5 w-5" />
-              Upload image
-            </>
-          )}
+          <ImagePlus className="h-5 w-5" />
+          Choose image
         </button>
       )}
 
-      {src && (
+      {hasImage && (
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() => inputRef.current?.click()}
-          disabled={disabled || uploading}
+          disabled={disabled}
         >
           Replace image
         </Button>
@@ -110,7 +128,7 @@ export function ImageUploadField({
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {src && (
+      {hasImage && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label className="text-xs">

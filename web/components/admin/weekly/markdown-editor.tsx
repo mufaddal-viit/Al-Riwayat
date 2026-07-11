@@ -96,8 +96,8 @@ export function MarkdownEditor({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-2 py-1.5">
+      {/* Toolbar — wraps freely so it never sideways-scrolls on a phone */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-1.5 py-1.5">
         <div className="flex flex-wrap items-center gap-0.5">
           {TOOLS.map((tool) => (
             <button
@@ -107,9 +107,9 @@ export function MarkdownEditor({
               disabled={disabled || mode === "preview"}
               title={tool.label}
               aria-label={tool.label}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground disabled:opacity-40"
             >
-              <tool.icon className="h-4 w-4" />
+              <tool.icon className="h-[18px] w-[18px]" />
             </button>
           ))}
         </div>
@@ -121,7 +121,7 @@ export function MarkdownEditor({
               type="button"
               onClick={() => setMode(m)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors",
+                "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3.5 text-xs font-medium capitalize transition-colors",
                 mode === m
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground",

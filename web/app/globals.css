@@ -54,12 +54,43 @@
 
   html {
     scroll-behavior: smooth;
+    /* Prevent iOS auto-inflating font sizes in landscape. */
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background font-body text-foreground antialiased;
     line-height: 1.7;
     min-height: 100dvh;
+    /* Never allow a stray wide element to sideways-scroll the whole page. */
+    overflow-x: hidden;
+  }
+
+  /* Kill the 300ms tap delay and grey tap flash on touch devices, while
+     keeping double-tap-to-zoom available on body text. */
+  a,
+  button,
+  [role="button"],
+  input,
+  label,
+  select,
+  textarea,
+  summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   h1,

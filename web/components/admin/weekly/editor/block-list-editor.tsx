@@ -109,33 +109,33 @@ export function BlockListEditor({
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {BLOCK_LABEL[block.type]}
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 <button
                   type="button"
                   onClick={() => move(index, -1)}
                   disabled={disabled || index === 0}
-                  aria-label="Move up"
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                  aria-label="Move block up"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
                 >
-                  <ChevronUp className="h-4 w-4" />
+                  <ChevronUp className="h-5 w-5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => move(index, 1)}
                   disabled={disabled || index === blocks.length - 1}
-                  aria-label="Move down"
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
+                  aria-label="Move block down"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-30"
                 >
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-5 w-5" />
                 </button>
                 <button
                   type="button"
                   onClick={() => removeBlock(index)}
                   disabled={disabled}
                   aria-label="Delete block"
-                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-30"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             </div>

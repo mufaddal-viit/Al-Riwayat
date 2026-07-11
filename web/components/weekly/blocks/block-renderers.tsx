@@ -8,8 +8,12 @@ import {
   type RichTextBlock,
 } from "@/lib/weekly/blocks";
 
-/** Reading-column width — text blocks stay within this; wide/full images break out. */
-const READING_WIDTH = "mx-auto max-w-[68ch]";
+/**
+ * Reading-column width. Blocks assume they render inside a horizontally-padded
+ * parent (the article `container`), so they add no gutter of their own; wide/
+ * full images break out of the reading column but stay within that padding.
+ */
+const READING_WIDTH = "mx-auto w-full max-w-[75ch]";
 
 export function RichTextBlockView({
   block,
@@ -33,17 +37,19 @@ export function ColumnsBlockView({ block }: { block: ColumnsBlock }) {
   return (
     <div
       className={cn(
-        "mx-auto grid max-w-[68ch] gap-6 sm:gap-8",
-        block.count === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2",
+        // Single column on phones (readable line length); split only once there
+        // is room. 3-way splits wait for large screens so lines never get tiny.
+        "mx-auto grid w-full max-w-[75ch] gap-6 sm:gap-8",
+        block.count === 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2",
       )}
     >
       {block.cols.map((col, i) =>
         col.trim() ? (
-          <MarkdownContent key={i} className="text-base sm:text-base sm:leading-[1.7]">
+          <MarkdownContent key={i} className="text-base leading-relaxed sm:text-base sm:leading-[1.7] lg:text-base">
             {col}
           </MarkdownContent>
         ) : (
-          <div key={i} aria-hidden />
+          <div key={i} aria-hidden className="hidden sm:block" />
         ),
       )}
     </div>
@@ -54,18 +60,40 @@ export function ColumnsBlockView({ block }: { block: ColumnsBlock }) {
 function Caption({ text }: { text: string }) {
   if (!text.trim()) return null;
   return (
-    <figcaption className="mt-2 text-center text-sm italic text-muted-foreground">
+    <figcaption className="mt-2 text-center text-sm italic leading-snug text-muted-foreground">
       {text}
     </figcaption>
+  );
+}
+
+/**
+ * Image with a muted placeholder background so the row's space is visibly
+ * reserved while the photo loads (limits layout shift). `object-cover` keeps
+ * the frame stable; `max-w-full` guarantees no horizontal overflow on phones.
+ */
+function BlockImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-muted">
+      {/* eslint-disable-next-line @next/next/no-img-element -- editorial photos have variable, unknown aspect ratios */}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="h-auto w-full max-w-full object-cover"
+      />
+    </div>
   );
 }
 
 export function ImageBlockView({ block }: { block: ImageBlock }) {
   if (!isAllowedImageSrc(block.src)) return null;
 
+  // "full" breaks out to the edge of the article container on phones (negative
+  // gutter), then settles into a wide centered frame on larger screens.
   const widthClass =
     block.width === "full"
-      ? "w-full"
+      ? "-mx-4 w-[calc(100%+2rem)] sm:mx-auto sm:w-full sm:max-w-4xl"
       : block.width === "wide"
         ? "mx-auto w-full max-w-4xl"
         : "w-full max-w-sm";
@@ -73,22 +101,15 @@ export function ImageBlockView({ block }: { block: ImageBlock }) {
   const alignClass =
     block.width === "inline"
       ? block.align === "left"
-        ? "mr-auto"
+        ? "sm:mr-auto"
         : block.align === "right"
-          ? "ml-auto"
+          ? "sm:ml-auto"
           : "mx-auto"
       : "";
 
   return (
     <figure className={cn(widthClass, alignClass)}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- editorial photos have variable, unknown aspect ratios */}
-      <img
-        src={block.src}
-        alt={block.alt}
-        loading="lazy"
-        decoding="async"
-        className="h-auto w-full rounded-2xl object-cover"
-      />
+      <BlockImage src={block.src} alt={block.alt} />
       <Caption text={block.caption} />
     </figure>
   );
@@ -102,25 +123,20 @@ export function ImageTextBlockView({ block }: { block: ImageTextBlock }) {
   return (
     <div
       className={cn(
-        "mx-auto grid max-w-4xl items-center gap-6 sm:gap-8 sm:grid-cols-2",
+        // Stacks vertically on phones (image first, then text); side-by-side
+        // only from `sm` up where there is width for both.
+        "mx-auto grid w-full max-w-4xl items-center gap-6 sm:gap-8 sm:grid-cols-2",
         block.imageSide === "right" && "sm:[&>figure]:order-2",
       )}
     >
       {hasImage && (
         <figure>
-          {/* eslint-disable-next-line @next/next/no-img-element -- editorial photos have variable, unknown aspect ratios */}
-          <img
-            src={block.src}
-            alt={block.alt}
-            loading="lazy"
-            decoding="async"
-            className="h-auto w-full rounded-2xl object-cover"
-          />
+          <BlockImage src={block.src} alt={block.alt} />
           <Caption text={block.caption} />
         </figure>
       )}
       {hasText && (
-        <MarkdownContent className="text-base sm:text-base sm:leading-[1.7]">
+        <MarkdownContent className="text-base leading-relaxed sm:text-base sm:leading-[1.7] lg:text-base">
           {block.text}
         </MarkdownContent>
       )}
