@@ -20,6 +20,10 @@ import adminCollectionsRoutes from "./modules/admin-collections/admin-collection
 import weeklyRoutes from "./modules/weekly/weekly.routes";
 import weeklyDashboardRoutes from "./modules/weekly/weekly.dashboard.routes";
 import weeklyUploadRoutes from "./modules/weekly/weekly.upload.routes";
+import clientsDashboardRoutes from "./modules/clients/clients.dashboard.routes";
+import adsRoutes from "./modules/ads/ads.routes";
+import adsDashboardRoutes from "./modules/ads/ads.dashboard.routes";
+import adsUploadRoutes from "./modules/ads/ads.upload.routes";
 import engagementRoutes from "./modules/engagement/engagement.routes";
 import magazineAdminRoutes from "./modules/magazine/magazine.admin.routes";
 import magazineReaderRoutes from "./modules/magazine/magazine.reader.routes";
@@ -82,6 +86,7 @@ app.use("/api/comments", commentsPublicRouter);
 app.use("/api/page-reactions", pageReactionsRouter);
 app.use("/api/magazine", magazineReaderRoutes);
 app.use("/api/me", meRoutes);
+app.use("/api/ads", adsRoutes);
 
 // ─── Admin routes (ADMIN role required — enforced inside each router) ─────────
 
@@ -94,6 +99,9 @@ app.use("/api/admin/dashboard/contributions", contributionsDashboardRoutes);
 app.use("/api/admin/dashboard/collections", adminCollectionsRoutes);
 app.use("/api/admin/dashboard/weekly-upload", weeklyUploadRoutes);
 app.use("/api/admin/dashboard/weekly", weeklyDashboardRoutes);
+app.use("/api/admin/dashboard/clients", clientsDashboardRoutes);
+app.use("/api/admin/dashboard/ads-upload", adsUploadRoutes);
+app.use("/api/admin/dashboard/ads", adsDashboardRoutes);
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 

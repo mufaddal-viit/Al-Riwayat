@@ -3,6 +3,7 @@ import { Instagram } from "lucide-react";
 
 import { InstagramCommentsMarquee } from "@/components/home/instagram-comments-marquee";
 import { InstagramReelsCarousel } from "@/components/home/instagram-reels-carousel";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { socialBentoContent } from "@/lib/content/social-bento-content";
 
 export function SocialBentoSection() {
@@ -56,6 +57,9 @@ export function SocialBentoSection() {
 
       {/* Reels carousel */}
       <InstagramReelsCarousel reels={reels} />
+
+      {/* Sponsored slot (renders nothing when no ad is live) */}
+      <AdSlot placement="home-social" />
 
       {/* Comments marquee */}
       <InstagramCommentsMarquee comments={comments} />

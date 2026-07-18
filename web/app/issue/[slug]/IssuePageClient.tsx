@@ -13,6 +13,7 @@ import { BookmarkFavouriteButtons } from "@/components/issue/bookmark-favourite-
 import { IssueCoverHero } from "@/components/issue/issue-cover-hero";
 import { IssueRichContent } from "@/components/issue/issue-rich-content";
 import { IssueShareActions } from "@/components/issue/issue-share-actions";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // ─── Loading skeleton ─────────────────────────────────────────────────────────
@@ -91,6 +92,7 @@ export function IssuePageClient({ slug }: { slug: string }) {
       <section className="mx-auto max-w-[72ch]">
         <BookmarkFavouriteButtons slug={magazine.slug} />
       </section>
+      <AdSlot placement="issue-before-share" />
       <IssueShareActions magazine={magazine} />
       <IssueRichContent magazine={magazine} />
       <CommentsSection slug={magazine.slug} />

@@ -70,6 +70,17 @@ export const weeklyUploadRateLimiter = createLimiter(
 );
 
 /**
+ * Ad event ingestion — 300 batches per IP per 15 minutes. Generous (a reader
+ * genuinely browsing several pages fires many batched events) but enough to
+ * blunt scripted inflation.
+ */
+export const adEventsRateLimiter = createLimiter(
+  15 * 60 * 1000,
+  300,
+  "ad event",
+);
+
+/**
  * Page reactions — 120 writes per IP per 15 minutes.
  * Generous: a reader flipping reactions across many pages is normal;
  * this only exists to blunt scripted abuse.
