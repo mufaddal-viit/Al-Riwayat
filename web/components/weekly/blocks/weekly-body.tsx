@@ -1,4 +1,7 @@
+import { Fragment } from "react";
+
 import { parseBody } from "@/lib/weekly/blocks";
+import { AdSlot } from "@/components/ads/ad-slot";
 import {
   ColumnsBlockView,
   ImageBlockView,
@@ -16,24 +19,39 @@ export function WeeklyBody({ body }: { body: string }) {
   const { blocks } = parseBody(body);
   let firstRichTextSeen = false;
 
+  // Inject the in-line ad after this block index — mid-article, but only when
+  // the article is long enough that it isn't effectively "after the body".
+  const inlineAdAfter = blocks.length >= 4 ? 1 : -1;
+
   return (
     <div className="space-y-10 sm:space-y-12">
       {blocks.map((block, i) => {
+        let rendered: React.ReactNode;
         switch (block.type) {
           case "richtext": {
             const dropCap = !firstRichTextSeen;
             firstRichTextSeen = true;
-            return <RichTextBlockView key={i} block={block} dropCap={dropCap} />;
+            rendered = <RichTextBlockView block={block} dropCap={dropCap} />;
+            break;
           }
           case "columns":
-            return <ColumnsBlockView key={i} block={block} />;
+            rendered = <ColumnsBlockView block={block} />;
+            break;
           case "image":
-            return <ImageBlockView key={i} block={block} />;
+            rendered = <ImageBlockView block={block} />;
+            break;
           case "imageText":
-            return <ImageTextBlockView key={i} block={block} />;
+            rendered = <ImageTextBlockView block={block} />;
+            break;
           default:
-            return null;
+            rendered = null;
         }
+        return (
+          <Fragment key={i}>
+            {rendered}
+            {i === inlineAdAfter && <AdSlot placement="weekly-inline" />}
+          </Fragment>
+        );
       })}
     </div>
   );

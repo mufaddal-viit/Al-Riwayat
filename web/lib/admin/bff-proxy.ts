@@ -52,6 +52,9 @@ export async function proxyDashboardRequest({
       Accept: "application/json",
       "Content-Type": "application/json",
       "x-admin-dashboard-secret": sharedSecret,
+      // Forwarded for audit fields (createdBy / performedBy). Trusted only
+      // because it rides alongside the shared secret on a server-to-server call.
+      "x-admin-email": session.email,
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });

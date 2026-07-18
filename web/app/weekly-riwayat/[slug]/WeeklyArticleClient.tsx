@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContributionShareActions } from "@/components/contributions/contribution-share-actions";
 import { WeeklyBody } from "@/components/weekly/blocks/weekly-body";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { weeklyCopy } from "@/lib/content/weekly";
 import { useWeeklyArticle, useWeeklyArticles } from "@/hooks/useWeekly";
 import type { WeeklyArticle } from "@/types/api";
@@ -194,6 +195,9 @@ export function WeeklyArticleClient({ slug }: { slug: string }) {
 
         {/* Body */}
         <WeeklyBody body={article.body} />
+
+        {/* Sponsored slot after the article (renders nothing when empty) */}
+        <AdSlot placement="weekly-after" />
 
         {/* Tags */}
         {article.tags.length > 0 && (

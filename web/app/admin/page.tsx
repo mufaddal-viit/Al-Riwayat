@@ -1,26 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  BarChart3,
-  Database,
-  FileText,
-  Inbox,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Newspaper,
-  RefreshCcw,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { LogOut, Menu, RefreshCcw, ShieldCheck } from "lucide-react";
 
 import { getAdminDashboard } from "@/services/adminDashboardService";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLogin } from "@/components/admin/admin-login";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { ADMIN_NAV } from "@/components/admin/admin-nav";
 import { OverviewTab } from "@/components/admin/tabs/overview-tab";
 import { ContributionsTab } from "@/components/admin/tabs/contributions-tab";
 import { WeeklyTab } from "@/components/admin/tabs/weekly-tab";
@@ -29,6 +17,8 @@ import { EngagementTab } from "@/components/admin/tabs/engagement-tab";
 import { ContactsTab } from "@/components/admin/tabs/contacts-tab";
 import { NewsletterTab } from "@/components/admin/tabs/newsletter-tab";
 import { DataTab } from "@/components/admin/tabs/data-tab";
+import { AdsTab } from "@/components/admin/tabs/ads-tab";
+import { ClientsTab } from "@/components/admin/tabs/clients-tab";
 
 const dateFormatter = new Intl.DateTimeFormat("en", {
   dateStyle: "medium",
@@ -39,17 +29,6 @@ function formatDate(value: string): string {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date);
 }
-
-const TABS = [
-  { key: "overview", label: "Overview", icon: BarChart3 },
-  { key: "contributions", label: "Contributions", icon: FileText },
-  { key: "weekly", label: "Weekly Riwayat", icon: Newspaper },
-  { key: "comments", label: "Comments", icon: MessageSquare },
-  { key: "engagement", label: "Engagement", icon: Sparkles },
-  { key: "contacts", label: "Contacts", icon: Inbox },
-  { key: "newsletter", label: "Newsletter", icon: Mail },
-  { key: "data", label: "Data", icon: Database },
-] as const;
 
 interface AdminSessionResponse {
   authenticated: boolean;
@@ -82,7 +61,8 @@ export default function AdminPage() {
   const [dashboard, setDashboard] = useState<AdminDashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [activeKey, setActiveKey] = useState<string>("overview");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const loadDashboard = useCallback(async () => {
     setIsFetching(true);
@@ -131,109 +111,121 @@ export default function AdminPage() {
     setSessionEmail(null);
     setDashboard(null);
     setError(null);
-    setActiveTab("overview");
+    setActiveKey("overview");
   }
 
   if (isCheckingSession) return <AdminSkeleton />;
   if (!sessionEmail) return <AdminLogin onAuthenticated={setSessionEmail} />;
 
-  return (
-    <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/60 bg-card/80">
-            <ShieldCheck className="h-6 w-6 text-primary" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase text-muted-foreground">
-              Al-Riwayat Admin
-            </p>
-            <h1 className="font-heading text-3xl leading-tight">Dashboard</h1>
-            <p className="truncate text-sm text-muted-foreground">{sessionEmail}</p>
-          </div>
-        </div>
+  const activeLabel =
+    ADMIN_NAV.find((item) => item.key === activeKey)?.label ?? "Dashboard";
 
-        <div className="flex flex-wrap items-center gap-2">
-          {dashboard && (
-            <span className="hidden text-xs text-muted-foreground sm:inline">
-              Updated {formatDate(dashboard.generatedAt)}
-            </span>
+  function renderView() {
+    if (!dashboard) return <AdminSkeleton />;
+    switch (activeKey) {
+      case "overview":
+        return <OverviewTab data={dashboard} onNavigate={setActiveKey} />;
+      case "contributions":
+        return <ContributionsTab data={dashboard} />;
+      case "weekly":
+        return <WeeklyTab />;
+      case "comments":
+        return <CommentsTab data={dashboard} />;
+      case "ads":
+        return <AdsTab />;
+      case "clients":
+        return <ClientsTab />;
+      case "engagement":
+        return <EngagementTab data={dashboard} />;
+      case "contacts":
+        return <ContactsTab data={dashboard} />;
+      case "newsletter":
+        return <NewsletterTab data={dashboard} />;
+      case "data":
+        return <DataTab data={dashboard} />;
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="flex gap-6">
+        <AdminSidebar
+          activeKey={activeKey}
+          onSelect={setActiveKey}
+          mobileOpen={mobileNavOpen}
+          onMobileClose={() => setMobileNavOpen(false)}
+        />
+
+        <div className="min-w-0 flex-1 space-y-6">
+          {/* Header */}
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen(true)}
+                aria-label="Open menu"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-card/80 text-foreground lg:hidden"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/60 bg-card/80 sm:flex">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase text-muted-foreground">
+                  Al-Riwayat Admin
+                </p>
+                <h1 className="font-heading text-2xl leading-tight sm:text-3xl">
+                  {activeLabel}
+                </h1>
+                <p className="truncate text-sm text-muted-foreground">
+                  {sessionEmail}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {dashboard && (
+                <span className="hidden text-xs text-muted-foreground sm:inline">
+                  Updated {formatDate(dashboard.generatedAt)}
+                </span>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={loadDashboard}
+                disabled={isFetching}
+                className="gap-2"
+              >
+                <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign out</span>
+              </Button>
+            </div>
+          </div>
+
+          {error && (
+            <div
+              role="alert"
+              className="rounded-[1.25rem] border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            >
+              {error}
+            </div>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={loadDashboard}
-            disabled={isFetching}
-            className="gap-2"
-          >
-            <RefreshCcw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleLogout}
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
+
+          {renderView()}
         </div>
       </div>
-
-      <Separator className="bg-border/50" />
-
-      {error && (
-        <div
-          role="alert"
-          className="rounded-[1.25rem] border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-        >
-          {error}
-        </div>
-      )}
-
-      {dashboard ? (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="-mx-1 overflow-x-auto px-1 pb-1">
-            <TabsList className="w-max">
-              {TABS.map((tab) => (
-                <TabsTrigger key={tab.key} value={tab.key}>
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-
-          <TabsContent value="overview">
-            <OverviewTab data={dashboard} onNavigate={setActiveTab} />
-          </TabsContent>
-          <TabsContent value="contributions">
-            <ContributionsTab data={dashboard} />
-          </TabsContent>
-          <TabsContent value="weekly">
-            <WeeklyTab />
-          </TabsContent>
-          <TabsContent value="comments">
-            <CommentsTab data={dashboard} />
-          </TabsContent>
-          <TabsContent value="engagement">
-            <EngagementTab data={dashboard} />
-          </TabsContent>
-          <TabsContent value="contacts">
-            <ContactsTab data={dashboard} />
-          </TabsContent>
-          <TabsContent value="newsletter">
-            <NewsletterTab data={dashboard} />
-          </TabsContent>
-          <TabsContent value="data">
-            <DataTab data={dashboard} />
-          </TabsContent>
-        </Tabs>
-      ) : (
-        <AdminSkeleton />
-      )}
     </main>
   );
 }
