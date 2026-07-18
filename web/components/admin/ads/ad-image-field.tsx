@@ -95,7 +95,7 @@ export function AdImageField({
             onClick={removeImage}
             disabled={disabled}
             aria-label="Remove image"
-            className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground shadow-sm hover:bg-background"
+            className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-foreground hover:bg-background"
           >
             <X className="h-4 w-4" />
           </button>

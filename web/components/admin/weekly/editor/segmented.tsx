@@ -33,7 +33,7 @@ export function Segmented<T extends string | number>({
           className={cn(
             "rounded-full px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50",
             value === opt.value
-              ? "bg-background text-foreground shadow-sm"
+              ? "bg-background text-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
         >

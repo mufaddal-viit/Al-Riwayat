@@ -206,7 +206,7 @@ export function StatLineChart({
 
         {active && (
           <div
-            className="pointer-events-none absolute -translate-x-1/2 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs shadow-sm"
+            className="pointer-events-none absolute -translate-x-1/2 rounded-lg border border-border bg-popover px-2.5 py-1.5 text-xs"
             style={{
               left: `${(active.x / WIDTH) * 100}%`,
               top: 0,

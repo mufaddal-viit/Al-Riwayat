@@ -6,6 +6,7 @@ export interface DailyStat {
   impressionsDesktop: number;
   clicksMobile: number;
   clicksDesktop: number;
+  uniqueDevices: number;
 }
 
 export interface AdStatsSummary {
@@ -20,6 +21,7 @@ export interface AdStatsSummary {
     impressionsDesktop: number;
     clicksMobile: number;
     clicksDesktop: number;
+    uniqueDevices: number;
   };
   lifetime: { impressions: number; clicks: number; ctr: number };
   caps: {

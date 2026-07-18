@@ -63,7 +63,7 @@ export function NewsletterTab({ data }: { data: AdminDashboardData }) {
         </ChartCard>
       </div>
 
-      <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
         <CardContent className="p-5">
           <ModerationPanel
             resource="newsletter"

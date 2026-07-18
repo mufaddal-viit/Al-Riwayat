@@ -173,7 +173,7 @@ export function EngagementTab({ data }: { data: AdminDashboardData }) {
       </div>
 
       {/* Submissions list */}
-      <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
         <CardContent className="space-y-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -210,7 +210,7 @@ export function EngagementTab({ data }: { data: AdminDashboardData }) {
                   className={cn(
                     "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                     ageGroup === "all"
-                      ? "bg-background text-foreground shadow-sm"
+                      ? "bg-background text-foreground"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >
@@ -224,7 +224,7 @@ export function EngagementTab({ data }: { data: AdminDashboardData }) {
                     className={cn(
                       "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
                       ageGroup === group.key
-                        ? "bg-background text-foreground shadow-sm"
+                        ? "bg-background text-foreground"
                         : "text-muted-foreground hover:text-foreground",
                     )}
                   >

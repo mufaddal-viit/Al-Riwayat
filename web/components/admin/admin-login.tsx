@@ -59,7 +59,7 @@ export function AdminLogin({
 
   return (
     <main className="mx-auto flex min-h-[70dvh] w-full max-w-md items-center px-4 py-10">
-      <Card className="w-full border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+      <Card className="w-full border-border/60 bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-2">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border border-border/60 bg-muted/40 text-primary">
             <ShieldCheck className="h-6 w-6" />

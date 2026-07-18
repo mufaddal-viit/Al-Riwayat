@@ -35,7 +35,7 @@ export interface AdminAd {
   alt: string;
   width: number | null;
   height: number | null;
-  placement: PlacementKey;
+  placements: PlacementKey[];
   channels: AdChannel[];
   links: AdLinks;
   linkUrl: string;
@@ -73,7 +73,7 @@ export interface AdPayload {
   alt?: string;
   width?: number;
   height?: number;
-  placement: PlacementKey;
+  placements: PlacementKey[];
   channels?: AdChannel[];
   links?: Partial<AdLinks>;
   linkUrl?: string;

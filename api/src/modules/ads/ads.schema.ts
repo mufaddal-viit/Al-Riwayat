@@ -90,7 +90,11 @@ const contentFields = {
   width: z.coerce.number().int().min(0).optional(),
   height: z.coerce.number().int().min(0).optional(),
 
-  placement: z.enum(placementKeys),
+  // One ad can run in several slots. At least one placement is required.
+  placements: z
+    .array(z.enum(placementKeys))
+    .min(1, "Choose at least one placement.")
+    .max(placementKeys.length),
 
   // Admin-only channel tags (multi). Do not affect what a reader sees.
   channels: z.array(z.enum(adChannels)).max(4).optional().default([]),

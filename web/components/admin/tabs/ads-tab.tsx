@@ -127,7 +127,7 @@ export function AdsTab() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
         <CardContent className="space-y-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export function AdsTab() {
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                   filter === f.key
-                    ? "bg-background text-foreground shadow-sm"
+                    ? "bg-background text-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -211,7 +211,9 @@ export function AdsTab() {
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {[
-                          getPlacement(item.placement)?.label ?? item.placement,
+                          item.placements
+                            .map((p) => getPlacement(p)?.label ?? p)
+                            .join(", ") || "No placement",
                           item.clientName || null,
                         ]
                           .filter(Boolean)

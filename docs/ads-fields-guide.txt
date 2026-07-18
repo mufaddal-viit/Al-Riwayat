@@ -1,0 +1,214 @@
+========================================================================
+ AL-RIWAYAT — HOW TO CREATE AN ADVERTISEMENT
+ A plain-language guide to every field in the Ad editor
+========================================================================
+
+Open:  Admin  ->  Ads (sidebar, under "Advertising")  ->  "New advertisement"
+
+An ad is two images (one for desktop, one for mobile) that show in one or more
+fixed slots on the site and link to one URL when tapped. It only goes live when
+its status is "published" AND today is inside its start/end date window.
+
+REQUIRED to save any ad (draft or published):
+  - Title
+  - At least one Placement
+  - Desktop image AND Mobile image
+  - Click-through URL
+  - Start date AND End date
+
+A single slot shows at most TWO ads at once, stacked one below the other. If
+more than two ads are eligible for the same slot, the two with the highest
+Priority win; the rest wait until one of those ends.
+
+------------------------------------------------------------------------
+ SECTION 1 — BASICS
+------------------------------------------------------------------------
+
+TITLE (internal)          [required]
+    A name only YOU see, to find the ad later in the list.
+    It is NEVER shown to readers.
+    Example: "Ramadan Sale - Brand X - July"
+
+CLIENT
+    Which advertiser this ad belongs to. Pick from the list of clients you
+    created in the Clients tab. Optional — you can leave it as "No client".
+    Used for your own reporting (e.g. "show me all of Brand X's ads").
+    The client's name is copied onto the ad, so deleting a client later
+    does not blank out old ads.
+
+PLACEMENTS                [required - pick one OR MORE]
+    WHERE on the site the ad appears. Tick every slot you want it to run in:
+      - Home - community section  (between the reels and the comments)
+      - Weekly article - in-line  (in the middle of a weekly article)
+      - Weekly article - after body  (right after a weekly article ends)
+      - Issue page - before share  (near the bottom of an issue)
+    You cannot invent new spots — these are the fixed slots wired into the
+    site. One ad can run in several slots at once. A slot shows at most two
+    ads (stacked); if more qualify, higher Priority wins.
+
+STATUS
+    - draft      = saved but NOT shown to readers (work in progress)
+    - published  = eligible to show (still must pass the schedule window)
+    - archived   = retired, kept for records, never shown
+    Tip: leave as draft while setting up, publish when ready. You can also
+    publish/unpublish quickly from the ad list without opening the editor.
+
+------------------------------------------------------------------------
+ SECTION 2 — CREATIVES (the images)
+------------------------------------------------------------------------
+
+Why two images?  A wide desktop banner looks squashed on a phone. So you can
+upload one image shaped for desktop and (optionally) a second shaped for
+phones. The site automatically shows the right one for each screen.
+
+DESKTOP IMAGE             [required to publish]
+    The main image. Shown on laptops/desktops, and on phones too IF you do
+    not provide a mobile image.
+    Recommended size is shown in the form and depends on the placement
+    (roughly a wide banner, e.g. 1200 x 450).
+
+MOBILE IMAGE              [required]
+    A phone-friendly version (taller / more square, e.g. 800 x 600).
+    Since most visitors are on phones, a proper mobile image is required.
+
+  HOW UPLOAD WORKS (important):
+    - Click "Choose image", pick a file (JPEG, PNG, WebP, GIF, or AVIF).
+    - Max size 4 MB per image.
+    - You will see a preview immediately with a small "Uploads on save" tag.
+    - Nothing is actually uploaded yet. The image is sent to storage only
+      when you click "Save". So if you hit Cancel, nothing is left behind.
+    - "Replace" swaps the image; the old one is discarded on save.
+
+ALT TEXT
+    A short text description of the image, read aloud by screen readers for
+    blind/low-vision users (accessibility). Not visible on screen.
+    Example: "Brand X storefront with Ramadan discount banner"
+
+Keep the important part of the image (logo, main text) near the CENTER —
+on some screens the edges may be cropped slightly to fit the slot.
+
+Note: every ad automatically shows a small grey "Sponsored" label in the
+top corner. You do not add this — it is added for you, to tell readers the
+content is a paid promotion.
+
+------------------------------------------------------------------------
+ SECTION 3 — LINK & CHANNELS
+------------------------------------------------------------------------
+
+CLICK-THROUGH URL         [needed for the ad to be clickable]
+    The ONE web address that opens when a reader taps the ad.
+    Must start with http:// or https://.
+    Example: https://brandx.com/ramadan
+    If you leave this empty, the ad still shows but is not clickable.
+
+OPEN IN NEW TAB   (checkbox)
+    On  = tapping opens the link in a new browser tab (recommended, keeps
+          the reader on Al-Riwayat).
+    Off = opens in the same tab.
+
+CHANNELS (internal tags)
+    These four buttons are ONLY for your own records/filtering. They do NOT
+    change what the reader sees or where the tap goes. Turn on any that
+    apply — you can pick more than one:
+      - Website
+      - Instagram Reel
+      - Instagram Status
+      - WhatsApp
+    When you turn a channel ON, an extra box appears so you can store that
+    channel's own link/number for your reference:
+      - Website          -> a website URL
+      - Instagram Reel   -> the reel URL
+      - Instagram Status -> the story/status URL
+      - WhatsApp         -> a phone number + an optional prefilled message
+    Reminder: the READER's tap always uses the "Click-through URL" above,
+    not these. These are just notes/metadata for you and the client.
+
+------------------------------------------------------------------------
+ SECTION 4 — SCHEDULE & DELIVERY
+------------------------------------------------------------------------
+
+STARTS / ENDS  (dates)   [both required]
+    The window during which a PUBLISHED ad is allowed to show. Outside this
+    window the ad simply does not appear (and no empty gap is left on the
+    page). The end date must be on or after the start date.
+
+PRIORITY  (number, default 0)
+    If several ads are eligible for the SAME slot at the same time, the one
+    with the HIGHER priority wins and is shown. Higher number = wins.
+
+WEIGHT  (number, default 1)
+    A tie-breaker among ads of equal priority — think of it as "share of
+    rotation". An ad with weight 3 is favoured over one with weight 1.
+    (In this first version, ties are broken by weight; leave at 1 if unsure.)
+
+MAX IMPRESSIONS  (optional)
+    A cap on how many times the ad may be SEEN before it auto-stops.
+    Leave empty for unlimited. Use this when a client paid for a fixed
+    number of views.
+
+MAX CLICKS  (optional)
+    Same idea, but caps total clicks. Leave empty for unlimited.
+    When either cap is reached, the ad stops serving automatically.
+
+SHOW ON DEVICES
+    Restrict the ad to "mobile" only, "desktop" only, or leave BOTH off to
+    show on all devices (the normal case).
+
+------------------------------------------------------------------------
+ SECTION 5 — TRACKING (UTM)  [optional, for analytics]
+------------------------------------------------------------------------
+
+UTM tags get added to the click link so tools like Google Analytics on the
+CLIENT's own website can see the traffic came from Al-Riwayat.
+
+    SOURCE     e.g.  al-riwayat
+    MEDIUM     e.g.  banner  or  sponsored
+    CAMPAIGN   e.g.  ramadan-2026
+
+CAMPAIGN ID
+    Your own internal reference code to group ads that belong to one
+    campaign. Free text.
+
+Note: Al-Riwayat also tracks its OWN impressions and clicks for every ad
+automatically (no setup needed) — see the "Stats" button on each ad in the
+list. UTM is only for the client's external analytics.
+
+------------------------------------------------------------------------
+ SECTION 6 — NOTES
+------------------------------------------------------------------------
+
+NOTES
+    Free-text internal notes about this ad (e.g. "client wants swap on the
+    15th"). Only you see this.
+
+========================================================================
+ QUICK CHECKLIST TO PUBLISH A WORKING AD
+========================================================================
+  [ ] Title filled
+  [ ] One or more Placements ticked
+  [ ] Desktop image uploaded
+  [ ] Mobile image uploaded
+  [ ] Click-through URL filled (starts with http:// or https://)
+  [ ] Start date and End date set
+  [ ] Status set to "published"
+  [ ] Click "Save"
+  -> Open the matching page on the site to confirm it shows.
+     (If nothing appears: check status is published, the date window covers
+      today, and any impression/click cap is not already reached.)
+
+========================================================================
+ AFTER IT'S LIVE — SEEING RESULTS
+========================================================================
+  In the Ads list, click "Stats" on any ad to see:
+    - Impressions (times it was actually seen on screen)
+    - Clicks and CTR (click-through rate = clicks / impressions)
+    - Unique devices (how many DIFFERENT visitors saw it, so you can tell
+      reach apart from repeat views)
+    - A day-by-day chart over 7 / 30 / 90 days
+    - Mobile vs desktop split
+    - How close it is to its impression/click cap
+  Use these numbers to report performance back to the client.
+
+  Privacy note: "unique devices" is counted from an anonymized fingerprint
+  (a one-way hash of IP + browser). Raw IP addresses are NOT stored.
+========================================================================

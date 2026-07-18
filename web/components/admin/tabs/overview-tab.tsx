@@ -147,7 +147,7 @@ export function OverviewTab({
         </ChartCard>
 
         {/* Needs attention */}
-        <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+        <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
           <CardContent className="space-y-3 p-5">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />

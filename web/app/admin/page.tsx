@@ -149,7 +149,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <main className="w-full px-3 py-5 sm:px-5 lg:px-8">
       <div className="flex gap-6">
         <AdminSidebar
           activeKey={activeKey}
