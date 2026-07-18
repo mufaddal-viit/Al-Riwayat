@@ -4,6 +4,7 @@ Express + TypeScript + Prisma backend for the digital magazine MVP.
 
 ## Stack
 
+
 - Node.js
 - Express
 - TypeScript
