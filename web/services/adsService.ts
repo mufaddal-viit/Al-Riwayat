@@ -3,7 +3,6 @@ import type { PlacementKey } from "@/lib/ads/placements";
 
 export interface ServedAd {
   id: string;
-  placement: PlacementKey;
   mediaType: "image" | "video";
   desktopImageUrl: string;
   mobileImageUrl: string;

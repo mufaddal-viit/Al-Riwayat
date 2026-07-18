@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Eye, MousePointerClick, Percent, RefreshCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  MousePointerClick,
+  Percent,
+  RefreshCcw,
+  Smartphone,
+} from "lucide-react";
 
 import {
   getAdStats,
@@ -153,7 +160,7 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
                 className={cn(
                   "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                   rangeKey === r.key
-                    ? "bg-background text-foreground shadow-sm"
+                    ? "bg-background text-foreground"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -188,7 +195,7 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Tile
               icon={Eye}
               label="Impressions"
@@ -206,6 +213,12 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
               label="CTR"
               value={pct(stats.totals.ctr)}
               sub={`${pct(stats.lifetime.ctr)} all-time`}
+            />
+            <Tile
+              icon={Smartphone}
+              label="Unique devices"
+              value={stats.totals.uniqueDevices.toLocaleString()}
+              sub="distinct visitors (this range)"
             />
           </div>
 

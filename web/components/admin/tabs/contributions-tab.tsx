@@ -196,7 +196,7 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
       </div>
 
       {/* Moderation queue */}
-      <Card className="border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+      <Card className="border-border/60 bg-card/80 backdrop-blur-sm">
         <CardContent className="space-y-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -215,7 +215,7 @@ export function ContributionsTab({ data }: { data: AdminDashboardData }) {
                       onClick={() => setStatusFilter(tab.key)}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-background text-foreground shadow-sm"
+                          ? "bg-background text-foreground"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >

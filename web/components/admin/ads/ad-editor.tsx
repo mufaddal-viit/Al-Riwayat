@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Save, X } from "lucide-react";
+import { ArrowLeft, Check, Save, X } from "lucide-react";
 
 import {
   createAd,
@@ -74,7 +74,7 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
   const [form, setForm] = useState({
     title: "",
     clientId: "",
-    placement: PLACEMENT_OPTIONS[0].key as PlacementKey,
+    placements: [] as PlacementKey[],
     status: "draft" as AdStatus,
     desktopImageUrl: "",
     mobileImageUrl: "",
@@ -110,7 +110,7 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
     setForm({
       title: ad.title,
       clientId: ad.clientId,
-      placement: ad.placement,
+      placements: ad.placements,
       status: ad.status,
       desktopImageUrl: ad.desktopImageUrl,
       mobileImageUrl: ad.mobileImageUrl,
@@ -160,10 +160,38 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
     }));
   }
 
+  function togglePlacement(key: PlacementKey) {
+    setForm((prev) => ({
+      ...prev,
+      placements: prev.placements.includes(key)
+        ? prev.placements.filter((p) => p !== key)
+        : [...prev.placements, key],
+    }));
+  }
+
   async function handleSave() {
     setError(null);
     if (form.title.trim().length < 2) {
       return setError("Ad title must be at least 2 characters.");
+    }
+    if (form.placements.length === 0) {
+      return setError("Choose at least one placement.");
+    }
+    // Required: both creatives, a click-through URL, and a start + end date.
+    const hasDesktop = Boolean(desktopPending || form.desktopImageUrl);
+    const hasMobile = Boolean(mobilePending || form.mobileImageUrl);
+    if (!hasDesktop) return setError("A desktop image is required.");
+    if (!hasMobile) return setError("A mobile image is required.");
+    if (!form.linkUrl.trim()) {
+      return setError("A click-through URL is required.");
+    }
+    if (!/^https?:\/\//i.test(form.linkUrl.trim())) {
+      return setError("The click-through URL must start with http:// or https://.");
+    }
+    if (!form.startsAt) return setError("A start date is required.");
+    if (!form.endsAt) return setError("An end date is required.");
+    if (form.endsAt < form.startsAt) {
+      return setError("The end date must be on or after the start date.");
     }
 
     setSaving(true);
@@ -190,7 +218,7 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
         desktopImageUrl: desktopUrl,
         mobileImageUrl: mobileUrl,
         alt: form.alt.trim(),
-        placement: form.placement,
+        placements: form.placements,
         status: form.status,
         channels: form.channels,
         links: {
@@ -228,6 +256,11 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
       setSaving(false);
     }
   }
+
+  // Size guidance follows the first chosen placement (falls back to the first).
+  const guidancePlacement =
+    PLACEMENT_OPTIONS.find((p) => form.placements.includes(p.key)) ??
+    PLACEMENT_OPTIONS[0];
 
   return (
     <div className="space-y-6">
@@ -273,14 +306,47 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
               {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs">Placement</Label>
-            <select className={selectClass} value={form.placement} onChange={(e) => set("placement", e.target.value as PlacementKey)} disabled={saving}>
-              {PLACEMENT_OPTIONS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
-            </select>
-            <p className="text-xs text-muted-foreground">
-              {PLACEMENT_OPTIONS.find((p) => p.key === form.placement)?.description}
-            </p>
+          <div className="space-y-2">
+            <Label className="text-xs">
+              Placements{" "}
+              <span className="font-normal text-muted-foreground">
+                (pick one or more)
+              </span>
+            </Label>
+            <div className="space-y-1.5">
+              {PLACEMENT_OPTIONS.map((p) => {
+                const on = form.placements.includes(p.key);
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => togglePlacement(p.key)}
+                    disabled={saving}
+                    className={cn(
+                      "flex w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors",
+                      on
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-foreground/30",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
+                        on ? "border-primary bg-primary text-primary-foreground" : "border-border",
+                      )}
+                    >
+                      {on && <Check className="h-3 w-3" />}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium">{p.label}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {p.description}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Status</Label>
@@ -294,13 +360,12 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
 
         <Section title="Creatives">
           <p className="text-xs text-muted-foreground">
-            Upload a desktop image (required) and, optionally, a mobile image
-            for small screens. Recommended:{" "}
-            {PLACEMENT_OPTIONS.find((p) => p.key === form.placement)?.guidance.desktop} (desktop),{" "}
-            {PLACEMENT_OPTIONS.find((p) => p.key === form.placement)?.guidance.mobile} (mobile).
+            Both a desktop and a mobile image are required. Recommended:{" "}
+            {guidancePlacement.guidance.desktop} (desktop),{" "}
+            {guidancePlacement.guidance.mobile} (mobile).
           </p>
           <AdImageField
-            label="Desktop image"
+            label="Desktop image (required)"
             src={form.desktopImageUrl}
             pending={desktopPending}
             onChange={(next) => {
@@ -310,8 +375,7 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
             disabled={saving}
           />
           <AdImageField
-            label="Mobile image"
-            hint="(optional)"
+            label="Mobile image (required)"
             src={form.mobileImageUrl}
             pending={mobilePending}
             onChange={(next) => {
@@ -328,7 +392,7 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
 
         <Section title="Link & channels">
           <div className="space-y-1.5">
-            <Label className="text-xs">Click-through URL</Label>
+            <Label className="text-xs">Click-through URL (required)</Label>
             <Input value={form.linkUrl} onChange={(e) => set("linkUrl", e.target.value)} disabled={saving} placeholder="https://" />
             <p className="text-xs text-muted-foreground">Tapping the ad opens this link.</p>
           </div>
@@ -394,11 +458,11 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
         <Section title="Schedule & delivery">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-xs">Starts</Label>
+              <Label className="text-xs">Starts (required)</Label>
               <Input type="date" value={form.startsAt} onChange={(e) => set("startsAt", e.target.value)} disabled={saving} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">Ends</Label>
+              <Label className="text-xs">Ends (required)</Label>
               <Input type="date" value={form.endsAt} onChange={(e) => set("endsAt", e.target.value)} disabled={saving} />
             </div>
           </div>

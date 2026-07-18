@@ -21,7 +21,7 @@ export function RangeSwitcher({ value, onChange }: RangeSwitcherProps) {
           className={cn(
             "rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             value === option.key
-              ? "bg-background text-foreground shadow-sm"
+              ? "bg-background text-foreground"
               : "text-muted-foreground hover:text-foreground",
           )}
         >

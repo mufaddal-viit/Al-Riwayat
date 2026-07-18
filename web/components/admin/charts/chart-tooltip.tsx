@@ -11,7 +11,7 @@ export function ChartTooltip({
   if (!active || !payload || payload.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-xs shadow-lg backdrop-blur">
+    <div className="rounded-xl border border-border/70 bg-background/95 px-3 py-2 text-xs backdrop-blur">
       {label != null && (
         <p className="mb-1 font-medium text-foreground">{String(label)}</p>
       )}

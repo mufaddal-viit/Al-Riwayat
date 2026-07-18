@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { getPlacement, type PlacementKey } from "@/lib/ads/placements";
+import { getPlacement, type PlacementConfig, type PlacementKey } from "@/lib/ads/placements";
 import { fetchAds, type ServedAd } from "@/services/adsService";
 import { buildAdHref } from "@/lib/ads/link";
 import { trackClick, trackImpression } from "@/lib/ads/tracking";
@@ -17,41 +17,15 @@ interface AdSlotProps {
   className?: string;
 }
 
-/**
- * Renders the best live ad for a placement, or nothing.
- *
- * - Fetches on mount; if no ad is eligible the component renders `null` and the
- *   surrounding layout collapses (no empty box, no reserved gap).
- * - Responsive: a mobile creative is served to small screens via <picture>,
- *   falling back to the desktop image. The image fills the placement's aspect
- *   frame with object-cover, capped in width so it never dominates the page.
- * - A subtle gray shade along the top edge carries the "Sponsored" label.
- * - The whole ad links out (new tab / rel="sponsored") when a link is set.
- */
-export function AdSlot({ placement, className }: AdSlotProps) {
-  const [ad, setAd] = useState<ServedAd | null>(null);
-  const config = getPlacement(placement);
+/** One rendered ad creative, with its own viewability-based impression. */
+function AdCreative({ ad, config }: { ad: ServedAd; config: PlacementConfig }) {
   const figureRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    const device =
-      typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches
-        ? "mobile"
-        : "desktop";
-    fetchAds(placement, device).then((ads) => {
-      if (active) setAd(ads[0] ?? null);
-    });
-    return () => {
-      active = false;
-    };
-  }, [placement]);
 
   // Count an impression once the ad has been ≥50% visible for ≥1s — "seen",
   // not merely loaded. De-duplication per page load lives in the tracker.
   useEffect(() => {
     const node = figureRef.current;
-    if (!ad || !node || typeof IntersectionObserver === "undefined") return;
+    if (!node || typeof IntersectionObserver === "undefined") return;
 
     let dwellTimer: ReturnType<typeof setTimeout> | null = null;
     const observer = new IntersectionObserver(
@@ -76,9 +50,7 @@ export function AdSlot({ placement, className }: AdSlotProps) {
       if (dwellTimer) clearTimeout(dwellTimer);
       observer.disconnect();
     };
-  }, [ad]);
-
-  if (!ad || !config) return null;
+  }, [ad.id]);
 
   const desktopSrc = ad.desktopImageUrl;
   const mobileSrc = ad.mobileImageUrl || ad.desktopImageUrl;
@@ -118,24 +90,61 @@ export function AdSlot({ placement, className }: AdSlotProps) {
     </figure>
   );
 
+  if (!href) return media;
+
+  return (
+    <a
+      href={href}
+      target={ad.openInNewTab ? "_blank" : undefined}
+      rel="sponsored noopener noreferrer"
+      onClick={() => trackClick(ad.id)}
+      className="block transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      {media}
+    </a>
+  );
+}
+
+/**
+ * Renders up to two live ads for a placement, stacked one below the other — or
+ * nothing.
+ *
+ * - Fetches on mount; an empty result renders `null` and the surrounding layout
+ *   collapses (no empty box, no reserved gap).
+ * - Responsive: a mobile creative is served to small screens via <picture>,
+ *   falling back to the desktop image; object-cover in the placement frame,
+ *   width-capped so it never dominates the page.
+ * - A subtle gray top-shade carries the "Sponsored" label; each ad links out
+ *   (rel="sponsored", new tab) when a link is set.
+ */
+export function AdSlot({ placement, className }: AdSlotProps) {
+  const [ads, setAds] = useState<ServedAd[]>([]);
+  const config = getPlacement(placement);
+
+  useEffect(() => {
+    let active = true;
+    const device =
+      typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches
+        ? "mobile"
+        : "desktop";
+    fetchAds(placement, device).then((result) => {
+      if (active) setAds(result);
+    });
+    return () => {
+      active = false;
+    };
+  }, [placement]);
+
+  if (!config || ads.length === 0) return null;
+
   return (
     <aside
       aria-label="Sponsored content"
-      className={cn("mx-auto w-full", config.maxWidthClass, className)}
+      className={cn("mx-auto w-full space-y-4", config.maxWidthClass, className)}
     >
-      {href ? (
-        <a
-          href={href}
-          target={ad.openInNewTab ? "_blank" : undefined}
-          rel="sponsored noopener noreferrer"
-          onClick={() => trackClick(ad.id)}
-          className="block transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          {media}
-        </a>
-      ) : (
-        media
-      )}
+      {ads.map((ad) => (
+        <AdCreative key={ad.id} ad={ad} config={config} />
+      ))}
     </aside>
   );
 }

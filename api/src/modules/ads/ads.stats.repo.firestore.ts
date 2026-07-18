@@ -20,6 +20,14 @@ interface StoredDailyStat {
   impressionsDesktop?: number;
   clicksMobile?: number;
   clicksDesktop?: number;
+  /** Count of distinct visitor fingerprints seen this day. */
+  uniqueDevices?: number;
+  /**
+   * Set of anonymized fingerprint hashes seen this day, keyed hash -> true.
+   * Used only to de-duplicate uniques; capped to avoid unbounded growth.
+   * Never contains a raw IP.
+   */
+  seen?: Record<string, boolean>;
 }
 
 export interface DailyStat {
@@ -30,7 +38,11 @@ export interface DailyStat {
   impressionsDesktop: number;
   clicksMobile: number;
   clicksDesktop: number;
+  uniqueDevices: number;
 }
+
+/** Cap on stored per-day fingerprints, to bound document size. */
+const MAX_SEEN_PER_DAY = 5000;
 
 function toDailyStat(data: StoredDailyStat): DailyStat {
   return {
@@ -41,21 +53,30 @@ function toDailyStat(data: StoredDailyStat): DailyStat {
     impressionsDesktop: data.impressionsDesktop ?? 0,
     clicksMobile: data.clicksMobile ?? 0,
     clicksDesktop: data.clicksDesktop ?? 0,
+    uniqueDevices: data.uniqueDevices ?? 0,
   };
 }
 
 /**
  * Apply a batch of events. Each event increments the ad's running totals (used
  * for caps + list display) and its per-day stat doc (used for charts). Uses
- * atomic FieldValue.increment so concurrent writes never clobber each other,
- * and a merge set so the day doc is created on first write. Unknown ad ids are
- * skipped silently — this is a public endpoint and must not error on bad input.
+ * atomic FieldValue.increment so concurrent writes never clobber each other.
+ *
+ * `visitorHash` is an anonymized fingerprint (hash of IP + user-agent — never a
+ * raw IP). The first time a fingerprint is seen for an ad on a given day, that
+ * day's `uniqueDevices` is incremented and the hash is remembered so repeat
+ * events from the same device don't inflate the unique count.
+ *
+ * Unknown ad ids are skipped silently — this is a public endpoint and must not
+ * error on bad input.
  */
-export async function recordEvents(events: AdEvent[]): Promise<void> {
+export async function recordEvents(
+  events: AdEvent[],
+  visitorHash?: string,
+): Promise<void> {
   const db = getAdminDb();
   const today = dayKey();
 
-  // Coalesce by ad so we issue one batch efficiently.
   await Promise.all(
     events.map(async (event) => {
       const adRef = db.collection(COLLECTION).doc(event.adId);
@@ -66,19 +87,34 @@ export async function recordEvents(events: AdEvent[]): Promise<void> {
       const field = event.type === "impression" ? "impressions" : "clicks";
       const deviceField = deviceCounterField(event.type, event.device);
 
-      const totalsPatch: Record<string, unknown> = {
-        [field]: FieldValue.increment(1),
-      };
-      const dayPatch: Record<string, unknown> = {
-        date: today,
-        [field]: FieldValue.increment(1),
-      };
-      if (deviceField) dayPatch[deviceField] = FieldValue.increment(1);
+      await adRef.update({ [field]: FieldValue.increment(1) });
 
-      await Promise.all([
-        adRef.update(totalsPatch),
-        dayRef.set(dayPatch, { merge: true }),
-      ]);
+      // Count uniques transactionally so concurrent first-sights of the same
+      // fingerprint don't double-count.
+      await db.runTransaction(async (tx) => {
+        const daySnap = await tx.get(dayRef);
+        const data = (daySnap.data() as StoredDailyStat | undefined) ?? {
+          date: today,
+        };
+
+        const patch: Record<string, unknown> = {
+          date: today,
+          [field]: FieldValue.increment(1),
+        };
+        if (deviceField) patch[deviceField] = FieldValue.increment(1);
+
+        if (visitorHash) {
+          const seen = data.seen ?? {};
+          const isNew = !seen[visitorHash];
+          const underCap = Object.keys(seen).length < MAX_SEEN_PER_DAY;
+          if (isNew && underCap) {
+            patch[`seen.${visitorHash}`] = true;
+            patch.uniqueDevices = FieldValue.increment(1);
+          }
+        }
+
+        tx.set(dayRef, patch, { merge: true });
+      });
     }),
   );
 }

@@ -21,17 +21,17 @@ export function ChartCard({
   className,
 }: ChartCardProps) {
   return (
-    <Card className={`border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm ${className ?? ""}`}>
-      <CardHeader className="flex-row items-start justify-between gap-4 space-y-0">
+    <Card className={`border-border/60 bg-card/80 backdrop-blur-sm ${className ?? ""}`}>
+      <CardHeader className="flex flex-col items-start justify-between gap-3 space-y-0 sm:flex-row sm:items-start sm:gap-4">
         <div className="space-y-1">
           <CardTitle className="font-heading text-lg">{title}</CardTitle>
           {description && (
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        {action}
+        {action && <div className="w-full sm:w-auto">{action}</div>}
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className="overflow-x-auto">{children}</CardContent>
     </Card>
   );
 }

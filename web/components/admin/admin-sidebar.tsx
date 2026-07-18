@@ -109,7 +109,7 @@ export function AdminSidebar({
             role="dialog"
             aria-modal="true"
             aria-label="Admin navigation"
-            className="absolute left-0 top-0 flex h-full w-[min(82vw,20rem)] flex-col overflow-y-auto border-r border-border bg-background shadow-editorial"
+            className="absolute left-0 top-0 flex h-full w-[min(82vw,20rem)] flex-col overflow-y-auto border-r border-border bg-background"
           >
             <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
               <span className="text-sm font-semibold">Menu</span>

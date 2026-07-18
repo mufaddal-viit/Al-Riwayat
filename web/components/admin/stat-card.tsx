@@ -35,7 +35,7 @@ export function StatCard({
   accentColor = "var(--primary)",
 }: StatCardProps) {
   return (
-    <Card className="overflow-hidden border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+    <Card className="overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm">
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

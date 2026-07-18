@@ -411,7 +411,7 @@ function CollectionSection({
   }
 
   return (
-    <Card className="overflow-hidden border-border/60 bg-card/80 shadow-editorial backdrop-blur-sm">
+    <Card className="overflow-hidden border-border/60 bg-card/80 backdrop-blur-sm">
       <CardHeader className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 space-y-1">
@@ -596,7 +596,7 @@ export function DataTab({ data }: { data: AdminDashboardData }) {
       </div>
 
       {visibleCollections.length === 0 ? (
-        <Card className="border-border/60 bg-card/80 shadow-editorial">
+        <Card className="border-border/60 bg-card/80">
           <CardContent className="px-6 py-10 text-center text-sm text-muted-foreground">
             No Firestore documents match the current search.
           </CardContent>

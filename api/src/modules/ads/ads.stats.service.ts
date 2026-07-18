@@ -5,8 +5,8 @@ import type { AdEvent } from "./ads.stats.schema";
 
 // ─── Recording ────────────────────────────────────────────────────────────────
 
-export function recordEvents(events: AdEvent[]) {
-  return statsRepo.recordEvents(events);
+export function recordEvents(events: AdEvent[], visitorHash?: string) {
+  return statsRepo.recordEvents(events, visitorHash);
 }
 
 // ─── Admin summary ────────────────────────────────────────────────────────────
@@ -23,6 +23,8 @@ export interface AdStatsSummary {
     impressionsDesktop: number;
     clicksMobile: number;
     clicksDesktop: number;
+    /** Distinct visitor devices that saw the ad in this range. */
+    uniqueDevices: number;
   };
   /** Lifetime running totals from the ad doc (all-time, not range-bound). */
   lifetime: {
@@ -67,6 +69,7 @@ const emptyDay = (date: string): DailyStat => ({
   impressionsDesktop: 0,
   clicksMobile: 0,
   clicksDesktop: 0,
+  uniqueDevices: 0,
 });
 
 export async function getAdStats(
@@ -89,6 +92,10 @@ export async function getAdStats(
       acc.impressionsDesktop += day.impressionsDesktop;
       acc.clicksMobile += day.clicksMobile;
       acc.clicksDesktop += day.clicksDesktop;
+      // Uniques are per-day distinct; summing across days approximates the
+      // range total (a device active on 2 days counts twice). Good enough for
+      // reporting without storing a range-wide fingerprint set.
+      acc.uniqueDevices += day.uniqueDevices;
       return acc;
     },
     {
@@ -98,6 +105,7 @@ export async function getAdStats(
       impressionsDesktop: 0,
       clicksMobile: 0,
       clicksDesktop: 0,
+      uniqueDevices: 0,
     },
   );
 

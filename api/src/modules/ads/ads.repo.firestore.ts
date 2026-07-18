@@ -12,6 +12,9 @@ import type {
 
 const COLLECTION = "ads";
 
+/** Maximum ads shown in a single slot, stacked one below the other. */
+const MAX_ADS_PER_SLOT = 2;
+
 interface AdLinks {
   website?: string;
   instagramReel?: string;
@@ -38,7 +41,7 @@ interface StoredAd {
   alt?: string;
   width?: number;
   height?: number;
-  placement: PlacementKey;
+  placements?: PlacementKey[];
   channels?: AdChannel[];
   links?: AdLinks;
   linkUrl?: string;
@@ -77,7 +80,7 @@ export interface AdminAd {
   alt: string;
   width: number | null;
   height: number | null;
-  placement: PlacementKey;
+  placements: PlacementKey[];
   channels: AdChannel[];
   links: Required<AdLinks>;
   linkUrl: string;
@@ -106,7 +109,6 @@ export interface AdminAd {
 /** The trimmed shape a reader page receives — no internal/commercial fields. */
 export interface PublicAd {
   id: string;
-  placement: PlacementKey;
   mediaType: AdMediaType;
   desktopImageUrl: string;
   mobileImageUrl: string;
@@ -141,7 +143,7 @@ function toAdmin(id: string, data: StoredAd): AdminAd {
     alt: data.alt ?? "",
     width: data.width ?? null,
     height: data.height ?? null,
-    placement: data.placement,
+    placements: data.placements ?? [],
     channels: data.channels ?? [],
     links: {
       website: links.website ?? "",
@@ -181,7 +183,6 @@ function toAdmin(id: string, data: StoredAd): AdminAd {
 function toPublic(ad: AdminAd): PublicAd {
   return {
     id: ad.id,
-    placement: ad.placement,
     mediaType: ad.mediaType,
     desktopImageUrl: ad.desktopImageUrl,
     mobileImageUrl: ad.mobileImageUrl,
@@ -213,7 +214,9 @@ export async function listAds(filters?: {
   return snap.docs
     .map((d) => toAdmin(d.id, d.data() as StoredAd))
     .filter((a) => !filters?.status || a.status === filters.status)
-    .filter((a) => !filters?.placement || a.placement === filters.placement)
+    .filter(
+      (a) => !filters?.placement || a.placements.includes(filters.placement),
+    )
     .filter((a) => !filters?.clientId || a.clientId === filters.clientId)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
@@ -242,18 +245,20 @@ export async function serveAds(
   const db = getAdminDb();
   const nowIso = new Date().toISOString();
 
+  // Query on the single placements array (array-contains is auto-indexed — no
+  // composite index to deploy). Status / schedule window / caps / targeting
+  // are applied in code below. A slot holds only a handful of ads, cheap.
   const snap = await db
     .collection(COLLECTION)
-    .where("placement", "==", placement)
-    .where("status", "==", "published")
-    .where("startsAt", "<=", nowIso)
-    .orderBy("startsAt", "desc")
+    .where("placements", "array-contains", placement)
     .get();
 
   const eligible = snap.docs
     .map((d) => toAdmin(d.id, d.data() as StoredAd))
     .filter((ad) => {
-      if (ad.endsAt && ad.endsAt < nowIso) return false;
+      if (ad.status !== "published") return false;
+      if (ad.startsAt && ad.startsAt > nowIso) return false; // not started yet
+      if (ad.endsAt && ad.endsAt < nowIso) return false; // already ended
       if (ad.maxImpressions !== null && ad.impressions >= ad.maxImpressions) {
         return false;
       }
@@ -270,7 +275,8 @@ export async function serveAds(
     })
     .sort((a, b) => b.priority - a.priority || b.weight - a.weight);
 
-  return eligible.map(toPublic);
+  // At most two ads per slot, shown stacked one below the other.
+  return eligible.slice(0, MAX_ADS_PER_SLOT).map(toPublic);
 }
 
 // ─── Admin writes ─────────────────────────────────────────────────────────────
