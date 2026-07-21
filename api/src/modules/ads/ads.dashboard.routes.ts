@@ -22,7 +22,10 @@ import {
   adStatsParamsSchema,
   adStatsQuerySchema,
 } from "./ads.stats.schema";
-import { getAdStatsController } from "./ads.stats.controller";
+import {
+  getAdStatsController,
+  resetAdStatsController,
+} from "./ads.stats.controller";
 
 /**
  * Ad CRUD + lifecycle reached through the admin panel's Next.js BFF using the
@@ -40,6 +43,11 @@ router.get(
   validate(adStatsParamsSchema, "params"),
   validate(adStatsQuerySchema, "query"),
   getAdStatsController,
+);
+router.delete(
+  "/:id/stats",
+  validate(adStatsParamsSchema, "params"),
+  resetAdStatsController,
 );
 router.patch(
   "/:id",

@@ -9,6 +9,11 @@ export function recordEvents(events: AdEvent[], visitorHash?: string) {
   return statsRepo.recordEvents(events, visitorHash);
 }
 
+/** Clear all recorded stats for an ad (e.g. to discard test data). */
+export function resetAdStats(adId: string) {
+  return statsRepo.resetStats(adId);
+}
+
 // ─── Admin summary ────────────────────────────────────────────────────────────
 
 export interface AdStatsSummary {
