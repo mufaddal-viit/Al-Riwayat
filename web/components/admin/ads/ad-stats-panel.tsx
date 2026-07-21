@@ -8,12 +8,15 @@ import {
   Percent,
   RefreshCcw,
   Smartphone,
+  Trash2,
 } from "lucide-react";
 
 import {
   getAdStats,
+  resetAdStats,
   type AdStatsSummary,
 } from "@/services/adminAdStatsService";
+import { ConfirmDialog } from "../confirm-dialog";
 import type { AdminAd } from "@/services/adminAdsService";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -118,6 +121,8 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
   const [stats, setStats] = useState<AdStatsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -135,6 +140,20 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  async function handleReset() {
+    setResetting(true);
+    setError(null);
+    try {
+      await resetAdStats(ad.id);
+      setConfirmReset(false);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reset stats.");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   const hasCaps =
     stats && (stats.caps.impressionsPct !== null || stats.caps.clicksPct !== null);
@@ -170,6 +189,18 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
           </div>
           <Button type="button" variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
             <RefreshCcw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setConfirmReset(true)}
+            disabled={loading || resetting}
+            className="gap-1.5 text-destructive hover:text-destructive"
+            title="Clear all recorded stats for this ad"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Reset
           </Button>
         </div>
       </div>
@@ -266,6 +297,17 @@ export function AdStatsPanel({ ad, onClose }: AdStatsPanelProps) {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmReset}
+        title="Reset this ad's stats?"
+        description="This permanently clears every recorded impression, click, and unique-device count for this ad. Use it to discard test data before a campaign starts."
+        confirmLabel="Reset stats"
+        destructive
+        busy={resetting}
+        onConfirm={handleReset}
+        onCancel={() => setConfirmReset(false)}
+      />
     </div>
   );
 }

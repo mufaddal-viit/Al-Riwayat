@@ -62,10 +62,11 @@ export async function PATCH(request: Request, { params }: Ctx) {
   );
 }
 
-/** DELETE /api/admin/ads/:id */
+/** DELETE /api/admin/ads/:id  or  /api/admin/ads/:id/stats */
 export async function DELETE(_request: Request, { params }: Ctx) {
   const segments = params.path ?? [];
-  if (segments.length !== 1) {
+  const isStats = segments.length === 2 && segments[1] === "stats";
+  if (segments.length !== 1 && !isStats) {
     return Response.json({ success: false, message: "Not found." }, { status: 404 });
   }
   return proxyDashboardRequest({

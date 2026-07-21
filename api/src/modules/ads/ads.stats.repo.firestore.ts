@@ -63,9 +63,10 @@ function toDailyStat(data: StoredDailyStat): DailyStat {
  * atomic FieldValue.increment so concurrent writes never clobber each other.
  *
  * `visitorHash` is an anonymized fingerprint (hash of IP + user-agent — never a
- * raw IP). The first time a fingerprint is seen for an ad on a given day, that
- * day's `uniqueDevices` is incremented and the hash is remembered so repeat
- * events from the same device don't inflate the unique count.
+ * raw IP). A device is counted in `uniqueDevices` the FIRST time it SEES the ad
+ * on a given day: only impressions count towards reach, and the hash is then
+ * remembered so further impressions (or any clicks) from that device that day
+ * do not inflate the number.
  *
  * Unknown ad ids are skipped silently — this is a public endpoint and must not
  * error on bad input.
@@ -93,9 +94,7 @@ export async function recordEvents(
       // fingerprint don't double-count.
       await db.runTransaction(async (tx) => {
         const daySnap = await tx.get(dayRef);
-        const data = (daySnap.data() as StoredDailyStat | undefined) ?? {
-          date: today,
-        };
+        const data = daySnap.data() as StoredDailyStat | undefined;
 
         const patch: Record<string, unknown> = {
           date: today,
@@ -103,12 +102,17 @@ export async function recordEvents(
         };
         if (deviceField) patch[deviceField] = FieldValue.increment(1);
 
-        if (visitorHash) {
-          const seen = data.seen ?? {};
+        // Reach is measured by views, so only an impression can register a new
+        // unique device — repeat clicks must never move this number.
+        if (visitorHash && event.type === "impression") {
+          const seen = data?.seen ?? {};
           const isNew = !seen[visitorHash];
           const underCap = Object.keys(seen).length < MAX_SEEN_PER_DAY;
           if (isNew && underCap) {
-            patch[`seen.${visitorHash}`] = true;
+            // Nested object (not a "seen.<hash>" dotted key) so merge writes it
+            // into the map — a dotted key would create a literal field name and
+            // the next read would never find it, counting the device again.
+            patch.seen = { [visitorHash]: true };
             patch.uniqueDevices = FieldValue.increment(1);
           }
         }
@@ -128,6 +132,26 @@ function deviceCounterField(
     return device === "mobile" ? "impressionsMobile" : "impressionsDesktop";
   }
   return device === "mobile" ? "clicksMobile" : "clicksDesktop";
+}
+
+/**
+ * Wipe all recorded stats for an ad: every daily doc plus the running totals.
+ * Used to clear test data so a campaign can start from a clean baseline.
+ */
+export async function resetStats(adId: string): Promise<void> {
+  const db = getAdminDb();
+  const adRef = db.collection(COLLECTION).doc(adId);
+
+  const days = await adRef.collection(STATS_SUBCOLLECTION).get();
+  // Batch deletes in chunks well under Firestore's 500-op limit.
+  const chunkSize = 400;
+  for (let i = 0; i < days.docs.length; i += chunkSize) {
+    const batch = db.batch();
+    for (const doc of days.docs.slice(i, i + chunkSize)) batch.delete(doc.ref);
+    await batch.commit();
+  }
+
+  await adRef.update({ impressions: 0, clicks: 0 });
 }
 
 /** Read daily stats for an ad within an inclusive yyyy-mm-dd range. */

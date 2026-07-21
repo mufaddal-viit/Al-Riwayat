@@ -4,7 +4,7 @@ import type { Request, Response } from "express";
 import { env } from "../../lib/env";
 import type { AdStatsParams, AdStatsQuery } from "./ads.stats.schema";
 import { recordAdEventsSchema } from "./ads.stats.schema";
-import { getAdStats, recordEvents } from "./ads.stats.service";
+import { getAdStats, recordEvents, resetAdStats } from "./ads.stats.service";
 
 /** Obvious bot/crawler user agents whose events we drop before counting. */
 const BOT_UA = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|headless|lighthouse|preview|monitor|curl|wget|python-requests/i;
@@ -102,5 +102,23 @@ export async function getAdStatsController(
     return res
       .status(500)
       .json({ success: false, message: "Unable to load stats right now." });
+  }
+}
+
+/** DELETE /api/admin/dashboard/ads/:id/stats — wipe an ad's recorded stats. */
+export async function resetAdStatsController(
+  req: Request<AdStatsParams>,
+  res: Response,
+) {
+  try {
+    await resetAdStats(req.params.id);
+    return res
+      .status(200)
+      .json({ success: true, message: "Stats cleared." });
+  } catch (error) {
+    console.error(`Failed to reset stats for ad "${req.params.id}".`, error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Unable to reset stats right now." });
   }
 }

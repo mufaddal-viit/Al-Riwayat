@@ -42,6 +42,19 @@ async function parse<T>(response: Response): Promise<T> {
   return payload.data as T;
 }
 
+/** Wipe all recorded stats for an ad (e.g. to discard test data). */
+export async function resetAdStats(id: string): Promise<void> {
+  const response = await fetch(`/api/admin/ads/${id}/stats`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as {
+      message?: string;
+    };
+    throw new Error(payload.message ?? "Could not reset stats.");
+  }
+}
+
 export async function getAdStats(
   id: string,
   range?: { from?: string; to?: string },
