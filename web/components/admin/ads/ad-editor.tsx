@@ -360,9 +360,11 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
 
         <Section title="Creatives">
           <p className="text-xs text-muted-foreground">
-            Both a desktop and a mobile image are required. Recommended:{" "}
-            {guidancePlacement.guidance.desktop} (desktop),{" "}
-            {guidancePlacement.guidance.mobile} (mobile).
+            Both a desktop and a mobile image are required. Images are shown in
+            full — never cropped — so any shape works; only the height is
+            capped. Suggested: {guidancePlacement.guidance.desktop} for desktop,{" "}
+            {guidancePlacement.guidance.mobile} for mobile. Wide images suit
+            desktop; squarer ones suit phones.
           </p>
           <AdImageField
             label="Desktop image (required)"

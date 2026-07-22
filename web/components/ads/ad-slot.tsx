@@ -61,10 +61,7 @@ function AdCreative({ ad, config }: { ad: ServedAd; config: PlacementConfig }) {
   const media = (
     <figure
       ref={figureRef}
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-border/50 bg-muted",
-        config.frameClass,
-      )}
+      className="relative overflow-hidden rounded-2xl border border-border/50"
     >
       {/* Sponsored label — soft gray shade along the top edge. */}
       <div
@@ -84,7 +81,14 @@ function AdCreative({ ad, config }: { ad: ServedAd; config: PlacementConfig }) {
           alt={ad.alt}
           loading="lazy"
           decoding="async"
-          className="h-full w-full object-cover"
+          // Natural aspect ratio, never cropped. The creative fills the slot
+          // width when it can; if that would make it taller than the cap, the
+          // height wins and the image scales down (centred) instead of being
+          // cut off. `w-auto` lets the height cap actually take effect.
+          className={cn(
+            "mx-auto block h-auto w-auto max-w-full object-contain",
+            config.frameClass,
+          )}
         />
       </picture>
     </figure>

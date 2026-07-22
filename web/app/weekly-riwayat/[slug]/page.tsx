@@ -6,6 +6,8 @@ import { ENDPOINTS } from "@/lib/api/endpoints";
 import { buildMetadata } from "@/lib/metadata";
 import { publicEnv } from "@/lib/public-env";
 
+import { WeeklyStructuredData } from "@/components/weekly/weekly-structured-data";
+
 import { WeeklyArticleClient } from "./WeeklyArticleClient";
 
 const API_URL = publicEnv.apiUrl;
@@ -40,10 +42,31 @@ export async function generateMetadata({
   }
 }
 
-export default function WeeklyArticlePage({
+/** Fetch the article for server-rendered structured data (metadata reuses it). */
+async function fetchArticle(slug: string) {
+  try {
+    const res = await fetch(`${API_URL}${ENDPOINTS.weekly.byId(slug)}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    const { data } = (await res.json()) as WeeklyResponse;
+    return data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function WeeklyArticlePage({
   params,
 }: {
   params: { slug: string };
 }) {
-  return <WeeklyArticleClient slug={params.slug} />;
+  const article = await fetchArticle(params.slug);
+
+  return (
+    <>
+      {article && <WeeklyStructuredData article={article} />}
+      <WeeklyArticleClient slug={params.slug} />
+    </>
+  );
 }

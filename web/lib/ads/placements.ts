@@ -26,12 +26,12 @@ export interface PlacementConfig {
   /** Where this slot lives, for admin context. */
   description: string;
   /**
-   * Tailwind aspect-ratio classes per breakpoint. Mobile-first: the base ratio
-   * is the phone shape (taller / squarer), widened on sm/lg. The image fills
-   * this frame with object-cover, so upload shape never breaks the layout.
+   * Max-height classes per breakpoint. The creative renders at its OWN aspect
+   * ratio (never cropped) across the full slot width; this only caps how tall
+   * it may grow, so an ad can't dominate the page — especially on mobile.
    */
   frameClass: string;
-  /** Hard cap so an ad can never dominate the screen (esp. on mobile). */
+  /** Hard cap on how wide the slot may grow. */
   maxWidthClass: string;
   /** Recommended upload sizes, surfaced to admins as guidance. */
   guidance: {
@@ -45,33 +45,33 @@ export const PLACEMENTS: Record<PlacementKey, PlacementConfig> = {
     key: "home-social",
     label: "Home — community section",
     description: "Between the reels carousel and the comments marquee.",
-    frameClass: "aspect-[3/2] sm:aspect-[16/6]",
+    frameClass: "max-h-[320px] sm:max-h-[380px] lg:max-h-[440px]",
     maxWidthClass: "max-w-4xl",
-    guidance: { desktop: "1200×450", mobile: "800×600" },
+    guidance: { desktop: "1200×450 (any ratio works)", mobile: "800×800" },
   },
   "weekly-inline": {
     key: "weekly-inline",
     label: "Weekly article — in-line",
     description: "Between paragraphs inside a weekly article.",
-    frameClass: "aspect-[3/2] sm:aspect-[16/7]",
+    frameClass: "max-h-[300px] sm:max-h-[360px] lg:max-h-[420px]",
     maxWidthClass: "max-w-[75ch]",
-    guidance: { desktop: "1050×460", mobile: "800×600" },
+    guidance: { desktop: "1050×460 (any ratio works)", mobile: "800×800" },
   },
   "weekly-after": {
     key: "weekly-after",
     label: "Weekly article — after body",
     description: "Directly after the article body, before tags.",
-    frameClass: "aspect-[3/2] sm:aspect-[16/6]",
+    frameClass: "max-h-[300px] sm:max-h-[360px] lg:max-h-[420px]",
     maxWidthClass: "max-w-[75ch]",
-    guidance: { desktop: "1050×400", mobile: "800×600" },
+    guidance: { desktop: "1050×400 (any ratio works)", mobile: "800×800" },
   },
   "issue-before-share": {
     key: "issue-before-share",
     label: "Issue page — before share",
     description: "Before the share actions on an issue page.",
-    frameClass: "aspect-[3/2] sm:aspect-[16/6]",
+    frameClass: "max-h-[320px] sm:max-h-[380px] lg:max-h-[440px]",
     maxWidthClass: "max-w-4xl",
-    guidance: { desktop: "1200×450", mobile: "800×600" },
+    guidance: { desktop: "1200×450 (any ratio works)", mobile: "800×800" },
   },
 };
 

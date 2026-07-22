@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
 import { buttonVariants } from "@/components/ui/button";
+import { SearchTrigger } from "@/components/search/search-trigger";
 
 import { SiteBrand } from "./site-brand";
 
@@ -170,12 +171,14 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* Desktop: theme */}
+        {/* Desktop: search + theme */}
         <div className="hidden items-center gap-3 md:flex">
+          <SearchTrigger />
           <ThemeSwitcher />
         </div>
 
         <div className="relative flex items-center gap-2 md:hidden">
+          <SearchTrigger />
           <button
             type="button"
             aria-label="Open menu"

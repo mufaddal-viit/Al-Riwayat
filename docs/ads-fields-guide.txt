@@ -68,8 +68,9 @@ DESKTOP IMAGE             [required to publish]
     (roughly a wide banner, e.g. 1200 x 450).
 
 MOBILE IMAGE              [required]
-    A phone-friendly version (taller / more square, e.g. 800 x 600).
-    Since most visitors are on phones, a proper mobile image is required.
+    A phone-friendly version — squarer than the desktop one (e.g. 800 x 800).
+    Since most visitors are on phones, a proper mobile image is required:
+    a wide desktop banner shown on a phone shrinks to an unreadable strip.
 
   HOW UPLOAD WORKS (important):
     - Click "Choose image", pick a file (JPEG, PNG, WebP, GIF, or AVIF).
@@ -84,8 +85,16 @@ ALT TEXT
     blind/low-vision users (accessibility). Not visible on screen.
     Example: "Brand X storefront with Ramadan discount banner"
 
-Keep the important part of the image (logo, main text) near the CENTER —
-on some screens the edges may be cropped slightly to fit the slot.
+IMAGE SHAPE — no cropping:
+    Whatever you upload is shown IN FULL. The image is never cropped or cut
+    at the edges. It stretches to the slot's width, and if that would make it
+    too tall, it shrinks (centred) to respect a maximum height instead.
+    So any aspect ratio works — you do not have to match an exact size.
+    Practical advice:
+      - Desktop image: use a WIDE shape (banner-like, e.g. 1200 x 450).
+      - Mobile image: use a SQUARER shape (e.g. 800 x 800). A very wide
+        banner on a phone becomes tiny and unreadable.
+    Text in the image should be large enough to read on a small screen.
 
 Note: every ad automatically shows a small grey "Sponsored" label in the
 top corner. You do not add this — it is added for you, to tell readers the

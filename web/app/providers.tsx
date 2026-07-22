@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/auth-context";
 import { ProfileProvider } from "@/context/profile-context";
 import { ConsentProvider } from "@/components/providers/consent-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { SearchProvider } from "@/components/search/search-provider";
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -22,7 +23,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       <ConsentProvider>
         <AuthProvider>
           <ProfileProvider>
-            {children}
+            <SearchProvider>{children}</SearchProvider>
           </ProfileProvider>
         </AuthProvider>
       </ConsentProvider>

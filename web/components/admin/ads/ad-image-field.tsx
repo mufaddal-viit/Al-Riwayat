@@ -84,7 +84,12 @@ export function AdImageField({
       {hasImage ? (
         <div className="relative overflow-hidden rounded-xl border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element -- admin preview */}
-          <img src={previewSrc} alt="" className="max-h-40 w-full object-cover" />
+          <img
+            src={previewSrc}
+            alt=""
+            // Mirrors the reader-side rendering: whole image, never cropped.
+            className="mx-auto block h-auto max-h-48 w-auto max-w-full object-contain"
+          />
           {pending && (
             <span className="absolute left-2 top-2 rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
               Uploads on save
