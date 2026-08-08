@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { optionalEmail, optionalText, optionalUrl } from "../../lib/zodFields";
 import { clientStatuses, clientTiers } from "./clients.types";
 
 // ─── Params / query ───────────────────────────────────────────────────────────
@@ -15,23 +16,8 @@ export const clientListQuerySchema = z.object({
 
 // ─── Field helpers ────────────────────────────────────────────────────────────
 
-const optionalText = (max = 300) => z.string().trim().max(max).optional().default("");
-const optionalUrl = z
-  .string()
-  .trim()
-  .url("Must be a valid URL.")
-  .max(500)
-  .optional()
-  .or(z.literal(""))
-  .transform((v) => v ?? "");
-const optionalEmail = z
-  .string()
-  .trim()
-  .email("Must be a valid email.")
-  .max(200)
-  .optional()
-  .or(z.literal(""))
-  .transform((v) => v ?? "");
+const clientUrl = optionalUrl(500);
+const clientEmail = optionalEmail(200);
 const optionalNumber = z.coerce.number().min(0).optional();
 
 const billingAddressSchema = z
@@ -55,16 +41,16 @@ const contentFields = {
     .min(2, "Name must be at least 2 characters.")
     .max(160, "Name must be 160 characters or fewer."),
   legalName: optionalText(200),
-  logoUrl: optionalUrl,
+  logoUrl: clientUrl,
   industry: optionalText(120),
-  website: optionalUrl,
+  website: clientUrl,
   status: z.enum(clientStatuses).default("active"),
   tier: z.enum(clientTiers).default("standard"),
 
   contactName: optionalText(160),
-  contactEmail: optionalEmail,
+  contactEmail: clientEmail,
   contactPhone: optionalText(60),
-  billingEmail: optionalEmail,
+  billingEmail: clientEmail,
   billingAddress: billingAddressSchema,
 
   taxId: optionalText(80),
@@ -81,7 +67,7 @@ const contentFields = {
     .date()
     .optional()
     .transform((v) => (v ? v.toISOString() : undefined)),
-  contractUrl: optionalUrl,
+  contractUrl: clientUrl,
 
   // Money rollups are manually entered in phase 1 (not auto-derived yet).
   creditLimit: optionalNumber,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { optionalText, optionalUrl } from "../../lib/zodFields";
 import {
   adChannels,
   adMediaTypes,
@@ -28,21 +29,8 @@ export const adServeQuerySchema = z.object({
 
 // ─── Field helpers ────────────────────────────────────────────────────────────
 
-const optionalText = (max = 300) => z.string().trim().max(max).optional().default("");
-const cloudinaryUrl = z
-  .string()
-  .trim()
-  .url("Must be a valid URL.")
-  .max(600);
-const optionalCloudinaryUrl = cloudinaryUrl.optional().or(z.literal("")).transform((v) => v ?? "");
-const optionalHttpUrl = z
-  .string()
-  .trim()
-  .url("Must be a valid URL.")
-  .max(600)
-  .optional()
-  .or(z.literal(""))
-  .transform((v) => v ?? "");
+const optionalCloudinaryUrl = optionalUrl(600);
+const optionalHttpUrl = optionalUrl(600);
 
 const linksSchema = z
   .object({

@@ -193,19 +193,46 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
     if (form.endsAt < form.startsAt) {
       return setError("The end date must be on or after the start date.");
     }
+    // Check the channel links here too. These are optional, so they never
+    // blocked a save before — but the server rejects a malformed one, and by
+    // then the creatives are already in Cloudinary with no ad to attach them
+    // to. Validate before spending an upload.
+    const linkFields: [string, string][] = [
+      ["Website", form.website],
+      ["Instagram reel", form.instagramReel],
+      ["Instagram status", form.instagramStatus],
+    ];
+    for (const [label, value] of linkFields) {
+      const trimmed = value.trim();
+      if (!trimmed) continue;
+      // Mirrors the API: a scheme-less host is upgraded to https:// rather
+      // than rejected, so accept anything that parses once normalized.
+      const candidate = /^[a-z][a-z0-9+.-]*:/i.test(trimmed)
+        ? trimmed
+        : `https://${trimmed}`;
+      try {
+        new URL(candidate);
+      } catch {
+        return setError(`${label} must be a valid URL.`);
+      }
+    }
 
     setSaving(true);
     try {
       // Deferred upload: send staged files to Cloudinary now, on save only.
+      // Everything that can reject the ad has been checked above, so an upload
+      // here is one we expect to keep.
       let desktopUrl = form.desktopImageUrl;
       let mobileUrl = form.mobileImageUrl;
       if (desktopPending) {
         desktopUrl = (await uploadAdImage(desktopPending.file)).url;
-        URL.revokeObjectURL(desktopPending.previewUrl);
+        // Remember it on the form: if the save below fails, a retry reuses this
+        // upload instead of pushing a second copy to Cloudinary.
+        set("desktopImageUrl", desktopUrl);
       }
       if (mobilePending) {
         mobileUrl = (await uploadAdImage(mobilePending.file)).url;
-        URL.revokeObjectURL(mobilePending.previewUrl);
+        set("mobileImageUrl", mobileUrl);
       }
 
       const client = clients.find((c) => c.id === form.clientId);
@@ -247,6 +274,11 @@ export function AdEditor({ ad, onClose, onSaved }: AdEditorProps) {
       const saved = ad
         ? await updateAd(ad.id, payload)
         : await createAd(payload);
+      // Only now that the ad is persisted: drop the staged files and release
+      // their preview URLs. Revoking earlier would blank the thumbnails while
+      // the editor is still open on a failed save.
+      if (desktopPending) URL.revokeObjectURL(desktopPending.previewUrl);
+      if (mobilePending) URL.revokeObjectURL(mobilePending.previewUrl);
       setDesktopPending(undefined);
       setMobilePending(undefined);
       onSaved(saved);
